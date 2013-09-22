@@ -1,0 +1,14 @@
+% About the C declaration composer for the GCC Lua plugin
+
+[gcc‑lua‑cdecl] is a Lua module for composing C declarations from a C source
+file using the [Lua plugin for GCC]. The module generates C99 function,
+variable and type declarations, and supports the GCC extensions for
+[attributes][GCC attribute] and [vector types][GCC vector]. The module may
+be used to generate C library bindings for a foreign function interface,
+e.g., [LuaJIT FFI].
+
+[gcc‑lua‑cdecl]: http://colberg.org/gcc-lua-cdecl/
+[Lua plugin for GCC]: http://colberg.org/gcc-lua/
+[LuaJIT FFI]: http://luajit.org/ext_ffi.html
+[GCC attribute]: http://gcc.gnu.org/onlinedocs/gcc/Attribute-Syntax.html
+[GCC vector]: http://gcc.gnu.org/onlinedocs/gcc/Vector-Extensions.html

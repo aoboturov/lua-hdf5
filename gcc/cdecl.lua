@@ -1,5 +1,5 @@
 --
--- C declaration composer for GCC Lua plugin.
+-- C declaration composer for the GCC Lua plugin.
 -- Copyright © 2013 Peter Colberg.
 -- For conditions of distribution and use, see copyright notice in LICENSE.
 --
@@ -62,7 +62,7 @@ local function format_qualifiers(node, parent, result, pos, unql)
 end
 
 -- Format scalar type.
-local function format_scalar_type(node, parent, result, pos, shift, id)
+local function format_scalar_type(node, parent, result, pos, shift, f)
   if parent then insert(result, pos, " ") end
   local node = node:canonical()
   local decl = node:name()
@@ -71,24 +71,24 @@ local function format_scalar_type(node, parent, result, pos, shift, id)
 end
 
 -- Format vector type.
-local function format_vector_type(node, parent, result, pos, shift, id)
+local function format_vector_type(node, parent, result, pos, shift, f)
   if parent then insert(result, pos, " ") end
   insert(result, pos, ")))")
   insert(result, pos, node:size_unit():value())
   insert(result, pos, "__attribute__((vector_size(")
-  format_node_class(node:type(), node, result, pos, shift, id)
+  format_node_class(node:type(), node, result, pos, shift, f)
   format_qualifiers(node, node, result, pos, node:main_variant())
 end
 
 -- Format pointer type.
-local function format_pointer_type(node, parent, result, pos, shift, id)
+local function format_pointer_type(node, parent, result, pos, shift, f)
   format_qualifiers(node, parent, result, pos, node:main_variant())
   insert(result, pos, "*")
-  return format_node_class(node:type(), node, result, pos, shift, id)
+  return format_node_class(node:type(), node, result, pos, shift, f)
 end
 
 -- Format array type.
-local function format_array_type(node, parent, result, pos, shift, id)
+local function format_array_type(node, parent, result, pos, shift, f)
   if parent and parent:code() == "pointer_type" then
     insert(result, pos, "(")
     insert(result, ")")
@@ -100,11 +100,11 @@ local function format_array_type(node, parent, result, pos, shift, id)
     insert(result, max + 1 - min)
   end
   insert(result, "]")
-  return format_node_class(node:type(), parent, result, pos, shift, id)
+  return format_node_class(node:type(), parent, result, pos, shift, f)
 end
 
 -- Format function type.
-local function format_function_type(node, parent, result, pos, shift, id)
+local function format_function_type(node, parent, result, pos, shift, f)
   if parent and parent:code() == "pointer_type" then
     insert(result, pos, "(")
     insert(result, ")")
@@ -113,7 +113,7 @@ local function format_function_type(node, parent, result, pos, shift, id)
   local arg = node:args()
   if arg then
     while true do
-      format_node_class(arg:value(), nil, result, #result + 1, shift, id)
+      format_node_class(arg:value(), nil, result, #result + 1, shift, f)
       if arg:value():code() == "void_type" then
         break
       end
@@ -128,14 +128,14 @@ local function format_function_type(node, parent, result, pos, shift, id)
     end
   end
   insert(result, ")")
-  return format_node_class(node:type(), node, result, pos, shift, id)
+  return format_node_class(node:type(), node, result, pos, shift, f)
 end
 
 -- Format enumerated type.
-local function format_enumeral_type(node, parent, result, pos, shift, id)
+local function format_enumeral_type(node, parent, result, pos, shift, f)
   if parent then insert(result, pos, " ") end
   local main = node:main_variant()
-  local name = id and id(main)
+  local name = f and f(main)
   if not name then
     local node = main:name()
     if node then name = node:value() end
@@ -174,10 +174,10 @@ local function format_enumeral_type(node, parent, result, pos, shift, id)
 end
 
 -- Format struct or union type.
-local function format_composite_type(node, parent, result, pos, shift, id)
+local function format_composite_type(node, parent, result, pos, shift, f)
   if parent then insert(result, pos, " ") end
   local main = node:main_variant()
-  local name = id and id(main)
+  local name = f and f(main)
   if not name then
     local node = main:name()
     if node then name = node:value() end
@@ -192,7 +192,7 @@ local function format_composite_type(node, parent, result, pos, shift, id)
         local shift = shift .. _M.INDENT
         while true do
           insert(body, shift)
-          format_node_class(field, nil, body, #body + 1, shift, id)
+          format_node_class(field, nil, body, #body + 1, shift, f)
           insert(body, [[;
 ]])
           field = field:chain()
@@ -214,8 +214,8 @@ local function format_composite_type(node, parent, result, pos, shift, id)
 end
 
 -- Format struct or union field declaration.
-local function format_field_decl(node, parent, result, pos, shift, id)
-  local name = id and id(node)
+local function format_field_decl(node, parent, result, pos, shift, f)
+  local name = f and f(node)
   if not name then
     local node = node:name()
     if node then name = node:value() end
@@ -224,7 +224,7 @@ local function format_field_decl(node, parent, result, pos, shift, id)
   do
     local parent = name and node
     local node = node:bit_field() and node:bit_field_type() or node:type()
-    format_node_class(node, parent, result, pos, shift, id)
+    format_node_class(node, parent, result, pos, shift, f)
   end
   if node:bit_field() then
     insert(result, " : ")
@@ -247,10 +247,10 @@ local function format_assembler_name(node, result, name)
 end
 
 -- Format function declaration.
-local function format_function_decl(node, parent, result, pos, shift, id)
-  local name = id and id(node) or node:name():value()
+local function format_function_decl(node, parent, result, pos, shift, f)
+  local name = f and f(node) or node:name():value()
   insert(result, pos, name)
-  format_node_class(node:type(), node, result, pos, shift, id)
+  format_node_class(node:type(), node, result, pos, shift, f)
   format_assembler_name(node, result, name)
   local last
   local decl = node:type():type():name()
@@ -261,19 +261,19 @@ local function format_function_decl(node, parent, result, pos, shift, id)
 end
 
 -- Format type declaration.
-local function format_type_decl(node, parent, result, pos, shift, id)
-  local name = id and id(node) or node:name():value()
+local function format_type_decl(node, parent, result, pos, shift, f)
+  local name = f and f(node) or node:name():value()
   insert(result, pos, name)
-  format_node_class(node:type(), node, result, pos, shift, id)
+  format_node_class(node:type(), node, result, pos, shift, f)
   insert(result, pos, "typedef ")
   format_attributes(node, result)
 end
 
 -- Format variable declaration.
-local function format_var_decl(node, parent, result, pos, shift, id)
-  local name = id and id(node) or node:name():value()
+local function format_var_decl(node, parent, result, pos, shift, f)
+  local name = f and f(node) or node:name():value()
   insert(result, pos, name)
-  format_node_class(node:type(), node, result, pos, shift, id)
+  format_node_class(node:type(), node, result, pos, shift, f)
   format_assembler_name(node, result, name)
   format_attributes(node, result)
   if node:external() then
@@ -302,28 +302,28 @@ local type_map = {
 }
 
 -- Format node by node type.
-local function format_tree_type(node, parent, result, pos, shift, id)
+local function format_tree_type(node, parent, result, pos, shift, f)
   local code = node:code()
   local format = type_map[code]
   if not format then
     return error("unsupported tree node type `" .. node:code() .. "'")
   end
-  return format(node, parent, result, pos, shift, id)
+  return format(node, parent, result, pos, shift, f)
 end
 
 -- Format type.
-local function format_type(node, parent, result, pos, shift, id)
+local function format_type(node, parent, result, pos, shift, f)
   local decl = node:name()
   local name
   if decl and decl ~= parent and decl ~= node:main_variant():name() then
-    name = id and id(decl)
+    name = f and f(decl)
   end
   if name then
     if parent then insert(result, pos, " ") end
     insert(result, pos, name)
     return format_qualifiers(node, decl, result, pos, decl:type())
   end
-  return format_tree_type(node, parent, result, pos, shift, id)
+  return format_tree_type(node, parent, result, pos, shift, f)
 end
 
 -- Format function by node class.
@@ -333,19 +333,19 @@ local class_map = {
 }
 
 -- Format node by node class.
-function format_node_class(node, parent, result, pos, shift, id)
+function format_node_class(node, parent, result, pos, shift, f)
   local class = node:class()
   local format = class_map[class]
   if not format then
     return error("unsupported tree node class `" .. node:class() .. "'")
   end
-  return format(node, parent, result, pos, shift, id)
+  return format(node, parent, result, pos, shift, f)
 end
 
 -- Format declaration or type node.
-function _M.declare(node, id)
+function _M.declare(node, f)
   local result = {}
-  format_node_class(node, nil, result, 1, "", id)
+  format_node_class(node, nil, result, 1, "", f)
   return concat(result)
 end
 

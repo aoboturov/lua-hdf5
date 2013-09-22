@@ -1,0 +1,10 @@
+% C declaration composer for the GCC Lua plugin
+% Peter Colberg
+% 2013
+
+[![](gcc-lua-cdecl.png "C declaration composer for GCC Lua plugin")](index.html)
+
+* [cdecl for GCC Lua](index.html)
+    + [Installing](INSTALL.html)
+    + [User's Guide](README.html)
+    + [Reference](reference.html)

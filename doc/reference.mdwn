@@ -1,0 +1,50 @@
+% Reference
+
+gcc.cdecl.declare(node[, f])
+
+  : Formats the given [tree node] as a string of C code, and returns the
+    string. A second, optional argument `f` specifies a function that is
+    called for each traversed node. The function may return a string to
+    override that node's identifier; otherwise, if that node is a type
+    declaration, its type is expanded to its canonical form.
+
+    `node` can be of any of the following [tree code classes]:
+
+    * **type**; where the [tree code] can be any of the following:
+        + **array_type**,
+        + **boolean_type**,
+        + **complex_type**,
+        + **enumeral_type**,
+        + **function_type**,
+        + **integer_type**,
+        + **pointer_type**,
+        + **real_type**,
+        + **record_type**,
+        + **union_type**,
+        + **vector_type**,
+        + **void_type**;
+
+    * **declaration**; where the [tree code] can be any of the following:
+        + **field_decl**,
+        + **function_decl**,
+        + **type_decl**,
+        + **var_decl**.
+
+    Each node passed to `f` as its first argument is of one of the
+    following [tree code classes]:
+
+    * **type**; where the [tree code] is one of the following:
+        + **enumeral_type**,
+        + **record_type**,
+        + **union_type**;
+
+    * **declaration**; where the [tree code] is one of the following:
+        + **field_decl**,
+        + **function_decl**,
+        + **type_decl**,
+        + **var_decl**.
+
+[tree node]: http://colberg.org/gcc-lua/reference/#tree-node
+[tree code]: http://colberg.org/gcc-lua/reference/#tree-code
+[tree code classes]: http://colberg.org/gcc-lua/reference/#tree-code-class
+[tree type]: http://colberg.org/gcc-lua/reference/#tree-codes

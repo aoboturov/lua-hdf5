@@ -1,0 +1,29 @@
+% Installing
+
+gcc‑lua‑cdecl is available from a [git repository]:
+
+~~~
+git clone http://git.colberg.org/gcc-lua-cdecl
+~~~
+
+Before using the module, make sure to [compile the gcc‑lua plugin][GCC Lua
+Installing].
+
+The module is accompanied by a test suite:
+
+~~~
+make test
+~~~
+
+By default, the tests assume that the gcc‑lua and gcc‑lua‑cdecl repositories are
+located in the same parent directory. If the gcc‑lua plugin is installed in the
+[GCC plugin directory][GCC Loading Plugins] instead, override the make variable
+`GCCLUA`:
+
+~~~
+make test GCCLUA=gcclua
+~~~
+
+[git repository]: http://git.colberg.org/gcc-lua-cdecl
+[GCC Lua Installing]: http://colberg.org/gcc-lua/#installation
+[GCC Loading Plugins]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
