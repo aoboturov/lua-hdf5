@@ -1,0 +1,16 @@
+local ffi = require("ffi")
+
+ffi.cdef[[
+@CDECL@
+
+foo_@CDECL@
+
+foo_@CDECL@_bar
+]]
+
+-- Load POSIX real time extensions into global namespace.
+if not pcall(function() return ffi.C.clock_gettime end) then
+  ffi.load("rt", true)
+end
+
+return ffi.C

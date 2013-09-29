@@ -1,10 +1,10 @@
-html: index.html INSTALL.html README.html reference.html
+html: index.html INSTALL.html README.html ffi-cdecl.html reference.html
 
 %.html: %.mdwn pandoc.html
 	pandoc --template=pandoc.html --css=pandoc.css --toc -o $@ $<
 
 index.html: index.mdwn pandoc.html
-	pandoc --template=pandoc.html --css=pandoc.css --toc -V pagetitle= -o $@ $<
+	pandoc --template=pandoc.html --css=pandoc.css -V pagetitle= -o $@ $<
 
 pandoc.html: contents.mdwn pandoc.html.in
 	pandoc --template=pandoc.html.in -o $@ $<

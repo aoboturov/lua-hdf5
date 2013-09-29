@@ -73,6 +73,10 @@ div.sidebar ul ul {
   margin: 0;
 }
 
+div.sidebar ul ul ul {
+  margin-left: 1em;
+}
+
 div.sidebar a {
   border-bottom: none;
 }
@@ -197,8 +201,13 @@ cite, code {
 }
 
 dt {
+  margin-bottom: 0.5em;
   font-weight: bold;
   color: #444;
+}
+
+dd p {
+  margin-top: 0;
 }
 
 pre {

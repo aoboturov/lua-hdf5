@@ -6,8 +6,8 @@ gcc‑lua‑cdecl is available from a [git repository]:
 git clone http://git.colberg.org/gcc-lua-cdecl
 ~~~
 
-Before using the module, make sure to [compile the gcc‑lua plugin][GCC Lua
-Installing].
+Before using the module, make sure to [compile the gcc‑lua plugin][gcc‑lua
+installation].
 
 The module is accompanied by a test suite:
 
@@ -25,5 +25,5 @@ make test GCCLUA=gcclua
 ~~~
 
 [git repository]: http://git.colberg.org/gcc-lua-cdecl
-[GCC Lua Installing]: http://colberg.org/gcc-lua/#installation
+[gcc‑lua installation]: http://colberg.org/gcc-lua/INSTALL.html
 [GCC Loading Plugins]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html

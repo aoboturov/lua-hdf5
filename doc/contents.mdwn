@@ -7,4 +7,5 @@
 * [cdecl for GCC Lua](index.html)
     + [Installing](INSTALL.html)
     + [User's Guide](README.html)
+    + [FFI C example](ffi-cdecl.html)
     + [Reference](reference.html)

@@ -6,7 +6,7 @@ gcc.cdecl.declare(node[, f])
     string. A second, optional argument `f` specifies a function that is
     called for each traversed node. The function may return a string to
     override that node's identifier; otherwise, if that node is a type
-    declaration, its type is expanded to its canonical form.
+    declaration, the type is expanded to its canonical form.
 
     `node` can be of any of the following [tree code classes]:
 
