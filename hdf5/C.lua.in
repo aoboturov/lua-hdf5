@@ -1,0 +1,23 @@
+------------------------------------------------------------------------------
+-- HDF5 for Lua.
+-- Copyright © 2013 Peter Colberg.
+-- For conditions of distribution and use, see copyright notice in LICENSE.
+------------------------------------------------------------------------------
+
+local ffi = require("ffi")
+
+ffi.cdef[[
+@CDECL@
+]]
+
+-- If the HDF5 library has been linked to the application, use HDF5
+-- symbols from default, global namespace. Otherwise, dynamically load
+-- the HDF5 library into its own, non-global C library namespace.
+local C
+if pcall(function() return ffi.C.H5open end) then
+  C = ffi.C
+else
+  C = ffi.load("hdf5")
+end
+
+return C

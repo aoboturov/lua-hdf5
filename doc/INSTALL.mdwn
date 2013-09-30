@@ -1,0 +1,39 @@
+% Installing
+
+HDF5 for Lua is available from a [git repository]:
+
+~~~
+git clone http://git.colberg.org/lua-hdf5
+~~~
+
+[git repository]: http://git.colberg.org/lua-hdf5
+
+Before using the module, generate matching C bindings for the HDF5 library:
+
+~~~
+make
+~~~
+
+To override the default C preprocessor `cc`, set `CPP`:
+
+~~~
+make CPP=mpicc
+~~~
+
+To override the default C compiler `gcc`, set `CC`:
+
+~~~
+make CC=gcc-4.7
+~~~
+
+If the HDF5 header files are not installed in a system path, set CPATH:
+
+~~~
+CPATH=/opt/hdf5-1.8.11/include make
+~~~
+
+To override the name of the HDF5 library, set `LIBNAME`:
+
+~~~
+make LIBNAME=libhdf5.so.7
+~~~
