@@ -8,9 +8,9 @@ gcc.cdecl.declare(node[, f])
     override that node's identifier; otherwise, if that node is a type
     declaration, the type is expanded to its canonical form.
 
-    `node` can be of any of the following [tree code classes]:
+    `node` can be of any of the following tree code classes:
 
-    * **type**; where the [tree code] can be any of the following:
+    * **[type]**; where the tree code can be any of the following:
         + **array_type**,
         + **boolean_type**,
         + **complex_type**,
@@ -24,27 +24,26 @@ gcc.cdecl.declare(node[, f])
         + **vector_type**,
         + **void_type**;
 
-    * **declaration**; where the [tree code] can be any of the following:
+    * **[declaration]**; where the tree code can be any of the following:
         + **field_decl**,
         + **function_decl**,
         + **type_decl**,
         + **var_decl**.
 
     Each node passed to `f` as its first argument is of one of the
-    following [tree code classes]:
+    following tree code classes:
 
-    * **type**; where the [tree code] is one of the following:
+    * **[type]**; where the tree code is one of the following:
         + **enumeral_type**,
         + **record_type**,
         + **union_type**;
 
-    * **declaration**; where the [tree code] is one of the following:
+    * **[declaration]**; where the tree code is one of the following:
         + **field_decl**,
         + **function_decl**,
         + **type_decl**,
         + **var_decl**.
 
-[tree node]: http://colberg.org/gcc-lua/reference/#tree-node
-[tree code]: http://colberg.org/gcc-lua/reference/#tree-code
-[tree code classes]: http://colberg.org/gcc-lua/reference/#tree-code-class
-[tree type]: http://colberg.org/gcc-lua/reference/#tree-codes
+[tree node]: http://colberg.org/gcc-lua/reference.html#tree-nodes
+[type]: http://colberg.org/gcc-lua/reference.html#types
+[declaration]: http://colberg.org/gcc-lua/reference.html#declarations
