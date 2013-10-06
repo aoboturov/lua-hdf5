@@ -8,7 +8,7 @@ local gcc   = require("gcc")
 local cdecl = require("gcc.cdecl")
 
 -- Cache library functions
-local insert, concat = table.insert, table.concat
+local insert, concat, select = table.insert, table.concat, select
 
 -- Output generated assembly to /dev/null
 gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
@@ -112,6 +112,6 @@ function macro.expr(decl, id)
       end)
       break
     end
-    result = result:operand()
+    result = select(-1, result:operand())
   end
 end
