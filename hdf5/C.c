@@ -8,9 +8,6 @@
 #include <stdio.h>
 #define FILE void
 
-/* Disable side effects of some preprocessor constants. */
-#define _H5private_H
-
 #include <hdf5.h>
 
 #ifndef H5_VERSION_GE
