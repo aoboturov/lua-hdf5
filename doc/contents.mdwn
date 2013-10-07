@@ -9,3 +9,4 @@
     + [User's Guide](README.html)
     + [FFI C example](ffi-cdecl.html)
     + [Reference](reference.html)
+    + [Releases](CHANGES.html)

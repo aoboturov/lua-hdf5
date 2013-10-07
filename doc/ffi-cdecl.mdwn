@@ -288,8 +288,9 @@ cdecl_var(id)
 cdecl_const(id)
 
   : Declares the function or global variable, or defines the integer constant,
-    with the given identifier. The macro discards any address-of or cast
-    operators within the expression referred to by `id`.
+    with the given identifier. Any expression containing an address-of, cast,
+    or comma operator as part of the expression referred to by `id` is replaced
+    by the right-most operand.
 
     If `id` refers to an integer constant, the macro outputs a C declaration of
     the following form:

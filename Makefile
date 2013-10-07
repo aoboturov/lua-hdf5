@@ -16,8 +16,8 @@ INSTALL_F = install -m 644
 
 FILES_LMOD     = cdecl.lua
 FILES_FFICDECL = ffi-cdecl.lua ffi-cdecl.h ffi-cdecl-luajit.h ffi-cdecl-python.h
-FILES_DOC      = index.mdwn INSTALL.mdwn README.mdwn ffi-cdecl.mdwn reference.mdwn
-FILES_DOC_HTML = index.html INSTALL.html README.html ffi-cdecl.html reference.html pandoc.css gcc-lua-cdecl.png
+FILES_DOC      = CHANGES.mdwn INSTALL.mdwn README.mdwn ffi-cdecl.mdwn index.mdwn reference.mdwn
+FILES_DOC_HTML = CHANGES.html INSTALL.html README.html ffi-cdecl.html index.html reference.html pandoc.css gcc-lua-cdecl.png
 
 test:
 	@$(MAKE) -C test

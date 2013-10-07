@@ -1,0 +1,27 @@
+% Releases
+
+This document lists the changes between stable releases.
+
+The version numbers follow [semantic versioning].
+
+[semantic versioning]: http://semver.org/spec/v2.0.0.html
+
+
+gcc‑lua‑cdecl 1.1.0 (2013-10-06) {#v1.1.0}
+--------------------------------
+
+  * The `cdecl_const` macro of `ffi-cdecl.lua` supports comma operators.
+
+    This allows parsing C preprocessor constants with side effects:
+
+    ~~~ {.c}
+    #define H5F_ACC_EXCL (H5check_version(1, 8, 11), 0x0004u)
+    ~~~
+
+    The resulting FFI C constant is defined with value `4`.
+
+
+gcc‑lua‑cdecl 1.0.0 (2013-09-29) {#v1.0.0}
+--------------------------------
+
+  * Initial release of the C declaration composer for the GCC Lua plugin.
