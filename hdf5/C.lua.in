@@ -17,7 +17,7 @@ local C
 if pcall(function() return ffi.C.H5open end) then
   C = ffi.C
 else
-  C = ffi.load("hdf5")
+  C = ffi.load("@LIBNAME@")
 end
 
 return C
