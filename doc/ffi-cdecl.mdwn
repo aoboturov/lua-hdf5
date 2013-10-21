@@ -296,7 +296,7 @@ cdecl_const(id)
     the following form:
 
     ~~~ {.c}
-    static int <id> = <value>;
+    static const int <id> = <value>;
     ~~~
 
     Otherwise, the macro outputs a C declaration of one of the above forms.
