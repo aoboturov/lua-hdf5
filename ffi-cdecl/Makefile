@@ -1,7 +1,7 @@
 CC       = gcc
 CPPFLAGS = -I$(CDECL)/ffi-cdecl
 CFLAGS   = -std=c99 -Wall -pedantic
-GCCLUA   = -fplugin=$(CURDIR)/../../gcc-lua/gcc/gcclua.so
+GCCLUA   = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 CDECL    = $(CURDIR)/..
 FFICDECL = $(CDECL)/ffi-cdecl/ffi-cdecl.lua
 
@@ -15,7 +15,7 @@ export LUA_PATH
 all: C.lua
 
 %.lua: %.c %.lua.in
-	$(CC) -S $< $(GCCLUA) -fplugin-arg-gcclua-script=$(FFICDECL) -fplugin-arg-gcclua-input=$*.lua.in -fplugin-arg-gcclua-output=$@ $(CPPFLAGS) $(CFLAGS)
+	$(CC) -S $< -fplugin=$(GCCLUA) -fplugin-arg-gcclua-script=$(FFICDECL) -fplugin-arg-gcclua-input=$*.lua.in -fplugin-arg-gcclua-output=$@ $(CPPFLAGS) $(CFLAGS)
 
 clean:
 	$(RM) C.lua
