@@ -9,4 +9,5 @@
     + [User's Guide](README.html)
     + [FFI C example](ffi-cdecl.html)
     + [Reference](reference.html)
+    + [Mailing list](https://lists.colberg.org/listinfo/gcc-lua)
     + [Releases](CHANGES.html)
