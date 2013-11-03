@@ -56,7 +56,9 @@ function test.ptr_to_func_ret_ptr_to_short(decl)
     return node:name():value()
   end) == "func_ret_ptr_to_short_type *ptr_to_func_ret_ptr_to_short")
   assert(cdecl.declare(decl:initial():operand(), function(node)
-    return node:name():value()
+    if node == decl:initial():operand() then
+      return node:name():value()
+    end
   end) == "short int *func_ret_ptr_to_short()")
 end
 
@@ -79,7 +81,9 @@ function test.ptr_to_func_int_ret_void(decl)
     return node:name():value():upper()
   end) == [[FUNC_INT_RET_VOID_TYPE *PTR_TO_FUNC_INT_RET_VOID __asm__("ptr_to_func_int_ret_void")]])
   assert(cdecl.declare(decl:initial():operand(), function(node)
-    return node:name():value():upper()
+    if node == decl:initial():operand() then
+      return node:name():value():upper()
+    end
   end) == [[void FUNC_INT_RET_VOID(int, ...) __asm__("func_int_ret_void")]])
 end
 
