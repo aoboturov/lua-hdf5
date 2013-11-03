@@ -1,6 +1,8 @@
 CC        = gcc
-CPPFLAGS  = -I$(FFI_CDECL_DIR)
-CFLAGS    = -std=c99 -Wall -pedantic
+CPPFLAGS  =
+CPPOPT    = -I$(FFI_CDECL_DIR)
+CFLAGS    = -Wall -pedantic
+CCOPT     = -std=c99
 GCCLUA    = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 FFI_CDECL = $(FFI_CDECL_DIR)/ffi-cdecl.lua
 
@@ -18,7 +20,7 @@ endif
 all: C.lua
 
 %.lua: %.c %.lua.in
-	$(CC) -S $< -fplugin=$(GCCLUA) -fplugin-arg-gcclua-script=$(FFI_CDECL) -fplugin-arg-gcclua-input=$*.lua.in -fplugin-arg-gcclua-output=$@ $(CPPFLAGS) $(CFLAGS)
+	$(CC) -S $(CPPOPT) $(CCOPT) $(CPPFLAGS) $(CFLAGS) -fplugin=$(GCCLUA) -fplugin-arg-gcclua-script=$(FFI_CDECL) -fplugin-arg-gcclua-input=$*.lua.in -fplugin-arg-gcclua-output=$@ $<
 
 clean:
 	$(RM) C.lua

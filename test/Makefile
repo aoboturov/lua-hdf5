@@ -5,17 +5,18 @@
 #
 
 CC     = gcc
-CFLAGS = -std=c99 -Wall
+CFLAGS = -Wall
+CCOPT  = -std=c99
 GCCLUA = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 
 ifdef LUA_PATH
-LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;$(LUA_PATH)
+  LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;$(LUA_PATH)
 else
-LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;;
+  LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;;
 endif
 export LUA_PATH
 
 all: array composite enum function pointer scalar variable vector
 
-%: %.lua %.c
-	$(CC) -S $(CFLAGS) -fplugin=$(GCCLUA) -fplugin-arg-gcclua-script=$^
+%: %.c %.lua
+	$(CC) -S $(CCOPT) $(CFLAGS) -fplugin=$(GCCLUA) -fplugin-arg-gcclua-script=$*.lua $<
