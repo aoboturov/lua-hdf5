@@ -95,7 +95,7 @@ local function format_array_type(node, parent, result, pos, shift, f)
   end
   insert(result, "[")
   local domain = node:domain()
-  if domain then
+  if domain and domain:max() then
     local max, min = domain:max():value(), domain:min():value()
     insert(result, max + 1 - min)
   end

@@ -70,3 +70,21 @@ function test.array_3_of_int(decl)
     return node:name():value():upper()
   end) == [[ARRAY_3_OF_INT_TYPE ARRAY_3_OF_INT __asm__("array_3_of_int")]])
 end
+
+-- C99: flexible array member
+function test.struct_int_array_of_char(decl)
+  assert(cdecl.declare(decl:type()) == [[
+struct {
+  int i;
+  char c[];
+}]])
+end
+
+-- GCC C extension: zero-length array member
+function test.struct_long_array_of_short(decl)
+  assert(cdecl.declare(decl:type()) == [[
+struct {
+  long int l;
+  short int s[];
+}]])
+end
