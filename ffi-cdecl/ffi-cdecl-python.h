@@ -1,3 +1,6 @@
+#ifndef FFI_CDECL_PYTHON_H
+#define FFI_CDECL_PYTHON_H
+
 /* http://cffi.readthedocs.org/en/latest/#declaring-types-and-functions */
 
 #include <stddef.h>
@@ -27,3 +30,5 @@ cdecl_typename(ssize_t)
 
 #include <stdio.h>
 cdecl_typename(FILE)
+
+#endif

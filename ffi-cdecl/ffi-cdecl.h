@@ -1,3 +1,6 @@
+#ifndef FFI_CDECL_H
+#define FFI_CDECL_H
+
 #define cdecl_typename(id)      void cdecl_typename__ ## id(id *unused) {}
 #define cdecl_type(id)          void cdecl_type__ ## id(id *unused) {}
 #define cdecl_memb(id)          void cdecl_memb__ ## id(id *unused) {}
@@ -7,3 +10,5 @@
 #define cdecl_func(id)          void cdecl_expr__ ## id(__typeof__(id) unused) { cdecl_expr__ ## id(id); }
 #define cdecl_var               cdecl_func
 #define cdecl_const             cdecl_func
+
+#endif

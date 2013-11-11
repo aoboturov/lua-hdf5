@@ -1,3 +1,6 @@
+#ifndef FFI_CDECL_LUAJIT_H
+#define FFI_CDECL_LUAJIT_H
+
 /* http://luajit.org/ext_ffi_semantics.html#clang */
 
 #include <stddef.h>
@@ -20,4 +23,6 @@ cdecl_typename(uintptr_t)
 #if __STDC_VERSION__ >= 199901L
 #include <stdbool.h>
 cdecl_typename(bool)
+#endif
+
 #endif
