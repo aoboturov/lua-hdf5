@@ -5,6 +5,9 @@
 #
 
 CPP      := $(CC)
+ifneq (,$(findstring H5_HAVE_PARALLEL,$(shell $(CC) -E -dM -include H5pubconf.h -x c /dev/null)))
+  CPP     = mpicc
+endif
 CC        = gcc
 CPPFLAGS  = -I$(FFI_CDECL_DIR)
 CFLAGS    = -std=c99 -Wall -pedantic
