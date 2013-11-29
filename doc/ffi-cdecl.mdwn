@@ -21,8 +21,8 @@ C capture files
 ---------------
 
 To generate FFI C bindings for a library, the compiler needs to know the types,
-functions, variables and constants of interest. For this purpose the C header
-`ffi-cdecl.h` defines a range of [capture macros](#c-capture-macros).  These
+functions, variables, and constants of interest. For this purpose the C header
+`ffi-cdecl.h` defines a range of [capture macros](#c-capture-macros). These
 macros are used in a C source file that includes the header(s) of the library.
 
 As an example, consider a capture file `C.c` for the POSIX C API:
@@ -57,6 +57,12 @@ in the output file. An output name may be overridden using the preprocessor:
 #define mygetopt getopt
 cdecl_func(mygetopt)
 ~~~
+
+Capture macros may appear in arbitrary order, which facilitates generation of
+capture files using, e.g., [ctags]. Types are output in the order of their
+definition; followed by functions, variables, and constants.
+
+[ctags]: http://ctags.sourceforge.net/
 
 
 Template files

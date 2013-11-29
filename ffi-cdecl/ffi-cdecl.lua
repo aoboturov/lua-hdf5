@@ -25,11 +25,19 @@ gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
 -- to the PLUGIN_FINISH_UNIT event.
 local queue = {}
 
+-- Types are output in the order of their definition, which allows an
+-- arbitrary order of the capture macros. This table assigns a number
+-- to each output function.
+local rank = {}
+
 -- Reads the template file specified with -fplugin-arg-gcclua-input=…,
 -- generates C declarations from the gathered tree nodes, substitutes
 -- the declarations for the @CDECL@ keyword, and writes the output file
 -- specified with -fplugin-arg-gcclua-output=….
 gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
+  table.sort(queue, function(a, b)
+    return rank[a] < rank[b]
+  end)
   local input = assert(io.open(arg.input, "r"))
   local template = input:read("*a")
   input:close()
@@ -57,7 +65,11 @@ gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(decl)
   if not name then return end
   local op, id = name:value():match("^cdecl_(.-)__(.+)")
   if not op then return end
-  macro[op](decl, id)
+  local output, uid = macro[op](decl, id)
+  if output then
+    insert(queue, output)
+    rank[output] = uid or decl:uid()
+  end
 end)
 
 -- Table with type declarations or types as keys, and identifiers as values.
@@ -70,24 +82,29 @@ end
 
 function macro.type(decl, id)
   local result = decl:args():type():type():name()
-  insert(queue, function(f)
+  typename[result] = function(f) return f(id) end
+  local output = function(f)
     return cdecl.declare(result, function(node)
       local name = typename[node]
       if name then return name(f) end
     end)
-  end)
-  typename[result] = function(f) return f(id) end
+  end
+  return output, result:uid()
 end
 
 function macro.memb(decl, id)
   local result = decl:args():type():type():main_variant()
-  insert(queue, function(f)
+  typename[result] = function(f) return f(id) end
+  local output = function(f)
     return cdecl.declare(result, function(node)
       local name = typename[node]
       if name then return name(f) end
     end)
-  end)
-  typename[result] = function(f) return f(id) end
+  end
+  if result:code() == "enumeral_type" then
+    return output, result:stub_decl():uid()
+  end
+  return output, result:fields():uid()
 end
 
 macro.struct = macro.memb
@@ -98,19 +115,17 @@ function macro.expr(decl, id)
   local result = decl:body():body():args()
   while true do
     if result:class() == "declaration" then
-      insert(queue, function(f)
+      return function(f)
         return cdecl.declare(result, function(node)
           if node == result then return f(id) end
           local name = typename[node]
           if name then return name(f) end
         end)
-      end)
-      break
+      end
     elseif result:class() == "constant" then
-      insert(queue, function(f)
+      return function(f)
         return "static const int " .. f(id) .. " = " .. result:value()
-      end)
-      break
+      end
     end
     result = select(-1, result:operand())
   end
