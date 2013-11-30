@@ -6,7 +6,7 @@
 
 CC     = gcc
 CFLAGS = -Wall
-CCOPT  = -std=c99
+CCOPT  = -std=gnu99
 GCCLUA = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 
 ifdef LUA_PATH
