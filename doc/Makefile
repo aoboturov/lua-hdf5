@@ -1,4 +1,4 @@
-html: index.html INSTALL.html
+html: index.html INSTALL.html reference.html
 
 %.html: %.mdwn pandoc.html
 	pandoc --template=pandoc.html --css=pandoc.css --toc -o $@ $<

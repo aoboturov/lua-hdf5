@@ -170,7 +170,7 @@ h1 a {
 }
 
 h2 {
-  margin: 2em 0 0.2em 0;
+  margin: 2em 0 1em 0;
   font-size: 1.35em;
   padding: 0;
   color: #465158;
@@ -182,7 +182,7 @@ h2 a {
 }
 
 h3 {
-  margin: 1em 0 -0.3em 0;
+  margin: 1em 0 0.8em 0;
   font-size: 1.2em;
   color: #6c818f;
 }
@@ -190,6 +190,22 @@ h3 {
 h3 a {
   color: #6c818f;
   border-bottom: none;
+}
+
+h4 {
+  margin: 1em 0 0.8em 0;
+  font-size: 1.1em;
+  color: #6c818f;
+}
+
+h4 a {
+  color: #6c818f;
+  border-bottom: none;
+}
+
+div.body p {
+  margin-top: 0.5em;
+  margin-bottom: 1em;
 }
 
 cite, code, dt, pre {
@@ -200,14 +216,19 @@ cite, code {
   font-size: 0.95em;
 }
 
+dl {
+  margin: 0;
+  padding: 0;
+}
+
 dt {
-  margin-bottom: 0.5em;
   font-weight: bold;
   color: #444;
 }
 
-dd p {
-  margin-top: 0;
+dt code {
+  font: inherit;
+  font-size: 1em;
 }
 
 pre {
@@ -224,4 +245,11 @@ pre {
 
 pre code {
   font-size: 1em;
+}
+
+table {
+  width: 100%;
+  margin: 1em 0;
+  border-spacing: 0;
+  border-collapse: collapse;
 }

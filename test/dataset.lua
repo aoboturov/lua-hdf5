@@ -1,0 +1,187 @@
+------------------------------------------------------------------------------
+-- Test datasets.
+-- Copyright © 2013 Peter Colberg.
+-- For conditions of distribution and use, see copyright notice in LICENSE.
+------------------------------------------------------------------------------
+
+pcall(require, "luacov")
+
+local hdf5 = require("hdf5")
+local ffi  = require("ffi")
+
+local function require_version(maj, min, rel)
+  local maj_ver, min_ver, rel_ver = hdf5.get_libversion()
+  return maj_ver > maj or maj_ver == maj and (min_ver > min or min_ver == min and rel_ver >= rel)
+end
+
+local path = "test_dataset.h5"
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({2, 4, 3})
+  local dset = file:create_dataset("position", file_type, file_space)
+  assert(dset:get_type():equal(file_type))
+  assert(dset:get_space():extent_equal(file_space))
+  local dcpl = dset:get_dataset_create_plist()
+  assert(dcpl:get_layout() == "contiguous")
+  if require_version(1, 8, 3) then assert(dset:get_dataset_access_plist()) end
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({2, 4, 3})
+  local dcpl = hdf5.create_plist("dataset_create")
+  dcpl:set_layout("compact")
+  assert(dcpl:get_layout() == "compact")
+  local dset = file:create_anon_dataset(file_type, file_space, dcpl)
+  local dcpl = dset:get_dataset_create_plist()
+  assert(dset:get_object_name() == nil)
+  file:link_object(dset, "position")
+  assert(dset:get_object_name() == "/position")
+end
+collectgarbage()
+
+do
+  local file = hdf5.open_file(path)
+  local dset = file:open_dataset("position")
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({2, 4, 3})
+  assert(dset:get_type():equal(file_type))
+  assert(dset:get_space():extent_equal(file_space))
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({100, 0}, {100, nil})
+  local dcpl = hdf5.create_plist("dataset_create")
+  dcpl:set_chunk({100, 10})
+  assert(dcpl:get_layout() == "chunked")
+  local chunk = dcpl:get_chunk()
+  assert(#chunk == 2)
+  assert(chunk[1] == 100)
+  assert(chunk[2] == 10)
+  local dset = file:create_dataset("position", file_type, file_space, nil, dcpl)
+  dset:set_extent({100, 3})
+  local file_space = hdf5.create_simple_space({100, 3}, {100, nil})
+  assert(dset:get_space():extent_equal(file_space))
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({5, 0}, {5, nil})
+  local dcpl = hdf5.create_plist("dataset_create")
+  dcpl:set_chunk({5, 10})
+  dcpl:set_deflate(6)
+  local dset = file:create_dataset("position", file_type, file_space, nil, dcpl)
+  dset:set_extent({5, 123})
+  local file_space = hdf5.create_simple_space({5, 123}, {5, nil})
+  assert(dset:get_space():extent_equal(file_space))
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.float
+  local file_space = hdf5.create_simple_space({2, 2})
+  local dset = file:create_dataset("position", file_type, file_space)
+  do
+    local buf = ffi.new("float[4]", 42, 43, 44, 45)
+    local mem_type = hdf5.float
+    dset:write(buf, mem_type)
+  end
+  do
+    local buf = ffi.new("float[4]")
+    local mem_type = hdf5.float
+    dset:read(buf, mem_type)
+    assert(buf[0] == 42)
+    assert(buf[1] == 43)
+    assert(buf[2] == 44)
+    assert(buf[3] == 45)
+  end
+  do
+    local buf = ffi.new("double[4]", 2, 3, 4, 5)
+    local mem_type = hdf5.double
+    dset:write(buf, mem_type)
+  end
+  do
+    local buf = ffi.new("double[4]")
+    local mem_type = hdf5.double
+    dset:read(buf, mem_type)
+    assert(buf[0] == 2)
+    assert(buf[1] == 3)
+    assert(buf[2] == 4)
+    assert(buf[3] == 5)
+  end
+  do
+    local buf = ffi.new("double[4]", 2, 3, 4, 5)
+    local mem_type = hdf5.double
+    local mem_space = hdf5.create_simple_space({4})
+    dset:write(buf, mem_type, mem_space)
+  end
+  do
+    local buf = ffi.new("double[4]")
+    local mem_type = hdf5.double
+    local mem_space = hdf5.create_simple_space({4})
+    dset:read(buf, mem_type, mem_space)
+    assert(buf[0] == 2)
+    assert(buf[1] == 3)
+    assert(buf[2] == 4)
+    assert(buf[3] == 5)
+  end
+  do
+    local buf = ffi.new("float[2]", 98, 99)
+    local mem_type = hdf5.float
+    local mem_space = hdf5.create_simple_space({2})
+    file_space:select_hyperslab("set", {0, 0}, {1, 1}, {2, 1}, {1, 1})
+    dset:write(buf, mem_type, mem_space, file_space)
+  end
+  do
+    local buf = ffi.new("float[2]")
+    local mem_type = hdf5.float
+    local mem_space = hdf5.create_simple_space({2})
+    file_space:select_hyperslab("set", {0, 0}, nil, {1, 2})
+    dset:read(buf, mem_type, mem_space, file_space)
+    assert(buf[0] == 98)
+    assert(buf[1] == 3)
+    file_space:offset_simple({1, 0})
+    dset:read(buf, mem_type, mem_space, file_space)
+    assert(buf[0] == 99)
+    assert(buf[1] == 5)
+  end
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local dtype = hdf5.c_s1:copy()
+  local space = hdf5.create_simple_space({3})
+  dtype:set_size("variable")
+  local dset = file:create_dataset("boundary", dtype, space)
+  local buf = ffi.new("const char *[3]", {"periodic", "none", "periodic"})
+  dset:write(buf, dtype, space)
+end
+collectgarbage()
+
+do
+  local file = hdf5.open_file(path)
+  local dset = file:open_dataset("boundary")
+  local buf = ffi.new("const char *[3]")
+  local dtype = hdf5.c_s1:copy()
+  dtype:set_size("variable")
+  local space = hdf5.create_simple_space({3})
+  dset:read(buf, dtype, space)
+  assert(ffi.string(buf[0]) == "periodic")
+  assert(ffi.string(buf[1]) == "none")
+  assert(ffi.string(buf[2]) == "periodic")
+  hdf5.vlen_reclaim(buf, dtype, space)
+end
+collectgarbage()
+
+os.remove(path)

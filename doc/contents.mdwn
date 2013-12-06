@@ -6,3 +6,4 @@
 
 * [HDF5 for Lua](index.html)
     + [Installing](INSTALL.html)
+    + [Reference](reference.html)

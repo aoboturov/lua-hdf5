@@ -11,7 +11,7 @@
 #include <hdf5.h>
 
 #ifndef H5_VERSION_GE
-#define H5_VERSION_GE(maj, min, rel) H5_VERS_MAJOR > maj || H5_VERS_MAJOR == maj && (H5_VERS_MINOR > min || H5_VERS_MINOR == min && H5_VERS_RELEASE >= rel)
+#define H5_VERSION_GE(maj, min, rel) (H5_VERS_MAJOR > maj || H5_VERS_MAJOR == maj && (H5_VERS_MINOR > min || H5_VERS_MINOR == min && H5_VERS_RELEASE >= rel))
 #endif
 
 #include "ffi-cdecl.h"
@@ -334,9 +334,10 @@ cdecl_type(H5FD_mem_t)
 cdecl_type(H5F_libver_t)
 cdecl_memb(H5F_libver_t)
 
-#if H5_VERSION_GE(1, 8, 6)
-cdecl_const(H5F_LIBVER_18)
+#if !H5_VERSION_GE(1, 8, 6)
+#define H5F_LIBVER_18 H5F_LIBVER_LATEST
 #endif
+cdecl_const(H5F_LIBVER_18)
 
 cdecl_func(H5Fis_hdf5)
 cdecl_func(H5Fcreate)

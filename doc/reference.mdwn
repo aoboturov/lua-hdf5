@@ -1,0 +1,872 @@
+% Reference
+
+Library
+-------
+
+`hdf5.get_libversion()`
+
+  : Returns the major, minor, and release version number of the library.
+
+
+Files
+-----
+
+`hdf5.create_file(name[, flag[, fcpl[, fapl]]])`
+
+  : Creates a new file, and returns the file. The file is opened in read-write
+    mode. A second, optional argument `flag` specifies whether an existing file
+    is overwritten. A third, optional argument `fcpl` specifies the [file
+    creation properties]. A fourth, optional argument `fapl` specifies the
+    [file access properties].
+
+    `flag` can be any of the following:
+
+    * **"trunc"**: an existing file is overwritten (the default);
+    * **"excl"**: an existing file is not overwritten, and this function raises
+      an error.
+
+`hdf5.open_file(name[, flag[, fapl]])`
+
+  : Opens an existing file, and returns the file. A second, optional argument
+    `flag` specifies the mode in which the file is opened. A third, optional
+    argument `fapl` specifies the [file access properties].
+
+    `flag` can be any of the following:
+
+    * **"rdonly"**: read-only mode (the default);
+    * **"rdwr"**: read-write mode.
+
+`hdf5.is_hdf5(name)`
+
+  : Returns **true** if the file with the given name is an HDF5 file, otherwise
+    returns **false**.
+
+`file:get_file_create_plist()`
+
+  : Returns the [file creation properties] with which the file was created.
+
+`file:get_file_access_plist()`
+
+  : Returns the [file access properties] with which the file was opened.
+
+`file:get_file_intent()`
+
+  : Returns the mode in which the file was opened.
+
+`object:get_file()`
+
+  : Returns the file that contains the given object. `object` may be an
+    attribute, a dataset, a committed datatype, a group, or a file.
+
+`object:get_file_name()`
+
+  : Returns the name of the file that contains the given object. `object` may
+    be an attribute, a dataset, a committed datatype, a group, or a file.
+
+`object:flush_file([scope])`
+
+  : Flushes buffers to disk for the file that contains the given object.
+    `object` may be an attribute, a dataset, a committed datatype, a group,
+    or a file. An optional argument `scope` specifies whether to flush the
+    file, or the file and all files mounted onto the file.
+
+    `scope` can be any of the following:
+
+    * **"local"**: flush the file (the default);
+    * **"global"**: flush the file and all files mounted onto the file.
+
+
+Groups
+------
+
+`group:create_group(name[, lcpl[, gcpl[, gapl]]])`
+
+  : Creates and returns a group that is linked into the file at the given
+    location with the given name. `group` may be a group or file. A second,
+    optional argument `lcpl` specifies the [link creation properties]. A
+    third, optional argument `gcpl` specifies the group creation properties.
+    A fourth, optional argument `gapl` specifies the group access properties.
+
+`group:create_anon_group([gcpl[, gapl]])`
+
+  : Creates and returns a group in the file that contains the given location.
+    The group must be [linked](#objects) into the file separately, otherwise it
+    is deleted when the file is closed. `group` may be a group or file. A first,
+    optional argument `gcpl` specifies the group creation properties. A second,
+    optional argument `gapl` specifies the group specifies the group access
+    properties.
+
+`group:open_group(name[, gapl])`
+
+  : Opens and returns the group at the given location with the given name.
+    `group` may be a group or file. A second, optional argument `gapl` specifies
+    the group access properties.
+
+
+Datasets
+--------
+
+`group:create_dataset(name, dtype, space[, lcpl[, dcpl[, dapl]]])`
+
+  : Creates and returns a dataset of the given datatype and dataspace that is
+    linked into the file at the given location with the given name. `group` may
+    be a group or file. A fourth, optional argument `lcpl` specifies the [link
+    creation properties]. A fifth, optional argument `dcpl` specifies the
+    [dataset creation properties]. A sixth, optional argument `dapl` specifies
+    the dataset access properties.
+
+`group:create_anon_dataset(dtype, space[, dcpl[, dapl]])`
+
+  : Creates and returns dataset of the given datatype and dataspace in the file
+    that contains the given location. The dataset must be [linked](#objects)
+    into the file separately, otherwise it is deleted when the file is closed.
+    `group` may be a group or file. A third, optional argument `dcpl` specifies
+    the [dataset creation properties]. A fourth, optional argument `dapl`
+    specifies the dataset access properties.
+
+`group:open_dataset(name[, dapl])`
+
+  : Opens and returns the dataset at the given location with the given name.
+    `group` may be a group or file. A second, optional argument `dapl` specifies
+    the dataset access properties.
+
+`dataset:get_dataset_create_plist()`
+
+  : Returns the [dataset creation properties] with which the dataset was created.
+
+`dataset:get_dataset_access_plist()`
+
+  : Returns the dataset access properties with which the dataset was opened.
+
+    *This function is available with HDF5 1.8.3 or later.*
+
+`dataset:get_type()`
+
+  : Returns the datatype of the dataset.
+
+`dataset:get_space()`
+
+  : Returns the dataspace of the dataset.
+
+`dataset:set_extent(dims)`
+
+  : Changes the dimensions of the dataspace of the dataset. `dims` is a table
+    with a sequence that specifies for each dimension the new size of the
+    dataspace, which must be smaller than or equal to the corresponding maximum
+    size of the dataspace specified upon creation of the dataset.
+
+`dataset:write(buf, mem_type[, mem_space[, file_space[, dxpl]]])`
+
+  : Writes data from the given buffer to the dataset. `buf` specifies a C array
+    object. `mem_type` is a datatype that corresponds to the C type of the
+    buffer; it must be [convertible][Datatype Conversion and Selection] to the
+    datatype of the dataset. A third, optional argument `mem_space` specifies a
+    dataspace that describes the elements to read from within the buffer. A
+    fourth, optional argument `file_space` specifies a dataspace that describes
+    the elements to write to within the dataset. A fifth, optional argument
+    `dxpl` specifies the [dataset transfer properties].
+
+    The given memory and file dataspaces must be [compatible][Dataspaces and
+    Data Transfer]. If `mem_space` is not specified, the memory dataspace
+    defaults to the file dataspace. If `file_space` is not specified, the file
+    dataspace defaults to the dataspace of the dataset.
+
+`dataset:read(buf, mem_type[, mem_space[, file_space[, dxpl]]])`
+
+  : Reads data from the given buffer to the dataset. `buf` specifies a C array
+    object. `mem_type` is a datatype that corresponds to the C type of the
+    buffer; it must be [convertible][Datatype Conversion and Selection] to the
+    datatype of the dataset. A third, optional argument `mem_space` specifies a
+    dataspace that describes the elements to write to within the buffer. A
+    fourth, optional argument `file_space` specifies a dataspace that describes
+    the elements to read from within the dataset. A fifth, optional argument
+    `dxpl` specifies the [dataset transfer properties].
+
+    The given memory and file dataspaces must be [compatible][Dataspaces and
+    Data Transfer]. If `mem_space` is not specified, the memory dataspace
+    defaults to the file dataspace. If `file_space` is not specified, the file
+    dataspace defaults to the dataspace of the dataset.
+
+`hdf5.vlen_reclaim(buf, mem_type, mem_space[, dxpl])`
+
+  : Free the memory allocated when reading a dataset or an attribute of
+    variable-length datatype. `buf` is the buffer specified when the dataset or
+    attribute was read. `mem_type` is the datatype specified when the dataset
+    or attribute was read. `mem_space` is the memory dataspace specified when
+    the dataset was read; or, if a memory dataspace was not specified, the file
+    dataspace specified when the dataset was read; otherwise the dataspace of
+    the dataset or attribute. `dxpl` is the [dataset transfer properties]
+    specified when the dataset was read.
+
+
+Attributes
+----------
+
+`loc:create_attribute(name, dtype, space[, acpl[, aapl]])`
+
+  : Creates and returns an attribute at the given location of the given name,
+    datatype and dataspace. `loc` may be a dataset, a committed datatype, a
+    group, or a file. A fourth, optional argument `acpl` specifies the
+    attribute creation properties. A fifth, optional argument `aapl` specifies
+    the attribute access properties.
+
+`loc:open_attribute(name[, aapl])`
+
+  : Opens and returns an existing attribute at the given location with the
+    given name. `loc` may be a dataset, a committed datatype, a group, or a
+    file. A second, optional argument `aapl` specifies the attribute access
+    properties.
+
+`loc:exists_attribute(name)`
+
+  : Returns **true** if an attribute with the given name exists; otherwise
+    returns **false**.
+
+`loc:rename_attribute(old_name, new_name)`
+
+  : Renames the attribute with the name `old_name` to `new_name`.
+
+`loc:delete_attribute(name)`
+
+  : Deletes the attribute with the given name.
+
+`attr:get_name()`
+
+  : Returns the name of the attribute.
+
+`attr:get_type()`
+
+  : Returns the datatype of the attribute.
+
+`attr:get_space()`
+
+  : Returns the dataspace of the attribute.
+
+`attr:write(buf, mem_type)`
+
+  : Writes data from the given buffer to the attribute. `buf` specifies a
+    C array object. `mem_type` is a datatype that corresponds to the C type of
+    the buffer; it must be [convertible][Datatype Conversion and Selection] to
+    the datatype of the attribute.
+
+`attr:read(buf, mem_type)`
+
+  : Reads data from the given buffer to the attribute. `buf` specifies a
+    C array object. `mem_type` is a datatype that corresponds to the C type of
+    the buffer; it must be [convertible][Datatype Conversion and Selection] to
+    the datatype of the attribute.
+
+
+Dataspaces
+----------
+
+`hdf5.create_space(class)`
+
+  : Creates and returns a dataspace of the given class.
+
+    `class` can be any of the following:
+
+    * **"scalar"**: a dataspace of a single element;
+    * **"simple"**: a dataspace of a (multi-dimensional) array of elements;
+    * **"null"**: a dataspace that has no elements.
+
+`space:get_simple_extent_type()`
+
+  : Returns the class of the dataspace.
+
+`hdf5.create_simple_space(dims[, maxdims])`
+
+  : Creates and returns a dataspace of the given current and maximum
+    dimensions. `dims` is a table with a sequence that specifies the current
+    dimensions of the dataspace; each element is a number that specifies the
+    size of a dimension. The optional argument `maxdims` is a table that
+    specifies the maximum dimensions of the dataspace; each element is either a
+    number equal to or greater than the corresponding element of `dims`, or
+    **nil** to specify that a dimension is of unlimited maximum size.
+
+`space:set_extent_simple(dims[, maxdims])`
+
+  : Sets the current and maximum dimensions of the dataspace.
+
+`space:get_simple_extent_dims()`
+
+  : Returns two tables that specify the current and maximum dimensions of the
+    dataspace. For each dimension of unlimited maximum size, the corresponding
+    element of the second table is **nil**.
+
+`space:extent_equal(space2)`
+
+  : Returns **true** if the dataspace extents of the given dataspaces are
+    equal, otherwise returns **false**.
+
+`space:select_hyperslab(op, start, stride, count, block)`
+
+  : Selects a hyperslab region of the dataspace. `op` specifies how the
+    new selection is merged with an existing selection of the dataspace.
+    `op` can be any of the following, to select elements that are
+
+    * **"set"**: in the new selection;
+    * **"or"**: in the existing selection or in the new selection;
+    * **"and"**: both in the existing selection and in the new selection;
+    * **"xor"**: in the existing selection or in the new selection, but not in both selections;
+    * **"notb"**: in the existing selection, but not in the new selection;
+    * **"nota"**: in the new selection, but not in the existing selection;
+
+    A hyperslab region consists of disjoint blocks of elements. `start` is a
+    table with a sequence that specifies for each dimension the non-negative
+    offset of the first element of the first block relative to the origin of
+    the region. `stride` is either a table with a sequence that specifies for
+    each dimension the positive offset of the first element of a block relative
+    to the first element of the previous block; or **nil**, which is equivalent
+    to an offset of 1 for each dimension. `count` is a table with a sequence
+    that specifies for each dimension the number of blocks. `block` is either a
+    table with a sequence that specifies for each dimension the size of a
+    block; or **nil**, which is equivalent to a size of 1 for each dimension.
+
+`space:select_valid()`
+
+  : Returns **true** if the selection of the dataspace lies within the current
+    dimensions of the dataspace, otherwise returns **false**.
+
+`space:offset_simple(offset)`
+
+  : Sets the offset of the selection of the dataspace. `offset` is a table with
+    a sequence that specifies for each dimension the offset of the origin of
+    the selected region relative to the origin of the dataspace.
+
+[Dataspaces and Data Transfer]: http://www.hdfgroup.org/HDF5/doc/UG/12_Dataspaces.html#Dtransfer
+
+
+Datatypes
+---------
+
+`dtype:commit(group, name[, lcpl[, tcpl[, tapl]]])`
+
+  : Commit a transient datatype, and link the datatype into into the given
+    group with the given name. A transient datatype is a datatype that is
+    not locked and not committed. A third, optional argument `lcpl` specifies
+    the [link creation properties]. A fourth, optional argument `tcpl`
+    specifies the datatype creation properties. A fourth, optional argument
+    `tapl` specifies the datatype access properties.
+
+`dtype:commit_anon(group[, tcpl[, tapl]])`
+
+  : Commit a transient datatype to the file that contains the given group.
+    The datatype must be [linked](#objects) into the file separately,
+    otherwise it is deleted when the file is closed.
+
+`dtype:committed()`
+
+  : Returns **true** if the datatype has been committed; otherwise returns
+    **false**.
+
+`dtype:copy()`
+
+  : Creates and returns a copy of the datatype.
+
+`dtype:equal(dtype2)`
+
+  : Returns **true** if the given datatypes are equal, otherwise returns
+    **false**.
+
+`dtype:get_class()`
+
+  : Returns the class of the datatype, which is one of the following:
+
+    * **"integer"**: integer datatype;
+    * **"float"**: floating-point datatype;
+    * **"string"**: fixed-length or variable-length string datatype;
+    * **"bitfield"**: bit field datatype;
+    * **"opaque"**: opaque datatype;
+    * **"compound"**: compound datatype;
+    * **"reference"**: object or dataset region reference datatype;
+    * **"enum"**: enumeration datatype;
+    * **"vlen"**: variable-length datatype;
+    * **"array"**: array datatype.
+
+`dtype:get_size()`
+
+  : Returns the size in bytes of the datatype. If `dtype` is a variable-length
+    datatype, returns the size of a pointer to an element of that datatype.
+
+[Datatype Conversion and Selection]: http://www.hdfgroup.org/HDF5/doc/UG/11_Datatypes.html#Dtransfer
+
+
+### Atomic datatypes
+
+`dtype:set_size(size)`
+
+  : Sets the size in bytes of the datatype. If `dtype` is a string datatype,
+    `size` may be specified as **"variable"** to create a variable-length
+    datatype.
+
+`dtype:set_cset(cset)`
+
+  : Sets the character encoding of a string datatype, which may be any of the
+    following:
+
+    * **"ascii"**: ASCII character encoding (the default);
+    * **"utf8"**: UTF-8 character encoding of the Unicode character set.
+
+`dtype:get_cset()`
+
+  : Returns the character encoding of a string datatype.
+
+
+### Variable-length datatypes
+
+`dtype:is_variable_str()`
+
+  : Returns **true** if the datatype is a variable-length string datatype,
+    otherwise returns **false**.
+
+
+### Enumeration datatypes
+
+`dtype:enum_create()`
+
+  : Creates and returns an enumeration datatype of base datatype `dtype`.
+
+`dtype:enum_insert(name, value)`
+
+  : Inserts a member with the given name and value into an enumeration datatype.
+    `value` is a C array object of a C type that corresponds to the base
+    datatype of the enumeration datatype.
+
+`dtype:enum_nameof(value)`
+
+  : Returns the name corresponding to a value of an enumeration datatype.
+    `value` is a C array object of a C type that corresponds to the base
+    datatype of the enumeration datatype.
+
+`dtype:enum_valueof(name, value)`
+
+  : Retrieves the value corresponding to a name of an enumeration datatype.
+    `value` is a C array object of a C type that corresponds to the base
+    datatype of the enumeration datatype.
+
+
+### Predefined datatypes
+
+The library defines the following atomic datatypes.
+
+#### Integer datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.char`                        |                                    |
+|   : C type `char`                  |                                    |
++------------------------------------+------------------------------------+
+| `hdf5.schar`                       | `hdf5.uchar`                       |
+|   : C type `signed char`           |   : C type `unsigned char`         |
++------------------------------------+------------------------------------+
+| `hdf5.short`                       | `hdf5.ushort`                      |
+|   : C type `short`                 |   : C type `unsigned short`        |
++------------------------------------+------------------------------------+
+| `hdf5.int`                         | `hdf5.uint`                        |
+|   : C type `int`                   |   : C type `unsigned int`          |
++------------------------------------+------------------------------------+
+| `hdf5.long`                        | `hdf5.ulong`                       |
+|   : C type `long`                  |   : C type `unsigned long`         |
++------------------------------------+------------------------------------+
+| `hdf5.llong`                       | `hdf5.ullong`                      |
+|   : C type `long long`             |   : C type `unsigned long long`    |
++------------------------------------+------------------------------------+
+
++------------------------------------+------------------------------------+
+| `hdf5.int8`                        | `hdf5.uint8`                       |
+|   : C type `int8_t`                |   : C type `uint8_t`               |
++------------------------------------+------------------------------------+
+| `hdf5.int16`                       | `hdf5.uint16`                      |
+|   : C type `int16_t`               |   : C type `uint16_t`              |
++------------------------------------+------------------------------------+
+| `hdf5.int32`                       | `hdf5.uint32`                      |
+|   : C type `int32_t`               |   : C type `uint32_t`              |
++------------------------------------+------------------------------------+
+| `hdf5.int64`                       | `hdf5.uint64`                      |
+|   : C type `int64_t`               |   : C type `uint64_t`              |
++------------------------------------+------------------------------------+
+
++------------------------------------+------------------------------------+
+| `hdf5.i8be`                        | `hdf5.u8be`                        |
+|   : Signed 8 bit big-endian        |   : Unsigned 8 bit big-endian      |
++------------------------------------+------------------------------------+
+| `hdf5.i8le`                        | `hdf5.u8le`                        |
+|   : Signed 8 bit little-endian     |   : Unsigned 8 bit little-endian   |
++------------------------------------+------------------------------------+
+| `hdf5.i16be`                       | `hdf5.u16be`                       |
+|   : Signed 16 bit big-endian       |   : Unsigned 16 bit big-endian     |
++------------------------------------+------------------------------------+
+| `hdf5.i16le`                       | `hdf5.u16le`                       |
+|   : Signed 16 bit little-endian    |   : Unsigned 16 bit little-endian  |
++------------------------------------+------------------------------------+
+| `hdf5.i32be`                       | `hdf5.u32be`                       |
+|   : Signed 32 bit big-endian       |   : Unsigned 32 bit big-endian     |
++------------------------------------+------------------------------------+
+| `hdf5.i32le`                       | `hdf5.u32le`                       |
+|   : Signed 32 bit little-endian    |   : Unsigned 32 bit little-endian  |
++------------------------------------+------------------------------------+
+| `hdf5.i64be`                       | `hdf5.u64be`                       |
+|   : Signed 64 bit big-endian       |   : Unsigned 64 bit big-endian     |
++------------------------------------+------------------------------------+
+| `hdf5.i64le`                       | `hdf5.u64le`                       |
+|   : Signed 64 bit little-endian    |   : Unsigned 64 bit little-endian  |
++------------------------------------+------------------------------------+
+
+#### Bit field datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.b8`                          | `hdf5.b16`                         |
+|   : 1 byte bit field               |   : 2 byte bit field               |
++------------------------------------+------------------------------------+
+| `hdf5.b32`                         | `hdf5.b64`                         |
+|   : 4 byte bit field               |   : 8 byte bit field               |
++------------------------------------+------------------------------------+
+
++------------------------------------+------------------------------------+
+| `hdf5.b8be`                        | `hdf5.b8le`                        |
+|   : 8 bit big-endian               |   : 8 bit little-endian            |
++------------------------------------+------------------------------------+
+| `hdf5.b16be`                       | `hdf5.b16le`                       |
+|   : 16 bit big-endian              |   : 16 bit little-endian           |
++------------------------------------+------------------------------------+
+| `hdf5.b32be`                       | `hdf5.b32le`                       |
+|   : 32 bit big-endian              |   : 32 bit little-endian           |
++------------------------------------+------------------------------------+
+| `hdf5.b64be`                       | `hdf5.b64le`                       |
+|   : 64 bit big-endian              |   : 64 bit little-endian           |
++------------------------------------+------------------------------------+
+
+#### Floating-point datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.float`                       | `hdf5.double`                      |
+|   : C type `float`                 |   : C type `double`                |
++------------------------------------+------------------------------------+
+
++------------------------------------+------------------------------------+
+| `hdf5.f32be`                       | `hdf5.f32le`                       |
+|   : 32 bit big-endian              |   : 32 bit little-endian           |
++------------------------------------+------------------------------------+
+| `hdf5.f64be`                       | `hdf5.f64le`                       |
+|   : 64 bit big-endian              |   : 64 bit little-endian           |
++------------------------------------+------------------------------------+
+
+#### Reference datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.ref_obj`                     | `hdf5.ref_dsetreg`                 |
+|   : HDF5 object reference          |   : HDF5 dataset region reference  |
++------------------------------------+------------------------------------+
+
+#### String datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.c_s1`                        | `hdf5.fortran_s1`                  |
+|   : C string                       |   : Fortran string                 |
++------------------------------------+------------------------------------+
+
+#### Opaque datatypes
+
++------------------------------------+------------------------------------+
+| `hdf5.opaque`                      |                                    |
+|   : Opaque byte string             |                                    |
++------------------------------------+------------------------------------+
+
+
+Links
+-----
+
+`group:create_hard_link(obj_group, obj_name, link_name[, lcpl[, lapl]])`
+
+  : Creates a hard link with the given name to the object at the given location
+    with the given name. If the location of the hard link and the location of
+    the object are the same, `obj_group` may be specified as **nil**. A fourth,
+    optional argument `lcpl` specifies the [link creation properties]. A fifth,
+    optional argument `lapl` specifies the link access properties.
+
+`group:create_soft_link(target_path, link_name[, lcpl[, lapl]])`
+
+  : Creates a soft link with the given name and target path. `target_path` may
+    be an absolute path within the file, or a path relative to the path of the
+    group. A third, optional argument `lcpl` specifies the [link creation
+    properties]. A fourth, optional argument `lapl` specifies the link access
+    properties.
+
+`group:exists_link(name[, lapl])`
+
+  : Returns **true** if a link with the given name exists, otherwise returns
+    **false**. A second, optional argument `lapl` specifies the link access
+    properties.
+
+`group:delete_link(name[, lapl])`
+
+  : Deletes the link with the given name. A second, optional argument `lapl`
+    specifies the link access properties.
+
+
+Objects
+-------
+
+`group:open_object(name[, lapl])`
+
+  : Opens and returns the object with the given name, which may be a group, a
+    dataset, or a committed datatype. `group` may be a group or file. A second,
+    optional argument `lapl` specifies the link access properties.
+
+`group:exists_object(name[, lapl])`
+
+  : Returns **true** if an object with the given name exists, otherwise returns
+    **false**. `group` may be a group or file. A second, optional argument `lapl`
+    specifies the link access properties.
+
+    *This function is available with HDF5 1.8.5 or later.*
+
+`group:link_object(obj, link_name[, lcpl[, lapl]])`
+
+  : Links the given object into the file at the given location with the given
+    name. `group` may be a group or file. A third, optional argument `lcpl`
+    specifies the [link creation properties]. A fourth, optional argument
+    `lapl` specifies the link access properties.
+
+`object:get_object_type()`
+
+  : Returns the type of the given object, which is one of the following:
+
+    * **"file"**: a file;
+    * **"group"**: a group;
+    * **"dataset"**: a dataset;
+    * **"datatype"**: a datatype;
+    * **"attr"**: an attribute.
+
+`object:get_object_name()`
+
+  : Returns an absolute path within the file to the given object, which may be
+    a file, a group, a dataset, a committed datatype, or an attribute.
+    If multiple paths to the object exist, the function returns any one of
+    these paths. If the object is an attribute, the function returns a path
+    to the object to which the attribute is attached.
+
+`object:get_object_info()`
+
+  : Returns a value with the following methods:
+
+    info:get_atime()
+      : Returns the last time the object was read or written.
+    info:get_mtime()
+      : Returns the last time the raw data in the object was changed.
+    info:get_ctime()
+      : Returns the last time the metadata for the object was changed.
+    info:get_btime()
+      : Returns the time the object was created.
+    info:get_num_links()
+      : Returns the number of links to the object.
+    info:get_num_attrs()
+      : Returns the number of attributes.
+    info:get_type()
+      : Returns the type of the object, which can be any of the following:
+
+        * **"group"**: a group;
+        * **"dataset"**: a dataset;
+        * **"named_datatype"**: a committed datatype.
+
+
+References
+----------
+
+`loc:create_reference(name, ref, ref_type, space)`
+
+  : Creates a reference to the object or dataset region at the given location
+    with the given name. `loc` may be a dataset, a committed datatype, a group,
+    or a file.
+
+    `ref_type` can be any of the following, to create a
+
+    * **"object"**: object reference;
+    * **"dataset_region"**: dataset region reference.
+
+`object:dereference(ref, ref_type)`
+
+  : Opens and returns the object referenced by the given reference of the given
+    reference type. `object` may be any group, dataset, committed datatype or
+    attribute within a file, or a file.
+
+`object:get_reference_name(ref, ref_type)`
+
+  : Returns the path of the object referenced by the given reference of the given
+    reference type. `object` may be any group, dataset, committed datatype or
+    attribute within a file, or a file. If the referenced object is linked into
+    the file at multiple paths, the function returns any one of the paths.
+
+`object:get_reference_type(ref, ref_type)`
+
+  : Returns the type of the object referenced by the given reference of the
+    given reference type. `object` may be any group, dataset, committed
+    datatype or attribute within a file, or a file.
+
+    The object type is one of the following:
+
+    * **"group"**,
+    * **"dataset"**,
+    * **"named_datatype"**.
+
+`object:get_reference_region(ref, ref_type)`
+
+  : Returns the dataspace with the selection referenced by the given dataset
+    region reference. `ref_type` must be equal to **"dataset_region"**.
+
+
+Property lists
+--------------
+
+`hdf5.create_plist(class)`
+
+  : Creates and returns a property list of the given class.
+
+    `class` can be any of the following:
+
+    * **"file_create"**: [file creation properties];
+    * **"file_access"**: [file access properties];
+    * **"file_mount"**: file mounting properties;
+    * **"group_create"**: group creation properties;
+    * **"group_access"**: group access properties;
+    * **"dataset_create"**: [dataset creation properties];
+    * **"dataset_access"**: dataset access properties;
+    * **"dataset_xfer"**: [dataset transfer properties];
+    * **"attribute_create"**: attribute creation properties;
+    * **"datatype_create"**: datatype creation properties;
+    * **"datatype_access"**: datatype access properties;
+    * **"object_create"**: object creation properties;
+    * **"object_copy"**: object copying properties;
+    * **"link_create"**: [link creation properties];
+    * **"link_access"**: link access properties.
+    * **"string_create"**: character encoding properties;
+
+
+### File creation properties
+
+`fcpl:get_version()`
+
+  : Returns version information about the file.
+
+    This function returns the following values:
+
+    * the super block version number;
+    * the global freelist version number;
+    * the symbol table version number;
+    * the shared object header version number.
+
+[file creation properties]: #file-creation-properties
+
+
+### File access properties
+
+`fapl:set_libver_bounds(low, high)`
+
+  : Sets the lower and the upper bound on the file format version to be used
+    when creating the file itself, or objects in the file. A function creating
+    an object will use the earliest possible file format version not earlier
+    than the version specified by `low`. If this version is later than the
+    version specified by `high`, the function will fail to create the object
+    and raise an error.
+
+    `low` can be any of the following:
+
+    * **"earliest"**: the earliest file format version (the default);
+    * **"18"**: the file format version corresponding to version 1.8 of the library;
+    * **"latest"**: the latest file format version.
+
+    `high` can be any of the following:
+
+    * **"18"**: the file format version corresponding to version 1.8 of the library;
+    * **"latest"**: the latest file format version (the default).
+
+`fapl:get_libver_bounds()`
+
+  : Returns the lower and the upper bound on the file format version.
+
+*The following methods are available if HDF5 is compiled with MPI-IO support.*
+
+`fapl:set_fapl_mpio(comm[, info])`
+
+  : Store MPI communicator and info object.
+
+[file access properties]: #file-access-properties
+
+
+### Dataset creation properties
+
+`dcpl:set_layout(layout)`
+
+  : Set the [storage layout] of the raw data of a dataset, which can be any of
+    the following:
+
+    * "**contiguous**": the raw data is stored in a contiguous chunk (the default);
+    * "**chunked**": the raw data is in multiple, separate chunks;
+    * "**compact**": the raw data is stored in the dataset object header.
+
+    [storage layout]: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html#Allocation
+
+`dcpl:get_layout()`
+
+  : Returns the storage layout of the raw data of a dataset.
+
+`dcpl.set_chunk(dims)`
+
+  : Set a chunked storage layout for a dataset, and sets the size of a
+    chunk. `dims` is a table with a sequence that specifies the size of
+    each dimension. For fixed-size dimensions of the dataset, the
+    size of the chunk may not exceed the size of the dataset.
+
+`dcpl:get_chunk()`
+
+  : Returns the chunk size as a table with a sequence that specifies the size
+    of each dimension.
+
+`dcpl:set_deflate(level)`
+
+  : Enables compression of the raw data using the [deflate algorithm] of zlib.
+    The compression level is a number in the range **0** to **9**, where a
+    higher level corresponds to a better compression ratio.
+
+    [deflate algorithm]: http://www.zlib.net/feldspar.html
+
+[dataset creation properties]: #dataset-creation-properties
+
+
+### Dataset transfer properties
+
+*The following methods are available if HDF5 is compiled with MPI-IO support.*
+
+`dxpl:set_dxpl_mpio(xfer_mode)`
+
+  : Set [MPI-IO data transfer] mode, which can be any of the following:
+
+    * **"independent"**: each process does independent I/O (the default);
+    * **"collective"**: all processes participate in collective I/O.
+
+    [MPI-IO data transfer]: http://www.hdfgroup.org/HDF5/PHDF5/parallelhdf5hints.pdf
+
+`dxpl:get_dxpl_mpio()`
+
+  : Returns MPI-IO data transfer mode.
+
+[dataset transfer properties]: #dataset-transfer-properties
+
+
+### Link creation properties
+
+`lcpl:set_create_intermediate_group(flag)`
+
+  : Sets the property specifying whether missing intermediate groups are to be
+    created. If `flag` is **true**, a function creating an object in a group
+    different from the current group will create missing intermediate groups.
+    If `flag` is **false**, a function creating an object in a group different
+    from the current group will raise an error if intermediate groups are
+    missing (the default).
+
+`lcpl:get_create_intermediate_group()`
+
+  : Returns **true** if missing intermediate groups are to be created,
+    otherwise returns **false**.
+
+[link creation properties]: #link-creation-properties

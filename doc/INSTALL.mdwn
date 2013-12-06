@@ -37,3 +37,21 @@ To override the name of the HDF5 library, set `LIBNAME`:
 ~~~
 make LIBNAME=libhdf5.so.7
 ~~~
+
+The module is accompanied by a test suite:
+
+~~~
+make test
+~~~
+
+If HDF5 is compiled with MPI-IO support, set `MPIEXEC`:
+
+~~~
+make test MPIEXEC="mpirun -np 8"
+~~~
+
+To install the module to the default Lua path:
+
+~~~
+make install
+~~~

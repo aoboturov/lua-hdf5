@@ -1,2 +1,4 @@
 /doc/*.html
 /hdf5/C.lua
+/test/*.h5
+/test/*.out
