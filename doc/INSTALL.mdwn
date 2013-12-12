@@ -9,13 +9,13 @@ git clone http://git.colberg.org/gcc-lua-cdecl
 In the repository, checkout the latest release version:
 
 ~~~
-git checkout 1.1.0
+git checkout 1.2.0
 ~~~
 
 If you have GnuPG, verify that the tag is signed by the following key:
 
 ~~~
-git tag -v 1.1.0
+git tag -v 1.2.0
 ~~~
 
 ~~~
@@ -24,7 +24,7 @@ Primary key fingerprint: 2997 6EC2 2BD1 EBBC CC77  F3A6 183B D5ED 3527 8611
 ~~~
 
 Before using the module, make sure to [install the Lua plugin for GCC][gcc‑lua
-installation] version 1.1.0 or later.
+installation] version 1.2.0 or later.
 
 The module is accompanied by a test suite:
 
