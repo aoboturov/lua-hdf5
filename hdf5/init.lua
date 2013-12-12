@@ -13,15 +13,16 @@ local min = math.min
 local _M = {}
 
 -- C types.
-local H5E_walk_t     = ffi.typeof("H5E_walk_t")
-local H5F_libver_t_1 = ffi.typeof("H5F_libver_t[1]")
-local H5O_info_t     = ffi.typeof("H5O_info_t")
-local H5O_info_t_1   = ffi.typeof("H5O_info_t[1]")
-local H5O_type_t_1   = ffi.typeof("H5O_type_t[1]")
-local char_n         = ffi.typeof("char[?]")
-local hsize_t_n      = ffi.typeof("hsize_t[?]")
-local hssize_t_n     = ffi.typeof("hssize_t[?]")
-local unsigned_1     = ffi.typeof("unsigned[1]")
+local H5D_fill_value_t_1 = ffi.typeof("H5D_fill_value_t[1]")
+local H5E_walk_t         = ffi.typeof("H5E_walk_t")
+local H5F_libver_t_1     = ffi.typeof("H5F_libver_t[1]")
+local H5O_info_t         = ffi.typeof("H5O_info_t")
+local H5O_info_t_1       = ffi.typeof("H5O_info_t[1]")
+local H5O_type_t_1       = ffi.typeof("H5O_type_t[1]")
+local char_n             = ffi.typeof("char[?]")
+local hsize_t_n          = ffi.typeof("hsize_t[?]")
+local hssize_t_n         = ffi.typeof("hssize_t[?]")
+local unsigned_1         = ffi.typeof("unsigned[1]")
 
 -- Object identifiers.
 local attribute_id = ffi.typeof("struct { hid_t id; }")
@@ -953,6 +954,32 @@ end
 function plist.set_deflate(plist, level)
   local err = C.H5Pset_deflate(plist.id, level)
   if err < 0 then return error(get_error()) end
+end
+
+function plist.set_fill_value(plist, buf, buf_type)
+  if buf_type ~= nil then buf_type = buf_type.id else buf_type = C.H5I_INVALID_HID end
+  local err = C.H5Pset_fill_value(plist.id, buf_type, buf)
+  if err < 0 then return error(get_error()) end
+end
+
+function plist.get_fill_value(plist, buf, buf_type)
+  local err = C.H5Pget_fill_value(plist.id, buf_type.id, buf)
+  if err < 0 then return error(get_error()) end
+end
+
+do
+  local values = {
+    [C.H5D_FILL_VALUE_UNDEFINED]    = "undefined",
+    [C.H5D_FILL_VALUE_DEFAULT]      = "default",
+    [C.H5D_FILL_VALUE_USER_DEFINED] = "user_defined",
+  }
+
+  function plist.fill_value_defined(plist)
+    local status = H5D_fill_value_t_1()
+    local err = C.H5Pfill_value_defined(plist.id, status)
+    if err < 0 then return error(get_error()) end
+    return values[tonumber(status[0])]
+  end
 end
 
 if pcall(function() return C.H5Pset_dxpl_mpio end) then

@@ -88,6 +88,64 @@ collectgarbage()
 
 do
   local file = hdf5.create_file(path)
+  local file_type = hdf5.int64
+  local file_space = hdf5.create_space("scalar")
+  file:create_dataset("id", file_type, file_space)
+end
+collectgarbage()
+
+do
+  local file = hdf5.open_file(path)
+  local dset = file:open_dataset("id")
+  local dcpl = dset:get_dataset_create_plist()
+  assert(dcpl:fill_value_defined() == "default")
+  do
+    local buf = ffi.new("int[1]")
+    dcpl:get_fill_value(buf, hdf5.int)
+    assert(buf[0] == 0)
+  end
+  do
+    local buf = ffi.new("int[1]")
+    dset:read(buf, hdf5.int)
+    assert(buf[0] == 0)
+  end
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  local file_type = hdf5.int64
+  local file_space = hdf5.create_space("scalar")
+  local dcpl = hdf5.create_plist("dataset_create")
+  assert(dcpl:fill_value_defined() == "default")
+  dcpl:set_fill_value(nil)
+  assert(dcpl:fill_value_defined() == "undefined")
+  dcpl:set_fill_value(ffi.new("short[1]", -1), hdf5.short)
+  assert(dcpl:fill_value_defined() == "user_defined")
+  file:create_dataset("id", file_type, file_space, nil, dcpl)
+end
+collectgarbage()
+
+do
+  local file = hdf5.open_file(path)
+  local dset = file:open_dataset("id")
+  local dcpl = dset:get_dataset_create_plist()
+  assert(dcpl:fill_value_defined() == "user_defined")
+  do
+    local buf = ffi.new("int[1]")
+    dcpl:get_fill_value(buf, hdf5.int)
+    assert(buf[0] == -1)
+  end
+  do
+    local buf = ffi.new("int[1]")
+    dset:read(buf, hdf5.int)
+    assert(buf[0] == -1)
+  end
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
   local file_type = hdf5.float
   local file_space = hdf5.create_simple_space({2, 2})
   local dset = file:create_dataset("position", file_type, file_space)

@@ -830,6 +830,33 @@ Property lists
 
     [deflate algorithm]: http://www.zlib.net/feldspar.html
 
+`dcpl:set_fill_value(buf, buf_type)`
+
+  : Sets the fill value for a dataset. The fill value is read from the array
+    `buf`, whose element type corresponds to the datatype `buf_type`. The
+    datatype of the buffer must be [convertible][Datatype Conversion and
+    Selection] to the datatype of the dataset.
+
+    The fill value may be set to be undefined by passing **nil** as `buf`. In
+    this case, the argument `buf_type` may be omitted.
+
+`dcpl:get_fill_value(buf, buf_type)`
+
+  : Retrieves the fill value for a dataset. The fill value is written to the
+    array `buf`, whose element type corresponds to the datatype `buf_type`. The
+    datatype of the buffer must be [convertible][Datatype Conversion and
+    Selection] from the datatype of the dataset.
+
+`dcpl:fill_value_defined()`
+
+  : Determines whether a fill value has been defined.
+
+    The function returns one of the following:
+
+    * **"undefined"**: the fill value is undefined;
+    * **"default"**: the fill value has been set by the library;
+    * **"user_defined"**: the fill value has been set by the program.
+
 [dataset creation properties]: #dataset-creation-properties
 
 
