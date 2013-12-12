@@ -7,3 +7,4 @@
 * [HDF5 for Lua](index.html)
     + [Installing](INSTALL.html)
     + [Reference](reference.html)
+    + [Mailing list](https://lists.colberg.org/listinfo/lua-hdf5)
