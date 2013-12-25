@@ -17,6 +17,9 @@ typedef struct {
 } untagged_struct;
 untagged_struct untagged_struct_decl;
 
+typedef struct {} empty_struct;
+empty_struct empty_struct_decl;
+
 /* opaque composite type */
 union opaque_union *opaque_union_decl;
 

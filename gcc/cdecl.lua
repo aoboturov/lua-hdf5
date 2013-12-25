@@ -140,30 +140,27 @@ local function format_enumeral_type(node, parent, result, pos, shift, f)
     local node = main:name()
     if node then name = node:value() end
   end
-  if not name or #result == 0 then
-    local value = node:values()
-    if value then
-      local body = {}
-      insert(body, [[ {
+  if node:size() and (not name or #result == 0) then
+    local body = {}
+    insert(body, [[ {
 ]])
-      do
-        local shift = shift .. _M.INDENT
-        while true do
-          insert(body, shift)
-          insert(body, value:purpose():value())
-          insert(body, " = ")
-          insert(body, value:value():value())
-          insert(body, [[,
+    do
+      local shift = shift .. _M.INDENT
+      local value = node:values()
+      while value do
+        insert(body, shift)
+        insert(body, value:purpose():value())
+        insert(body, " = ")
+        insert(body, value:value():value())
+        insert(body, [[,
 ]])
-          value = value:chain()
-          if not value then break end
-        end
+        value = value:chain()
       end
-      insert(body, shift)
-      insert(body, "}")
-      format_attributes(node, body)
-      insert(result, pos, concat(body))
     end
+    insert(body, shift)
+    insert(body, "}")
+    format_attributes(node, body)
+    insert(result, pos, concat(body))
   end
   if name then
     insert(result, pos, name)
@@ -182,28 +179,25 @@ local function format_composite_type(node, parent, result, pos, shift, f)
     local node = main:name()
     if node then name = node:value() end
   end
-  if not name or #result == 0 then
-    local field = node:fields()
-    if field and field:code() == "field_decl" then
-      local body = {}
-      insert(body, [[ {
+  if node:size() and (not name or #result == 0) then
+    local body = {}
+    insert(body, [[ {
 ]])
-      do
-        local shift = shift .. _M.INDENT
-        while true do
-          insert(body, shift)
-          format_node_class(field, nil, body, #body + 1, shift, f)
-          insert(body, [[;
+    do
+      local shift = shift .. _M.INDENT
+      local field = node:fields()
+      while field and field:code() == "field_decl" do
+        insert(body, shift)
+        format_node_class(field, nil, body, #body + 1, shift, f)
+        insert(body, [[;
 ]])
-          field = field:chain()
-          if not field or field:code() ~= "field_decl" then break end
-        end
+        field = field:chain()
       end
-      insert(body, shift)
-      insert(body, "}")
-      format_attributes(node, body)
-      insert(result, pos, concat(body))
     end
+    insert(body, shift)
+    insert(body, "}")
+    format_attributes(node, body)
+    insert(result, pos, concat(body))
   end
   if name then
     insert(result, pos, name)

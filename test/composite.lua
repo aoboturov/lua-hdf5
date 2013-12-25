@@ -100,6 +100,18 @@ typedef struct {
 } untagged_struct]])
 end
 
+function test.empty_struct_decl(decl)
+  assert(cdecl.declare(decl) == [[
+struct {
+} empty_struct_decl]])
+  assert(cdecl.declare(decl:type()) == [[
+struct {
+}]])
+  assert(cdecl.declare(decl:type():name()) == [[
+typedef struct {
+} empty_struct]])
+end
+
 -- opaque composite type
 function test.opaque_union_decl(decl)
   assert(cdecl.declare(decl) == "union opaque_union *opaque_union_decl")
