@@ -101,7 +101,7 @@ function macro.memb(decl, id)
       if name then return name(f) end
     end)
   end
-  if result:code() == "enumeral_type" then
+  if result:code() == "enumeral_type" or not result:fields() then
     return output, result:stub_decl():uid()
   end
   return output, result:fields():uid()
