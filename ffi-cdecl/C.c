@@ -2,6 +2,7 @@
 #include <libgen.h>
 #include <sys/resource.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -22,6 +23,7 @@ cdecl_func(basename)
 cdecl_func(clock_gettime)
 cdecl_func(getopt)
 cdecl_func(malloc)
+cdecl_func(vprintf)
 
 cdecl_const(RLIM_INFINITY)
 cdecl_const(RLIMIT_CORE)
