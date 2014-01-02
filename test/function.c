@@ -4,6 +4,8 @@
  * For conditions of distribution and use, see copyright notice in LICENSE.
  */
 
+#include <stdarg.h>
+
 /* function type */
 void *(*ptr_to_func_int_ret_ptr_to_void)(int, ...);
 void *(*(*ptr_to_func_int_ret_ptr_to_array_2_of_ptr_to_void)(int, ...))[2];
@@ -29,6 +31,11 @@ func_int_void_ret_void_type *ptr_to_func_int_void_ret_void = func_int_void_ret_v
 typedef void func_void_ret_void_type(void);
 func_void_ret_void_type func_void_ret_void;
 func_void_ret_void_type *ptr_to_func_void_ret_void = func_void_ret_void;
+
+/* variable-length argument list */
+typedef void func_ptr_to_const_char_va_list_ret_void_type(const char *, va_list);
+func_ptr_to_const_char_va_list_ret_void_type func_ptr_to_const_char_va_list_ret_void;
+func_ptr_to_const_char_va_list_ret_void_type *ptr_to_func_ptr_to_const_char_va_list_ret_void = func_ptr_to_const_char_va_list_ret_void;
 
 /* GCC C extension: function declaration attributes */
 typedef int aligned_int __attribute__((aligned(16)));

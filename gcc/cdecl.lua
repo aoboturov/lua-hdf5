@@ -177,7 +177,13 @@ local function format_composite_type(node, parent, result, pos, shift, f)
   local name = f and f(main)
   if not name then
     local node = main:name()
-    if node then name = node:value() end
+    if node then
+      if node:code() == "type_decl" then
+        name = node:name():value()
+      else
+        name = node:value()
+      end
+    end
   end
   if node:size() and (not name or #result == 0) then
     local body = {}

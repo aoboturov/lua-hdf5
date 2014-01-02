@@ -116,6 +116,13 @@ function test.ptr_to_func_void_ret_void(decl)
   assert(cdecl.declare(decl:initial():operand():type()) == "void (void)")
 end
 
+-- variable-length argument list
+function test.ptr_to_func_ptr_to_const_char_va_list_ret_void(decl)
+  assert(cdecl.declare(decl))
+  assert(cdecl.declare(decl:type()))
+  assert(cdecl.declare(decl:type():type()))
+end
+
 -- GCC C extension: function declaration attributes
 function test.ptr_to_func_void_ret_aligned_int(decl)
   assert(cdecl.declare(decl:type():type():type():name()) == "typedef int aligned_int __attribute__((aligned(16)))")
