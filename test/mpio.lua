@@ -67,4 +67,34 @@ do
 end
 collectgarbage()
 
+do
+  local fapl = hdf5.create_plist("file_access")
+  fapl:set_fapl_mpio(comm)
+  local file = hdf5.create_file(path, nil, nil, fapl)
+  local dtype = hdf5.c_s1:copy()
+  dtype:set_size("variable")
+  local space = hdf5.create_simple_space({3})
+  local attr = file:create_attribute("boundary", dtype, space)
+  local boundary = {"periodic", "periodic", "none"}
+  attr:write(ffi.new("const char *[3]", boundary), dtype)
+end
+collectgarbage()
+
+do
+  local fapl = hdf5.create_plist("file_access")
+  fapl:set_fapl_mpio(comm)
+  local file = hdf5.open_file(path, nil, fapl)
+  local attr = file:open_attribute("boundary")
+  local dtype = hdf5.c_s1:copy()
+  dtype:set_size("variable")
+  local buf = ffi.new("const char *[3]")
+  attr:read(buf, dtype)
+  assert(ffi.string(buf[0]) == "periodic")
+  assert(ffi.string(buf[1]) == "periodic")
+  assert(ffi.string(buf[2]) == "none")
+  local space = attr:get_space()
+  hdf5.vlen_reclaim(buf, dtype, space)
+end
+collectgarbage()
+
 os.remove(path)
