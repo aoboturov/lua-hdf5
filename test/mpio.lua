@@ -4,6 +4,8 @@
 -- For conditions of distribution and use, see copyright notice in LICENSE.
 ------------------------------------------------------------------------------
 
+require("strict")
+
 local mpi = require("mpi")
 
 local comm = assert(mpi.comm_world)

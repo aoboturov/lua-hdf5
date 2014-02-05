@@ -4,6 +4,8 @@
 -- For conditions of distribution and use, see copyright notice in LICENSE.
 ------------------------------------------------------------------------------
 
+require("strict")
+
 pcall(require, "luacov")
 
 local hdf5 = require("hdf5")
