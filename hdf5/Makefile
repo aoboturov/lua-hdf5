@@ -10,7 +10,7 @@ ifneq (,$(findstring H5_HAVE_PARALLEL,$(shell $(CC) -E -dM -include H5pubconf.h 
 endif
 CC        = gcc
 CPPFLAGS  = -I$(FFI_CDECL_DIR)
-CFLAGS    = -Wall -pedantic
+CFLAGS    = -Wall -pedantic -Wno-long-long
 GCCLUA    = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 FFI_CDECL = $(FFI_CDECL_DIR)/ffi-cdecl.lua
 LIBNAME   = hdf5
