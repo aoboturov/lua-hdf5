@@ -1,6 +1,43 @@
 % Installing
 
-gcc‑lua‑cdecl is available from a [git repository]:
+gcc‑lua‑cdecl may be installed using [LuaRocks] or [Git].
+
+Before installing the module, make sure to [install the Lua plugin for
+GCC][Installing gcc‑lua].
+
+[LuaRocks]: http://luarocks.org/
+[Git]: http://git-scm.com/
+[Installing gcc‑lua]: http://colberg.org/gcc-lua/INSTALL.html
+
+
+Using LuaRocks
+--------------
+
+Install the module in your home directory:
+
+~~~
+luarocks install --local gcc-lua-cdecl
+~~~
+
+Verify that the module has been installed:
+
+~~~
+luarocks list gcc-lua-cdecl
+~~~
+
+To use the module, set the Lua module path:
+
+~~~
+eval `luarocks path`
+~~~
+
+The command can be added to the shell’s startup file, e.g., `~/.bashrc`.
+
+
+Using Git
+---------
+
+Obtain the source from the [git repository]:
 
 ~~~
 git clone http://git.colberg.org/gcc-lua-cdecl
@@ -23,9 +60,6 @@ Primary key fingerprint: 2997 6EC2 2BD1 EBBC CC77  F3A6 183B D5ED 3527 8611
      Subkey fingerprint: 983B F9D0 F02A 6014 0CEC  529F 767E 12A8 C92A 31CB
 ~~~
 
-Before using the module, make sure to [install the Lua plugin for GCC][gcc‑lua
-installation] version 1.2.0 or later.
-
 The module is accompanied by a test suite:
 
 ~~~
@@ -42,5 +76,4 @@ make test GCCLUA=gcclua
 ~~~
 
 [git repository]: http://git.colberg.org/gcc-lua-cdecl
-[gcc‑lua installation]: http://colberg.org/gcc-lua/INSTALL.html
 [GCC Loading Plugins]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
