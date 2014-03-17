@@ -44,8 +44,6 @@ local location  = {}
 local object    = {}
 local plist     = {}
 
--- Compare header and library version.
-assert(C.H5check_version(C.H5_VERS_MAJOR, C.H5_VERS_MINOR, C.H5_VERS_RELEASE) == 0)
 -- Initialise HDF5 constants.
 assert(C.H5open() == 0)
 
