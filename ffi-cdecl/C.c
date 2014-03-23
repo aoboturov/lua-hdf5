@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700
 #include <libgen.h>
 #include <sys/resource.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -11,6 +12,8 @@
 
 cdecl_type(clockid_t)
 cdecl_type(time_t)
+
+cdecl_typealias(ssize_t, intptr_t)
 
 cdecl_struct(timespec)
 

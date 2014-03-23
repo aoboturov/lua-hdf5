@@ -1,4 +1,6 @@
-% Installing
+---
+title: Installing
+---
 
 gcc‑lua‑cdecl may be installed using [LuaRocks] or [Git].
 

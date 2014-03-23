@@ -1,4 +1,6 @@
-% User's Guide
+---
+title: User's Guide
+---
 
 The module `gcc.cdecl` provides a function `gcc.cdecl.declare`, which
 formats a GCC declaration or type node as a string of C code. In the

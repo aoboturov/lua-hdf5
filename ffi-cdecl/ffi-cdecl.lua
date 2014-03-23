@@ -92,6 +92,20 @@ function macro.type(decl, id)
   return output, result:uid()
 end
 
+function macro.typealias(decl, id)
+  local result = decl:args():type():type():name()
+  local alias = decl:args():chain():type():type():name()
+  typename[result] = function(f) return f(id) end
+  local output = function(f)
+    return cdecl.declare(result, function(node)
+      if node == alias:type():canonical():name() then return alias:name():value() end
+      local name = typename[node]
+      if name then return name(f) end
+    end)
+  end
+  return output, result:uid()
+end
+
 function macro.memb(decl, id)
   local result = decl:args():type():type():main_variant()
   typename[result] = function(f) return f(id) end

@@ -1,4 +1,6 @@
-% Releases
+---
+title: Releases
+---
 
 This document lists the changes between stable releases.
 

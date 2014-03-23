@@ -1,6 +1,8 @@
-% C declaration composer for the GCC Lua plugin
-% Peter Colberg
-% 2013
+---
+title: C declaration composer for the GCC Lua plugin
+author: Peter Colberg
+date: "2013–2014"
+---
 
 [![](gcc-lua-cdecl.png "C declaration composer for GCC Lua plugin")](index.html)
 

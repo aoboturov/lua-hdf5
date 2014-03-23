@@ -1,4 +1,6 @@
-% About the C declaration composer for the GCC Lua plugin
+---
+title: About the C declaration composer for the GCC Lua plugin
+---
 
 [gcc‑lua‑cdecl] is a Lua module for composing C declarations from a C source
 file using the [Lua plugin for GCC]. The module generates C99 function,

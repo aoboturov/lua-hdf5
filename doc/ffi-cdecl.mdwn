@@ -1,4 +1,6 @@
-% FFI C example
+---
+title: FFI C example
+---
 
 This example illustrates how to generate C library bindings for a foreign
 function interface using the script `ffi-cdecl.lua` and the Lua plugin for
@@ -189,6 +191,23 @@ cdecl_type(id)
     if the struct, union or enum is unnamed. For a named struct, union or
     enum, the members may be defined using the macro `cdecl_memb`. This
     allows for forward declarations, or declarations of incomplete types.
+
+cdecl_typealias(id, alias)
+
+  : Defines the type with the given identifier. If the type definition refers
+    to a type with the given alias, the alias name is substituted for the
+    canonical name of the referred type.
+
+    This function may be used to substitute [standard integer types]:
+
+    ~~~ {.c}
+    cdecl_typealias(ssize_t, intptr_t)
+    ~~~
+
+    This outputs a C declaration that defines `ssize_t` using `intptr_t` rather
+    than, e.g., `long int`.
+
+    [standard integer types]: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stdint.h.html#tag_13_47_03_01
 
 cdecl_memb(id)
 
