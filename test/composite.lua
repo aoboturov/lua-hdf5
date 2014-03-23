@@ -56,8 +56,8 @@ struct tagged_struct {
     return node:name():value():upper()
   end) == [[
 struct TAGGED_STRUCT {
-  short int S;
-  int I;
+  SHORT INT S;
+  INT I;
 }]])
   assert(cdecl.declare(decl:type():name(), function(node)
     return node:name():value()
@@ -191,10 +191,10 @@ typedef struct {
     return node:name() and node:name():value():upper()
   end) == [[
 typedef struct {
-  unsigned int UNSIGNED_INT_BITFIELD : 1;
-  int SIGNED_INT_BITFIELD : 2;
-  unsigned int : 3;
-  int : 4;
+  UNSIGNED INT UNSIGNED_INT_BITFIELD : 1;
+  INT SIGNED_INT_BITFIELD : 2;
+  UNSIGNED INT : 3;
+  INT : 4;
   struct BITFIELD STRUCT_BITFIELD;
 } NESTED_BITFIELD_TYPE]])
 end

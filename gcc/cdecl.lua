@@ -66,7 +66,8 @@ local function format_scalar_type(node, parent, result, pos, shift, f)
   if parent then insert(result, pos, " ") end
   local node = node:canonical()
   local decl = node:name()
-  insert(result, pos, decl:name():value())
+  local name = f and f(decl) or decl:name():value()
+  insert(result, pos, name)
   format_qualifiers(node, decl, result, pos, decl:type())
 end
 
