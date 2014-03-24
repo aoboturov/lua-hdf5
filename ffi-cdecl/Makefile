@@ -1,7 +1,7 @@
 CC        = gcc
 CPPFLAGS  =
 CPPOPT    = -I$(FFI_CDECL_DIR)
-CFLAGS    = -Wall -pedantic
+CFLAGS    = -Wall -pedantic -O2
 CCOPT     = -std=c99
 GCCLUA    = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 FFI_CDECL = $(FFI_CDECL_DIR)/ffi-cdecl.lua
