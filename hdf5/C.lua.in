@@ -1,4 +1,32 @@
 ------------------------------------------------------------------------------
+-- Generate C declarations for use with a foreign function interface (FFI).
+-- Copyright © 2013 Peter Colberg.
+-- For conditions of distribution and use, see copyright notice in LICENSE.
+------------------------------------------------------------------------------
+
+local gcc   = require("gcc")
+local cdecl = require("ffi-cdecl")
+
+-- Output generated assembly to /dev/null
+gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
+
+local decls = {}
+
+-- Parse C declaration from capture macro.
+gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(node)
+  local decl = cdecl.parse(node)
+  if decl then table.insert(decls, decl) end
+end)
+
+-- Output captured C declarations to Lua file.
+gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
+  local result = {}
+  for i, decl in ipairs(decls) do
+    result[i] = tostring(decl) .. ";\n"
+  end
+  local f = assert(io.open(arg.output, "w"))
+  f:write([=[
+------------------------------------------------------------------------------
 -- HDF5 for Lua.
 -- Copyright © 2013 Peter Colberg.
 -- For conditions of distribution and use, see copyright notice in LICENSE.
@@ -7,7 +35,7 @@
 local ffi = require("ffi")
 
 ffi.cdef[[
-@CDECL@
+]=], table.concat(result), [=[
 ]]
 
 -- If the HDF5 library has been linked to the application, use HDF5
@@ -17,7 +45,9 @@ local C
 if pcall(function() return ffi.C.H5open end) then
   C = ffi.C
 else
-  C = ffi.load("@LIBNAME@")
+  C = ffi.load("]=], arg.libname, [=[")
 end
-
 return C
+]=])
+  f:close()
+end)

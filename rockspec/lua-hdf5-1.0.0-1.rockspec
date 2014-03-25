@@ -19,9 +19,9 @@ description = {
    license = "MIT/X11",
 }
 build = {
-   type = "make",
-   install_variables = {
-      PREFIX = "$(PREFIX)",
-      INSTALL_LMOD = "$(LUADIR)/hdf5",
-   }
+   type = "builtin",
+   modules = {
+      ["hdf5"] = "hdf5/init.lua",
+      ["hdf5.C"] = "hdf5/C.lua",
+   },
 }

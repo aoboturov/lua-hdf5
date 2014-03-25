@@ -1,26 +1,28 @@
 #
 # HDF5 for Lua.
-# Copyright © 2013 Peter Colberg.
+# Copyright © 2013–2014 Peter Colberg.
 # For conditions of distribution and use, see copyright notice in LICENSE.
 #
 
 PREFIX = /usr/local
+LUADIR = $(PREFIX)/share/lua/5.1
 
-INSTALL_LMOD = $(PREFIX)/share/lua/5.1/hdf5
-INSTALL_DIR = mkdir -p
-INSTALL_DATA = install -m 644
+INSTALL_D = mkdir -p
+INSTALL_F = install -m 644
 
-FILES_LMOD = C.lua init.lua
+FILES_LUA = C.lua init.lua
+
+all: hdf5
 
 hdf5:
 	@$(MAKE) -C hdf5
 
-test: hdf5
+test:
 	@$(MAKE) -C test
 
-install: hdf5
-	$(INSTALL_DIR) $(DESTDIR)$(INSTALL_LMOD)
-	cd hdf5 && $(INSTALL_DATA) $(FILES_LMOD) $(DESTDIR)$(INSTALL_LMOD)
+install:
+	$(INSTALL_D) $(DESTDIR)$(LUADIR)/hdf5
+	cd hdf5 && $(INSTALL_F) $(FILES_LUA) $(DESTDIR)$(LUADIR)/hdf5
 
 clean:
 	@$(MAKE) -C hdf5 clean
