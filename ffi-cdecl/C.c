@@ -1,3 +1,6 @@
+#define __GNUC_VA_LIST
+#define __gnuc_va_list void *
+
 #define _XOPEN_SOURCE 700
 #include <libgen.h>
 #include <sys/resource.h>

@@ -25,7 +25,4 @@ cdecl_typename(uintptr_t)
 cdecl_typename(bool)
 #endif
 
-#include <stdarg.h>
-cdecl_typename(va_list)
-
 #endif
