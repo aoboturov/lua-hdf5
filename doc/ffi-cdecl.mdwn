@@ -2,11 +2,10 @@
 title: FFI C example
 ---
 
-This example illustrates how to generate C library bindings for a foreign
-function interface using the script `ffi-cdecl.lua` and the Lua plugin for
-GCC. The script extracts the C API of the library with the help of a C source
-file containing capture macros, reads a template file, and writes an output
-file with the captured C declarations.
+This example illustrates how to generate foreign function interface (FFI)
+bindings for a C library using the Lua plugin for GCC and the `ffi-cdecl`
+module. The module extracts the C API of the library with the help of a C
+source file with capture macros and generates matching FFI C bindings.
 
 After following the [installation] instructions, you may run the example:
 
@@ -14,20 +13,119 @@ After following the [installation] instructions, you may run the example:
 make -C ffi-cdecl
 ~~~
 
-An output file `C.lua` with C declarations will be created in the subdirectory.
+If the GCC plugin is not installed in the [GCC plugin directory]:
+
+~~~
+make -C ffi-cdecl GCCLUA=$HOME/projects/gcc-lua/gcc/gcclua.so
+~~~
+
+The FFI C bindings are written to the file `C.lua`:
+
+~~~ {.lua}
+local ffi = require("ffi")
+
+ffi.cdef[[
+int getopt(int, char *const *, const char *);
+extern char *optarg;
+typedef int clockid_t;
+struct timespec {
+  long int tv_sec;
+  long int tv_nsec;
+};
+static const int RLIM_INFINITY = -1;
+]]
+~~~
 
 [installation]: INSTALL.html
+
+
+Usage
+-----
+
+To generate FFI C bindings for a library, we compose a Lua script for the
+GCC C compiler:
+
+~~~ {.lua}
+local gcc = require("gcc")
+local cdecl = require("ffi-cdecl")
+
+-- Output generated assembly to /dev/null
+gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
+~~~
+
+First, we define a function that captures C declarations in a table:
+
+~~~ {.lua}
+local decls = {}
+
+-- Parse C declaration from capture macro.
+gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(node)
+  local decl = cdecl.parse(node)
+  if decl then table.insert(decls, decl) end
+end)
+~~~
+
+Second, we output FFI C bindings for the captured declarations to a Lua file:
+
+~~~ {.lua}
+-- Output captured C declarations to Lua file.
+gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
+  local result = {}
+  table.sort(decls)
+  for i, decl in ipairs(decls) do
+    result[i] = tostring(decl) .. ";\n"
+  end
+  local f = assert(io.open(arg.output, "w"))
+  f:write[=[
+local ffi = require("ffi")
+
+ffi.cdef[[
+]=]
+  f:write(table.concat(result))
+  f:write[=[
+]]
+
+-- Load POSIX real time extensions into global namespace.
+if not pcall(function() return ffi.C.clock_gettime end) then
+  ffi.load("rt", true)
+end
+
+return ffi.C
+]=]
+  f:close()
+end)
+~~~
+
+Note we reorder the captured C declarations using `table.sort` before writing
+them to the Lua file, which orders type declarations in the same order as in
+the header file. This way C capture macros may be specified in arbitrary order,
+which facilitates generation of capture source files, e.g., using [ctags].
+
+[ctags]: http://ctags.sourceforge.net/
+
+The script is executed by loading the Lua plugin for GCC as follows:
+
+~~~
+gcc -S C.c -fplugin=gcclua -fplugin-arg-gcclua-script=C.lua.in -fplugin-arg-gcclua-output=C.lua
+~~~
+
+If the GCC plugin is not installed in the [GCC plugin directory]:
+
+~~~
+gcc -S C.c -fplugin=$HOME/projects/gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=C.lua.in -fplugin-arg-gcclua-output=C.lua
+~~~
 
 
 C capture files
 ---------------
 
-To generate FFI C bindings for a library, the compiler needs to know the types,
-functions, variables, and constants of interest. For this purpose the C header
-`ffi-cdecl.h` defines a range of [capture macros](#c-capture-macros). These
-macros are used in a C source file that includes the header(s) of the library.
+For the purpose of capturing the C API of a library, the C header `ffi-cdecl.h`
+defines a range of [capture macros](#c-capture-macros). These macros are used
+in a C source file that includes the header(s) of the library. Each capture
+macro receives an identifier that refers to a C declaration or preprocessor
+constant.
 
-As an example, consider a capture file `C.c` for the POSIX C API:
+Consider the following capture file `C.c` for the POSIX C API:
 
 ~~~ {.c}
 #define _XOPEN_SOURCE 700
@@ -51,113 +149,21 @@ cdecl_struct(timespec)
 cdecl_const(RLIM_INFINITY)
 ~~~
 
-Each capture macro receives an identifier, which may refer to a C declaration
-or a preprocessor definition. The identifier is used to name the C declaration
-in the output file. An output name may be overridden using the preprocessor:
+The identifier in the generated FFI C binding may be overridden using the
+preprocessor:
 
 ~~~ {.c}
 #define mygetopt getopt
 cdecl_func(mygetopt)
 ~~~
 
-Capture macros may appear in arbitrary order, which facilitates generation of
-capture files using, e.g., [ctags]. Types are output in the order of their
-definition; followed by functions, variables, and constants.
 
-[ctags]: http://ctags.sourceforge.net/
-
-
-Template files
---------------
-
-A template file may be written in any language that supports C declarations
-to describe a library interface. The template contains a keyword `@CDECL@`,
-which is replaced with the captured C declarations in the output file.
-
-The example includes a Lua template file `C.lua.in` for the [LuaJIT] compiler:
-
-~~~ {.lua}
-local ffi = require("ffi")
-
-ffi.cdef[[
-@CDECL@
-]]
-~~~
-
-To avoid conflicts between C declarations imported multiple times within the
-same program, for example within separate modules, it may be desirable to give
-the same C declaration different names, depending on the module it is used in.
-
-~~~ {.lua}
-local ffi = require("ffi")
-
-ffi.cdef[[
-foo_@CDECL@_bar
-]]
-~~~
-
-The prefix `foo_` and postfix `_bar` are included in the output name of every
-captured C declaration.
-
-[LuaJIT]: http://luajit.org/
-
-
-Using the script
-----------------
-
-The script `ffi-cdecl.lua` is loaded into the GCC compiler as follows:
-
-~~~
-gcc C.c -S -fplugin=gcclua -fplugin-arg-gcclua-script=ffi-cdecl.lua
-~~~
-
-The template file and the output file are passed as plugin arguments:
-
-~~~
-gcc … -fplugin-arg-gcclua-input=C.lua.in -fplugin-arg-gcclua-output=C.lua
-~~~
-
-The generated output file `C.lua` contains the C declarations:
-
-~~~ {.lua}
-local ffi = require("ffi")
-
-ffi.cdef[[
-int getopt(int, char *const *, const char *);
-extern char *optarg;
-typedef int clockid_t;
-struct timespec {
-  long int tv_sec;
-  long int tv_nsec;
-};
-static const int RLIM_INFINITY = -1;
-]]
-~~~
-
-With a template name prefix or postfix, as explained [above](#template-files):
-
-~~~ {.lua}
-local ffi = require("ffi")
-
-ffi.cdef[[
-int foo_getopt_bar(int, char *const *, const char *) __asm__("getopt");
-extern char *foo_optarg_bar __asm__("optarg");
-typedef int foo_clockid_t_bar;
-struct foo_timespec_bar {
-  long int tv_sec;
-  long int tv_nsec;
-};
-static const int foo_RLIM_INFINITY_bar = -1;
-]]
-~~~
-
-For a complete usage example, refer to the included `Makefile`.
 
 
 C capture macros
 ----------------
 
-The header `ffi-cdecl.h` defines the following capture macros:
+The C header `ffi-cdecl.h` defines the following capture macros:
 
 cdecl_typename(id)
 
@@ -171,11 +177,15 @@ cdecl_typename(id)
     #include "ffi-cdecl-luajit.h"
     ~~~
 
+    [FFI library of LuaJIT]: http://luajit.org/ext_ffi_semantics.html#clang
+
     For the [CFFI module for Python], built-in types may be declared as follows:
 
     ~~~ {.c}
     #include "ffi-cdecl-python.h"
     ~~~
+
+    [CFFI module for Python]: http://cffi.readthedocs.org/en/latest/#declaring-types-and-functions
 
 cdecl_type(id)
 
@@ -327,5 +337,4 @@ cdecl_const(id)
     Otherwise, the macro outputs a C declaration of one of the above forms.
 
 
-[FFI library of LuaJIT]: http://luajit.org/ext_ffi_semantics.html#clang
-[CFFI module for Python]: http://cffi.readthedocs.org/en/latest/#declaring-types-and-functions
+[GCC plugin directory]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html

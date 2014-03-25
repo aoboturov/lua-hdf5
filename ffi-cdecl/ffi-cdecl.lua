@@ -1,17 +1,15 @@
 ------------------------------------------------------------------------------
 -- Generate C declarations for use with a foreign function interface (FFI).
--- Copyright © 2013 Peter Colberg.
+-- Copyright © 2013–2014 Peter Colberg.
 -- For conditions of distribution and use, see copyright notice in LICENSE.
 ------------------------------------------------------------------------------
 
-local gcc   = require("gcc")
 local cdecl = require("gcc.cdecl")
 
--- Cache library functions
-local insert, concat, select = table.insert, table.concat, select
+local _M = {}
 
--- Output generated assembly to /dev/null
-gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
+-- Cache library functions
+local select, setmetatable = select, setmetatable
 
 -- The C capture macros are implemented using C function definitions.
 -- Some macros parse the function body to evaluate an expression, which
@@ -20,73 +18,49 @@ gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
 -- global variables, the symbol name is needed, which is available at the
 -- PLUGIN_FINISH_UNIT event, but not at the PLUGIN_PRE_GENERICIZE event.
 --
--- A queue containing output functions is used to gather tree nodes with
--- the PLUGIN_PRE_GENERICIZE event, and postpone the output of declarations
--- to the PLUGIN_FINISH_UNIT event.
-local queue = {}
-
--- Types are output in the order of their definition, which allows an
--- arbitrary order of the capture macros. This table assigns a number
--- to each output function.
-local rank = {}
-
--- Reads the template file specified with -fplugin-arg-gcclua-input=…,
--- generates C declarations from the gathered tree nodes, substitutes
--- the declarations for the @CDECL@ keyword, and writes the output file
--- specified with -fplugin-arg-gcclua-output=….
-gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
-  table.sort(queue, function(a, b)
-    return rank[a] < rank[b]
-  end)
-  local input = assert(io.open(arg.input, "r"))
-  local template = input:read("*a")
-  input:close()
-  local result = template:gsub("([%w_]*)@CDECL@([%w_]*)", function(prefix, postfix)
-    local f = function(id) return prefix .. id .. postfix end
-    local result = {}
-    for i = 1, #queue do
-      local decl = queue[i](f)
-      insert(result, decl .. ";")
-    end
-    return concat(result, "\n")
-  end)
-  local output = assert(io.open(arg.output, "w"))
-  output:write(result)
-  output:close()
-end)
-
--- Functions to handle the function definition created by a capture macro,
--- which extract a tree node, and append an output function to the queue.
+-- Each macro function parses a C declaration from a function definition
+-- at the PLUGIN_PRE_GENERICIZE event for that definition and returns an
+-- output function. The C declaration may be formatted as a string by
+-- calling the output function at the PLUGIN_FINISH_UNIT event.
 local macro = {}
 
--- Dispatches capture macro to a handler function.
-gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(decl)
-  local name = decl:name()
+-- Type declarations may be reordered in the same order as their definition in
+-- the header files, which allows an arbitrary order of the capture macros.
+-- This table assigns a unique number to each C declaration.
+local rank = setmetatable({}, {__mode = "k"})
+
+local function comp(a, b)
+  return rank[a] < rank[b]
+end
+
+-- Parse C declaration from capture macro.
+function _M.parse(node, f)
+  local name = node:name()
   if not name then return end
   local op, id = name:value():match("^cdecl_(.-)__(.+)")
   if not op then return end
-  local output, uid = macro[op](decl, id)
-  if output then
-    insert(queue, output)
-    rank[output] = uid or decl:uid()
-  end
-end)
+  if f and op ~= "typename" then id = f(id) or id end
+  local output, uid = macro[op](node, id)
+  if not output then return end
+  local decl = setmetatable({}, {__tostring = output, __lt = comp})
+  rank[decl] = uid or node:uid()
+  return decl
+end
 
--- Table with type declarations or types as keys, and identifiers as values.
+-- Table with type declarations or composite types as keys and identifiers as values.
 local typename = {}
 
 function macro.typename(decl, id)
   local result = decl:args():type():type():name()
-  typename[result] = function() return id end
+  typename[result] = id
 end
 
 function macro.type(decl, id)
   local result = decl:args():type():type():name()
-  typename[result] = function(f) return f(id) end
-  local output = function(f)
+  typename[result] = id
+  local output = function()
     return cdecl.declare(result, function(node)
-      local name = typename[node]
-      if name then return name(f) end
+      return typename[node]
     end)
   end
   return output, result:uid()
@@ -94,13 +68,14 @@ end
 
 function macro.typealias(decl, id)
   local result = decl:args():type():type():name()
+  typename[result] = id
   local alias = decl:args():chain():type():type():name()
-  typename[result] = function(f) return f(id) end
-  local output = function(f)
+  local output = function()
     return cdecl.declare(result, function(node)
-      if node == alias:type():canonical():name() then return alias:name():value() end
-      local name = typename[node]
-      if name then return name(f) end
+      if node == alias:type():canonical():name() then
+        return typename[alias] or alias:name():value()
+      end
+      return typename[node]
     end)
   end
   return output, result:uid()
@@ -108,11 +83,10 @@ end
 
 function macro.memb(decl, id)
   local result = decl:args():type():type():main_variant()
-  typename[result] = function(f) return f(id) end
-  local output = function(f)
+  typename[result] = id
+  local output = function()
     return cdecl.declare(result, function(node)
-      local name = typename[node]
-      if name then return name(f) end
+      return typename[node]
     end)
   end
   if result:code() == "enumeral_type" or not result:fields() then
@@ -129,18 +103,19 @@ function macro.expr(decl, id)
   local result = decl:body():body():args()
   while true do
     if result:class() == "declaration" then
-      return function(f)
+      return function()
         return cdecl.declare(result, function(node)
-          if node == result then return f(id) end
-          local name = typename[node]
-          if name then return name(f) end
+          if node == result then return id end
+          return typename[node]
         end)
       end
     elseif result:class() == "constant" then
-      return function(f)
-        return "static const int " .. f(id) .. " = " .. result:value()
+      return function()
+        return "static const int " .. id .. " = " .. result:value()
       end
     end
     result = select(-1, result:operand())
   end
 end
+
+return _M
