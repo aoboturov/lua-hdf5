@@ -8,6 +8,10 @@
 #include <stdio.h>
 #define FILE void
 
+/* LuaJIT defines ptrdiff_t but not ssize_t. */
+#include <sys/types.h>
+#define ssize_t ptrdiff_t
+
 #include <hdf5.h>
 
 #ifndef H5_VERSION_GE
