@@ -44,6 +44,24 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h1>Releases</h1>
 <p>This document lists the changes between stable releases.</p>
 <p>The version numbers follow <a href="http://semver.org/spec/v2.0.0.html">semantic versioning</a>.</p>
+<h2 id="v2.0.0">gcc‑lua‑cdecl 2.0.0 (2014-04-01)</h2>
+<ul>
+<li><p>FFI C: Add <code>ffi-cdecl</code> module.</p>
+<p>The module may be used to generate FFI C declarations in a Lua script for GCC.</p>
+<p>The module supersedes the static template files used in previous versions.</p></li>
+<li><p>FFI C: Reordering of type declarations is optional using <code>table.sort</code>.</p></li>
+<li><p>cdecl: Support overriding canonical type names.</p></li>
+<li><p>FFI C: Add capture macro <code>cdecl_typealias</code>.</p>
+<p>This macro may be used to substitute standard integer types.</p></li>
+<li><p>cdecl: Fix parsing of variable-length argument list (<code>va_list</code>).</p>
+<p>For FFI C you may instead substitute <code>va_list</code> as follows:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define __GNUC_VA_LIST</span>
+<span class="ot">#define __gnuc_va_list void *</span></code></pre>
+<p>The above must be defined before including any header files.</p></li>
+<li><p>FFI C: Fix declaration of empty struct.</p></li>
+<li><p>FFI C: Fix missing <code>__asm__</code> labels when compiling with -O2.</p></li>
+</ul>
+<p>Thanks to Dennis Schridde for contributing to this release.</p>
 <h2 id="v1.2.0">gcc‑lua‑cdecl 1.2.0 (2013-12-12)</h2>
 <ul>
 <li><p>Fix test suite with GCC 4.6.</p></li>
