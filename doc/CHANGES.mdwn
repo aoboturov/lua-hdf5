@@ -9,8 +9,7 @@ The version numbers follow [semantic versioning].
 [semantic versioning]: http://semver.org/spec/v2.0.0.html
 
 
-gcc‑lua‑cdecl 1.2.0 (2013-12-12) {#v1.2.0}
---------------------------------
+## gcc‑lua‑cdecl 1.2.0 (2013-12-12) {#v1.2.0}
 
   * Fix test suite with GCC 4.6.
 
@@ -18,17 +17,15 @@ gcc‑lua‑cdecl 1.2.0 (2013-12-12) {#v1.2.0}
 
   * FFI C: output types in the order of their definition.
 
-    Capture macros may appear in arbitrary order, which facilitates generation
-    of capture files using ctags.
+    Capture macros may appear in arbitrary order, which facilitates
+    generation of capture files using ctags.
 
   * Support GCC 4.5.
 
-I would like to thank Dennis Schridde for contributing to this release
-by reporting bugs, suggesting features, and testing revisions.
+Thanks to Dennis Schridde for contributing to this release.
 
 
-gcc‑lua‑cdecl 1.1.0 (2013-10-06) {#v1.1.0}
---------------------------------
+## gcc‑lua‑cdecl 1.1.0 (2013-10-06) {#v1.1.0}
 
   * The `cdecl_const` macro of `ffi-cdecl.lua` supports comma operators.
 
@@ -41,7 +38,6 @@ gcc‑lua‑cdecl 1.1.0 (2013-10-06) {#v1.1.0}
     The resulting FFI C constant is defined with value `4`.
 
 
-gcc‑lua‑cdecl 1.0.0 (2013-09-29) {#v1.0.0}
---------------------------------
+## gcc‑lua‑cdecl 1.0.0 (2013-09-29) {#v1.0.0}
 
-  * Initial release of the C declaration composer for the GCC Lua plugin.
+  * Initial release of the C declaration composer for GCC.

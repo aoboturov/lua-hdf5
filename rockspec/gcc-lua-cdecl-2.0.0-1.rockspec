@@ -5,9 +5,9 @@ source = {
    tag = "2.0.0",
 }
 description = {
-   summary = "C declaration composer for the GCC Lua plugin",
+   summary = "C declaration composer for the GNU Compiler Collection",
    detailed = [[
-      gcc-lua-cdecl is a Lua module for composing C declarations from a C
+      cdecl for GCC is a Lua module that composes C declarations from a C
       source file using the Lua plugin for GCC. The module generates C99
       function, variable and type declarations, and supports the GCC extensions
       for attributes and vector types. The module may be used to generate C

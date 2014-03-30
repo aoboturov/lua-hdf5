@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Peter Colberg" />
+  <title>Releases &mdash; C declaration composer for GCC</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="pandoc.css" type="text/css" />
+</head>
+<body>
+<div class="header">
+<ul>
+<li><a href="index.html">cdecl for GCC</a></li>
+<li><a href="INSTALL.html">Installing</a></li>
+<li><a href="README.html">User's Guide</a></li>
+<li><a href="ffi-cdecl.html">FFI C example</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="https://lists.colberg.org/listinfo/gcc-lua">Mailing list</a></li>
+<li><a href="CHANGES.html">Releases</a></li>
+</ul>
+</div>
+<div class="body">
+<h1>Releases</h1>
+<p>This document lists the changes between stable releases.</p>
+<p>The version numbers follow <a href="http://semver.org/spec/v2.0.0.html">semantic versioning</a>.</p>
+<h2 id="v1.2.0">gcc‑lua‑cdecl 1.2.0 (2013-12-12)</h2>
+<ul>
+<li><p>Fix test suite with GCC 4.6.</p></li>
+<li><p>Fix parsing of variable-length struct types.</p></li>
+<li><p>FFI C: output types in the order of their definition.</p>
+<p>Capture macros may appear in arbitrary order, which facilitates generation of capture files using ctags.</p></li>
+<li><p>Support GCC 4.5.</p></li>
+</ul>
+<p>Thanks to Dennis Schridde for contributing to this release.</p>
+<h2 id="v1.1.0">gcc‑lua‑cdecl 1.1.0 (2013-10-06)</h2>
+<ul>
+<li><p>The <code>cdecl_const</code> macro of <code>ffi-cdecl.lua</code> supports comma operators.</p>
+<p>This allows parsing C preprocessor constants with side effects:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define H5F_ACC_EXCL (H5check_version(1, 8, 11), 0x0004u)</span></code></pre>
+<p>The resulting FFI C constant is defined with value <code>4</code>.</p></li>
+</ul>
+<h2 id="v1.0.0">gcc‑lua‑cdecl 1.0.0 (2013-09-29)</h2>
+<ul>
+<li>Initial release of the C declaration composer for GCC.</li>
+</ul>
+</div>
+<div class="footer">
+&copy; Copyright 2013–2014, Peter Colberg.
+Created using <a href="http://johnmacfarlane.net/pandoc/">Pandoc</a>.
+</div>
+</body>
+</html>

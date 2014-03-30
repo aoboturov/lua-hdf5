@@ -1,15 +1,13 @@
 ---
-title: C declaration composer for the GCC Lua plugin
+title: C declaration composer for GCC
 author: Peter Colberg
 date: "2013–2014"
 ---
 
-[![](gcc-lua-cdecl.png "C declaration composer for GCC Lua plugin")](index.html)
-
-* [cdecl for GCC Lua](index.html)
-    + [Installing](INSTALL.html)
-    + [User's Guide](README.html)
-    + [FFI C example](ffi-cdecl.html)
-    + [Reference](reference.html)
-    + [Mailing list](https://lists.colberg.org/listinfo/gcc-lua)
-    + [Releases](CHANGES.html)
+- [cdecl for GCC](index.html)
+- [Installing](INSTALL.html)
+- [User's Guide](README.html)
+- [FFI C example](ffi-cdecl.html)
+- [Reference](reference.html)
+- [Mailing list](https://lists.colberg.org/listinfo/gcc-lua)
+- [Releases](CHANGES.html)

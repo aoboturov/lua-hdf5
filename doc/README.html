@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Peter Colberg" />
+  <title>User's Guide &mdash; C declaration composer for GCC</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="pandoc.css" type="text/css" />
+</head>
+<body>
+<div class="header">
+<ul>
+<li><a href="index.html">cdecl for GCC</a></li>
+<li><a href="INSTALL.html">Installing</a></li>
+<li><a href="README.html">User's Guide</a></li>
+<li><a href="ffi-cdecl.html">FFI C example</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="https://lists.colberg.org/listinfo/gcc-lua">Mailing list</a></li>
+<li><a href="CHANGES.html">Releases</a></li>
+</ul>
+</div>
+<div class="body">
+<h1>User's Guide</h1>
+<div class="toc">
+<ul>
+<li><a href="#functions-and-variables">Functions and variables</a></li>
+<li><a href="#assembler-names">Assembler names</a></li>
+<li><a href="#type-declarations">Type declarations</a></li>
+<li><a href="#struct-union-and-enum-types">Struct, union and enum types</a></li>
+<li><a href="#integer-constants">Integer constants</a></li>
+<li><a href="#resources">Resources</a></li>
+</ul>
+</div>
+<p>The module <code>gcc.cdecl</code> provides a function <code>gcc.cdecl.declare</code>, which formats a GCC declaration or type node as a string of C code. In the following examples, we will learn how to use this function to extract functions, variables and types from the operating system's implementation of the <a href="http://pubs.opengroup.org/onlinepubs/9699919799/">POSIX C API</a>.</p>
+<h2 id="functions-and-variables">Functions and variables</h2>
+<p>To extract function and variable declarations from a C header file, we declare specially-prefixed variables in a C source file that point to the declarations. The source file is parsed using GCC and a Lua plugin script that selects these variables by matching their common name prefix.</p>
+<p>Create a file <code>func.c</code> with the following C source code:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define _XOPEN_SOURCE 700</span>
+<span class="ot">#include &lt;unistd.h&gt;</span>
+
+<span class="ot">#define cdecl_func(name) __typeof__(name) *cdecl_func__ ## name = &amp;name;</span>
+<span class="ot">#define cdecl_var cdecl_func</span>
+
+<span class="co">/* http://pubs.opengroup.org/onlinepubs/9699919799/functions/optarg.html */</span>
+cdecl_func(getopt)
+cdecl_var(optarg)
+cdecl_var(opterr)
+cdecl_var(optind)
+cdecl_var(optopt)</code></pre>
+<p>Create a file <code>func.lua</code> with the following Lua source code:</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc.cdecl&quot;</span><span class="ot">)</span>
+
+<span class="co">-- send assembler output to /dev/null</span>
+gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span>
+
+<span class="co">-- invoke Lua function after translation unit has been parsed</span>
+gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
+  <span class="co">-- get global variables in reverse order of declaration</span>
+  <span class="kw">local</span> nodes <span class="ot">=</span> gcc<span class="ot">.</span>get_variables<span class="ot">()</span>
+  <span class="kw">for</span> i <span class="ot">=</span> <span class="ot">#</span>nodes<span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="ot">-</span><span class="dv">1</span> <span class="kw">do</span>
+    <span class="kw">local</span> name <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:name<span class="ot">()</span>:value<span class="ot">()</span>
+    <span class="kw">if</span> name:match<span class="ot">(</span><span class="st">&quot;^cdecl_func__&quot;</span><span class="ot">)</span> <span class="kw">then</span>
+      <span class="co">-- get function or variable pointed to by initial value</span>
+      <span class="kw">local</span> decl <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:initial<span class="ot">()</span>:operand<span class="ot">()</span>
+      <span class="co">-- output function or variable declaration</span>
+      <span class="fu">print</span><span class="ot">(</span>cdecl<span class="ot">.</span>declare<span class="ot">(</span>decl<span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;&quot;</span><span class="ot">)</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span><span class="ot">)</span></code></pre>
+<p>Parse the C source file using the GCC Lua plugin:</p>
+<pre><code>gcc -S -std=c99 -Wall func.c -fplugin=../gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=func.lua</code></pre>
+<p>The output contains the declarations captured in the C source file:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> getopt(<span class="dt">int</span>, <span class="dt">char</span> *<span class="dt">const</span> *, <span class="dt">const</span> <span class="dt">char</span> *) __attribute__((__nothrow__));
+<span class="kw">extern</span> <span class="dt">char</span> *optarg;
+<span class="kw">extern</span> <span class="dt">int</span> opterr;
+<span class="kw">extern</span> <span class="dt">int</span> optind;
+<span class="kw">extern</span> <span class="dt">int</span> optopt;</code></pre>
+<h2 id="assembler-names">Assembler names</h2>
+<p>Many C libraries use the C preprocessor to substitute documented API names with internal ABI names. For example, the POSIX function <code>basename</code> is implemented as <code>__xpg_basename</code> in the GNU C library.</p>
+<p><code>gcc.cdecl.declare</code> may be passed a function as a second argument. This function is invoked on any declaration or type encountered upon formatting the first argument, and may return a string that overrides the parsed name. In this example, we override the internal ABI name of a declaration with its documented API name.</p>
+<p>Create a file <code>asm.c</code> with the following C source code:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define _XOPEN_SOURCE 700</span>
+<span class="ot">#include &lt;libgen.h&gt;</span>
+
+<span class="ot">#define cdecl_func(name) __typeof__(name) *cdecl_func__ ## name = &amp;name;</span>
+<span class="ot">#define cdecl_var cdecl_func</span>
+
+<span class="co">/* http://pubs.opengroup.org/onlinepubs/9699919799/functions/basename.html */</span>
+cdecl_func(basename)
+<span class="co">/* http://pubs.opengroup.org/onlinepubs/9699919799/functions/dirname.html */</span>
+cdecl_func(dirname)</code></pre>
+<p>Create a file <code>asm.lua</code> with the following Lua source code:</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc.cdecl&quot;</span><span class="ot">)</span>
+
+<span class="co">-- send assembler output to /dev/null</span>
+gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span>
+
+<span class="co">-- invoke Lua function after translation unit has been parsed</span>
+gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
+  <span class="co">-- get global variables in reverse order of declaration</span>
+  <span class="kw">local</span> nodes <span class="ot">=</span> gcc<span class="ot">.</span>get_variables<span class="ot">()</span>
+  <span class="kw">for</span> i <span class="ot">=</span> <span class="ot">#</span>nodes<span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="ot">-</span><span class="dv">1</span> <span class="kw">do</span>
+    <span class="kw">local</span> name <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:name<span class="ot">()</span>:value<span class="ot">()</span>
+    <span class="kw">local</span> name <span class="ot">=</span> name:match<span class="ot">(</span><span class="st">&quot;^cdecl_func__(.+)&quot;</span><span class="ot">)</span>
+    <span class="kw">if</span> name <span class="kw">then</span>
+      <span class="co">-- get function or variable pointed to by initial value</span>
+      <span class="kw">local</span> decl <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:initial<span class="ot">()</span>:operand<span class="ot">()</span>
+      <span class="co">-- output function or variable declaration with API name</span>
+      <span class="fu">print</span><span class="ot">(</span>cdecl<span class="ot">.</span>declare<span class="ot">(</span>decl<span class="ot">,</span> <span class="kw">function</span><span class="ot">(</span>node<span class="ot">)</span>
+        <span class="kw">if</span> node <span class="ot">==</span> decl <span class="kw">then</span> <span class="kw">return</span> name <span class="kw">end</span>
+      <span class="kw">end</span><span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;&quot;</span><span class="ot">)</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span><span class="ot">)</span></code></pre>
+<p>Parse the C source file using the GCC Lua plugin:</p>
+<pre><code>gcc -S -std=c99 -Wall asm.c -fplugin=../gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=asm.lua</code></pre>
+<p>The output contains the declarations captured in the C source file:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">char</span> *basename(<span class="dt">char</span> *) __asm__(<span class="st">&quot;__xpg_basename&quot;</span>) __attribute__((__nothrow__));
+<span class="dt">char</span> *dirname(<span class="dt">char</span> *) __attribute__((__nothrow__));</code></pre>
+<p>Declarations with a differing assembler name include a <a href="http://gcc.gnu.org/onlinedocs/gcc/Asm-Labels.html">GCC asm label</a>.</p>
+<h2 id="type-declarations">Type declarations</h2>
+<p>To extract type declarations, we declare variables with a corresponding pointee type. We use pointer variables to avoid warnings about missing initialisation for constant types.</p>
+<p>Create a file <code>type.c</code> with the following C source code:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define _XOPEN_SOURCE 700</span>
+<span class="ot">#include &lt;time.h&gt;</span>
+
+<span class="ot">#define cdecl_type(name) name *cdecl_type__ ## name;</span>
+
+cdecl_type(clockid_t)
+cdecl_type(time_t)</code></pre>
+<p>Create a file <code>type.lua</code> with the following Lua source code:</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc.cdecl&quot;</span><span class="ot">)</span>
+
+<span class="co">-- send assembler output to /dev/null</span>
+gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span>
+
+<span class="co">-- invoke Lua function after translation unit has been parsed</span>
+gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
+  <span class="co">-- get global variables in reverse order of declaration</span>
+  <span class="kw">local</span> nodes <span class="ot">=</span> gcc<span class="ot">.</span>get_variables<span class="ot">()</span>
+  <span class="kw">for</span> i <span class="ot">=</span> <span class="ot">#</span>nodes<span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="ot">-</span><span class="dv">1</span> <span class="kw">do</span>
+    <span class="kw">local</span> name <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:name<span class="ot">()</span>:value<span class="ot">()</span>
+    <span class="kw">local</span> name <span class="ot">=</span> name:match<span class="ot">(</span><span class="st">&quot;^cdecl_type__(.+)&quot;</span><span class="ot">)</span>
+    <span class="kw">if</span> name <span class="kw">then</span>
+      <span class="co">-- get type declaration of pointee type</span>
+      <span class="kw">local</span> decl <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:<span class="fu">type</span><span class="ot">()</span>:<span class="fu">type</span><span class="ot">()</span>:name<span class="ot">()</span>
+      <span class="co">-- output type declaration with API name</span>
+      <span class="fu">print</span><span class="ot">(</span>cdecl<span class="ot">.</span>declare<span class="ot">(</span>decl<span class="ot">,</span> <span class="kw">function</span><span class="ot">(</span>node<span class="ot">)</span>
+        <span class="kw">if</span> node <span class="ot">==</span> decl <span class="kw">then</span> <span class="kw">return</span> name <span class="kw">end</span>
+      <span class="kw">end</span><span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;&quot;</span><span class="ot">)</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span><span class="ot">)</span></code></pre>
+<p>Parse the C source file using the GCC Lua plugin:</p>
+<pre><code>gcc -S -std=c99 -Wall type.c -fplugin=../gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=type.lua</code></pre>
+<p>The output contains the declarations captured in the C source file:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">typedef</span> <span class="dt">int</span> clockid_t;
+<span class="kw">typedef</span> <span class="dt">long</span> <span class="dt">int</span> time_t;</code></pre>
+<h2 id="struct-union-and-enum-types">Struct, union and enum types</h2>
+<p>For a type declaration, <code>gcc.cdecl.declare</code> only expands <em>anonymous</em> struct, union and enum types, for the purpose of allowing forward declarations, and to avoid duplicate definitions. Instead of the type declaration, we format the type itself to define a named struct, union or enum type.</p>
+<p>Create a file <code>struct.c</code> with the following C source code:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define _XOPEN_SOURCE 700</span>
+<span class="ot">#include &lt;time.h&gt;</span>
+
+<span class="ot">#define cdecl_struct(name) struct name *cdecl_struct__ ## name;</span>
+
+cdecl_struct(timespec)</code></pre>
+<p>Create a file <code>struct.lua</code> with the following Lua source code:</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc.cdecl&quot;</span><span class="ot">)</span>
+
+<span class="co">-- send assembler output to /dev/null</span>
+gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span>
+
+<span class="co">-- invoke Lua function after translation unit has been parsed</span>
+gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
+  <span class="co">-- get global variables in reverse order of declaration</span>
+  <span class="kw">local</span> nodes <span class="ot">=</span> gcc<span class="ot">.</span>get_variables<span class="ot">()</span>
+  <span class="kw">for</span> i <span class="ot">=</span> <span class="ot">#</span>nodes<span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="ot">-</span><span class="dv">1</span> <span class="kw">do</span>
+    <span class="kw">local</span> name <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:name<span class="ot">()</span>:value<span class="ot">()</span>
+    <span class="kw">local</span> name <span class="ot">=</span> name:match<span class="ot">(</span><span class="st">&quot;^cdecl_struct__(.+)&quot;</span><span class="ot">)</span>
+    <span class="kw">if</span> name <span class="kw">then</span>
+      <span class="co">-- get pointee type</span>
+      <span class="kw">local</span> <span class="fu">type</span> <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:<span class="fu">type</span><span class="ot">()</span>:<span class="fu">type</span><span class="ot">()</span>
+      <span class="co">-- output type with API name</span>
+      <span class="fu">print</span><span class="ot">(</span>cdecl<span class="ot">.</span>declare<span class="ot">(</span><span class="fu">type</span><span class="ot">,</span> <span class="kw">function</span><span class="ot">(</span>node<span class="ot">)</span>
+        <span class="kw">if</span> node <span class="ot">==</span> <span class="fu">type</span> <span class="kw">then</span> <span class="kw">return</span> name <span class="kw">end</span>
+      <span class="kw">end</span><span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;&quot;</span><span class="ot">)</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span><span class="ot">)</span></code></pre>
+<p>Parse the C source file using the GCC Lua plugin:</p>
+<pre><code>gcc -S -std=c99 -Wall struct.c -fplugin=../gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=struct.lua</code></pre>
+<p>The output contains the definitions of types captured in the C source file:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> timespec {
+  <span class="dt">long</span> <span class="dt">int</span> tv_sec;
+  <span class="dt">long</span> <span class="dt">int</span> tv_nsec;
+};</code></pre>
+<h2 id="integer-constants">Integer constants</h2>
+<p>In this example, we extract and declare integer constants, which is the only kind of C constant supported by <a href="http://luajit.org/ext_ffi.html">LuaJIT FFI</a> as of LuaJIT version 2.0.</p>
+<p>Create a file <code>const.c</code> with the following C source code:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define _XOPEN_SOURCE 700</span>
+<span class="ot">#include &lt;sys/resource.h&gt;</span>
+
+<span class="ot">#define cdecl_const(name) __typeof__(name) cdecl_const__ ## name = name;</span>
+
+<span class="co">/* http://pubs.opengroup.org/onlinepubs/9699919799/functions/getrlimit.html */</span>
+cdecl_const(RLIM_INFINITY)
+cdecl_const(RLIMIT_CORE)
+cdecl_const(RLIMIT_CPU)
+cdecl_const(RLIMIT_DATA)
+cdecl_const(RLIMIT_FSIZE)
+cdecl_const(RLIMIT_NOFILE)
+cdecl_const(RLIMIT_STACK)</code></pre>
+<p>Create a file <code>const.lua</code> with the following Lua source code:</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
+
+<span class="co">-- send assembler output to /dev/null</span>
+gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span>
+
+<span class="co">-- invoke Lua function after translation unit has been parsed</span>
+gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
+  <span class="co">-- get global variables in reverse order of declaration</span>
+  <span class="kw">local</span> nodes <span class="ot">=</span> gcc<span class="ot">.</span>get_variables<span class="ot">()</span>
+  <span class="kw">for</span> i <span class="ot">=</span> <span class="ot">#</span>nodes<span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="ot">-</span><span class="dv">1</span> <span class="kw">do</span>
+    <span class="kw">local</span> name <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:name<span class="ot">()</span>:value<span class="ot">()</span>
+    <span class="kw">local</span> name <span class="ot">=</span> name:match<span class="ot">(</span><span class="st">&quot;^cdecl_const__(.+)&quot;</span><span class="ot">)</span>
+    <span class="kw">if</span> name <span class="kw">then</span>
+      <span class="co">-- extract constant value</span>
+      <span class="kw">local</span> value <span class="ot">=</span> nodes<span class="ot">[</span>i<span class="ot">]</span>:initial<span class="ot">()</span>:value<span class="ot">()</span>
+      <span class="co">-- output constant with API name</span>
+      <span class="fu">print</span><span class="ot">((</span><span class="st">&quot;static const int %s = %d;&quot;</span><span class="ot">)</span>:<span class="fu">format</span><span class="ot">(</span>name<span class="ot">,</span> value<span class="ot">))</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span><span class="ot">)</span></code></pre>
+<p>Parse the C source file using the GCC Lua plugin:</p>
+<pre><code>gcc -S -std=c99 -Wall const.c -fplugin=../gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=const.lua</code></pre>
+<p>The output contains the definitions of constants captured in the C source file:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIM_INFINITY = -<span class="dv">1</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_CORE = <span class="dv">4</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_CPU = <span class="dv">0</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_DATA = <span class="dv">2</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_FSIZE = <span class="dv">1</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_NOFILE = <span class="dv">7</span>;
+<span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> RLIMIT_STACK = <span class="dv">3</span>;</code></pre>
+<h2 id="resources">Resources</h2>
+<p><a href="http://packages.debian.org/cdecl">cdecl</a> converts C declarations from a human-readable phrase to C code, and vice versa.</p>
+</div>
+<div class="footer">
+&copy; Copyright 2013–2014, Peter Colberg.
+Created using <a href="http://johnmacfarlane.net/pandoc/">Pandoc</a>.
+</div>
+</body>
+</html>

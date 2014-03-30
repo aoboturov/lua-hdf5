@@ -208,7 +208,7 @@ cdecl_typealias(id, alias)
     to a type with the given alias, the alias name is substituted for the
     canonical name of the referred type.
 
-    This function may be used to substitute [standard integer types]:
+    This macro may be used to substitute [standard integer types]:
 
     ~~~ {.c}
     cdecl_typealias(ssize_t, intptr_t)

@@ -2,14 +2,13 @@
 title: Installing
 ---
 
-gcc‑lua‑cdecl may be installed using [LuaRocks] or [Git].
+cdecl for GCC may be installed using [LuaRocks] or [Git].
 
-Before installing the module, make sure to [install the Lua plugin for
-GCC][Installing gcc‑lua].
+Before installing the module, make sure to [install the Lua plugin for GCC].
 
 [LuaRocks]: http://luarocks.org/
 [Git]: http://git-scm.com/
-[Installing gcc‑lua]: http://colberg.org/gcc-lua/INSTALL.html
+[install the Lua plugin for GCC]: http://colberg.org/gcc-lua/INSTALL.html
 
 
 Using LuaRocks
