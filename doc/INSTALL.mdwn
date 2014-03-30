@@ -2,43 +2,15 @@
 title: Installing
 ---
 
-cdecl for GCC may be installed using [LuaRocks] or [Git].
-
 Before installing the module, make sure to [install the Lua plugin for GCC].
 
-[LuaRocks]: http://luarocks.org/
-[Git]: http://git-scm.com/
 [install the Lua plugin for GCC]: http://colberg.org/gcc-lua/INSTALL.html
 
 
-Using LuaRocks
---------------
+Git
+---
 
-Install the module in your home directory:
-
-~~~
-luarocks install --local gcc-lua-cdecl
-~~~
-
-Verify that the module has been installed:
-
-~~~
-luarocks list gcc-lua-cdecl
-~~~
-
-To use the module, set the Lua module path:
-
-~~~
-eval `luarocks path`
-~~~
-
-The command can be added to the shell’s startup file, e.g., `~/.bashrc`.
-
-
-Using Git
----------
-
-Obtain the source from the [git repository]:
+cdecl for GCC is available from a [git repository]:
 
 ~~~
 git clone http://git.colberg.org/gcc-lua-cdecl
@@ -47,13 +19,13 @@ git clone http://git.colberg.org/gcc-lua-cdecl
 In the repository, checkout the latest release version:
 
 ~~~
-git checkout 1.2.0
+git checkout 2.0.0
 ~~~
 
 If you have GnuPG, verify that the tag is signed by the following key:
 
 ~~~
-git tag -v 1.2.0
+git tag -v 2.0.0
 ~~~
 
 ~~~
@@ -67,14 +39,65 @@ The module is accompanied by a test suite:
 make test
 ~~~
 
-By default, the tests assume that the gcc‑lua and gcc‑lua‑cdecl repositories are
-located in the same parent directory. If the gcc‑lua plugin is installed in the
-[GCC plugin directory][GCC Loading Plugins] instead, override the make variable
+By default, the tests assume that the Lua plugin for GCC is installed in the
+[GCC plugin directory].
+
+If the plugin is located in a different directory, override the make variable
 `GCCLUA`:
 
 ~~~
-make test GCCLUA=gcclua
+make test GCCLUA=${HOME}/projects/gcc-lua/gcc/gcclua.so
+~~~
+
+You may also specify the plugin directory in the environment variable `LD_LIBRARY_PATH`:
+
+~~~
+export LD_LIBRARY_PATH="${HOME}/projects/gcc-lua/gcc${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}"
+~~~
+
+The plugin may then be loaded by passing its filename:
+
+~~~
+make test GCCLUA=gcclua.so
 ~~~
 
 [git repository]: http://git.colberg.org/gcc-lua-cdecl
-[GCC Loading Plugins]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
+[GCC plugin directory]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
+
+
+LuaRocks
+--------
+
+cdecl for GCC is available from the default [LuaRocks mirror]:
+
+~~~
+luarocks install --local gcc-lua-cdecl
+~~~
+
+You may wish to remove older versions before installing:
+
+~~~
+luarocks remove --local gcc-lua-cdecl
+~~~
+
+To use the module, set the Lua module path in your shell's startup file:
+
+~~~
+eval `luarocks path`
+~~~
+
+If the LuaRocks mirror is not available, install from the git repository above:
+
+~~~
+luarocks install --local rockspec/gcc-lua-cdecl-2.0.0-1.rockspec
+~~~
+
+To install the module directly from the git source, use:
+
+~~~
+luarocks make --local rockspec/gcc-lua-cdecl-2.0.0-1.rockspec
+~~~
+
+In this case you must manually git checkout the corresponding version beforehand.
+
+[LuaRocks mirror]: http://luarocks.org/repositories/rocks/#gcc-lua-cdecl
