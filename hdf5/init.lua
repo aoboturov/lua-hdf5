@@ -25,13 +25,13 @@ local hssize_t_n         = ffi.typeof("hssize_t[?]")
 local unsigned_1         = ffi.typeof("unsigned[1]")
 
 -- Object identifiers.
-local attribute_id = ffi.typeof("struct { hid_t id; }")
-local dataset_id   = ffi.typeof("struct { hid_t id; }")
-local dataspace_id = ffi.typeof("struct { hid_t id; }")
-local datatype_id  = ffi.typeof("struct { hid_t id; }")
-local file_id      = ffi.typeof("struct { hid_t id; }")
-local group_id     = ffi.typeof("struct { hid_t id; }")
-local plist_id     = ffi.typeof("struct { hid_t id; }")
+local attribute_id = ffi.typeof("struct { const hid_t id; }")
+local dataset_id   = ffi.typeof("struct { const hid_t id; }")
+local dataspace_id = ffi.typeof("struct { const hid_t id; }")
+local datatype_id  = ffi.typeof("struct { const hid_t id; }")
+local file_id      = ffi.typeof("struct { const hid_t id; }")
+local group_id     = ffi.typeof("struct { const hid_t id; }")
+local plist_id     = ffi.typeof("struct { const hid_t id; }")
 
 -- Object methods.
 local attribute = {}
@@ -46,6 +46,8 @@ local plist     = {}
 
 -- Initialise HDF5 constants.
 assert(C.H5open() == 0)
+-- Close objects that reference a file when the file is closed.
+assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_STRONG) == 0)
 
 -- Returns error message on top of error stack.
 local function get_error()
@@ -155,12 +157,9 @@ do
   end
 end
 
-do
-  function object.get_file(object)
-    local id = C.H5Iget_file_id(object.id)
-    if id < 0 then return error(get_error()) end
-    return file_id(id)
-  end
+function file.close(file)
+  local err = C.H5Fclose(file.id)
+  if err < 0 then return error(get_error()) end
 end
 
 function group.create_group(group, name, lcpl, gcpl, gapl)
@@ -827,28 +826,26 @@ do
 end
 
 do
-  local classes = {
-    file_create      = C.H5P_FILE_CREATE,
-    file_access      = C.H5P_FILE_ACCESS,
-    file_mount       = C.H5P_FILE_MOUNT,
-    group_create     = C.H5P_GROUP_CREATE,
-    group_access     = C.H5P_GROUP_ACCESS,
-    dataset_create   = C.H5P_DATASET_CREATE,
-    dataset_access   = C.H5P_DATASET_ACCESS,
-    dataset_xfer     = C.H5P_DATASET_XFER,
-    attribute_create = C.H5P_ATTRIBUTE_CREATE,
-    datatype_create  = C.H5P_DATATYPE_CREATE,
-    datatype_access  = C.H5P_DATATYPE_ACCESS,
-    object_create    = C.H5P_OBJECT_CREATE,
-    object_copy      = C.H5P_OBJECT_COPY,
-    link_create      = C.H5P_LINK_CREATE,
-    link_access      = C.H5P_LINK_ACCESS,
-    string_create    = C.H5P_STRING_CREATE,
+  local plists = {
+    file_create      = C.H5P_FILE_CREATE_DEFAULT,
+    file_access      = C.H5P_FILE_ACCESS_DEFAULT,
+    file_mount       = C.H5P_FILE_MOUNT_DEFAULT,
+    group_create     = C.H5P_GROUP_CREATE_DEFAULT,
+    group_access     = C.H5P_GROUP_ACCESS_DEFAULT,
+    dataset_create   = C.H5P_DATASET_CREATE_DEFAULT,
+    dataset_access   = C.H5P_DATASET_ACCESS_DEFAULT,
+    dataset_xfer     = C.H5P_DATASET_XFER_DEFAULT,
+    attribute_create = C.H5P_ATTRIBUTE_CREATE_DEFAULT,
+    datatype_create  = C.H5P_DATATYPE_CREATE_DEFAULT,
+    datatype_access  = C.H5P_DATATYPE_ACCESS_DEFAULT,
+    object_copy      = C.H5P_OBJECT_COPY_DEFAULT,
+    link_create      = C.H5P_LINK_CREATE_DEFAULT,
+    link_access      = C.H5P_LINK_ACCESS_DEFAULT,
   }
 
   function _M.create_plist(class)
-    class = classes[class]
-    local id = C.H5Pcreate(class)
+    local plist = plists[class]
+    local id = C.H5Pcopy(plist)
     if id < 0 then return error(get_error()) end
     return plist_id(id)
   end
@@ -1036,6 +1033,9 @@ end
 
 -- Close object identifier.
 local function close_id(object)
+  local flag = C.H5Iis_valid(object.id)
+  if flag < 0 then return error(get_error()) end
+  if flag == 0 then return end
   local err = C.H5Idec_ref(object.id)
   if err < 0 then return error(get_error()) end
 end

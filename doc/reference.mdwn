@@ -67,10 +67,13 @@ Files
     * **"local"**: flush the file (the default);
     * **"global"**: flush the file and all files mounted onto the file.
 
-`object:get_file()`
+`file:close()`
 
-  : Returns the file that contains the given object. `object` may be an
-    attribute, a dataset, a committed datatype, a group, or a file.
+  : Closes the file.
+
+    This function need only be called if the file should be closed
+    *immediately*; otherwise, the file will be closed eventually when
+    all objects that reference the file have been garbage collected.
 
 
 Groups
@@ -732,11 +735,9 @@ Property lists
     * **"attribute_create"**: attribute creation properties;
     * **"datatype_create"**: datatype creation properties;
     * **"datatype_access"**: datatype access properties;
-    * **"object_create"**: object creation properties;
     * **"object_copy"**: object copying properties;
     * **"link_create"**: [link creation properties];
     * **"link_access"**: link access properties.
-    * **"string_create"**: character encoding properties;
 
 
 ### File creation properties

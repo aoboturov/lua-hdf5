@@ -12,14 +12,14 @@ local hdf5 = require("hdf5")
 
 local path = "test_group.h5"
 
-do
+for i = 1, 3 do
   local file = hdf5.create_file(path)
   local group = file:create_group("particles")
-  assert(group:get_file() == file)
   assert(group:get_object_type() == "group")
   assert(group:get_object_name() == "/particles")
   local subgroup = group:create_group("solvent")
   assert(subgroup:get_object_name() == "/particles/solvent")
+  file:close()
 end
 collectgarbage()
 

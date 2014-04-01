@@ -12,13 +12,13 @@ local hdf5 = require("hdf5")
 
 local path = "test_file.h5"
 
-do
+for i = 1, 3 do
   local file = hdf5.create_file(path, "trunc")
-  assert(file:get_file() == file)
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
   assert(file:get_object_name() == "/")
   assert(file:get_object_type() == "file")
+  file:close()
 end
 collectgarbage()
 
@@ -34,7 +34,6 @@ end
 do
   os.remove(path)
   local file = hdf5.create_file(path, "excl")
-  assert(file:get_file() == file)
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
 end
