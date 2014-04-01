@@ -769,8 +769,8 @@ Property lists
 
     `low` can be any of the following:
 
-    * **"earliest"**: the earliest file format version (the default);
-    * **"18"**: the file format version corresponding to version 1.8 of the library;
+    * **"earliest"**: the earliest file format version;
+    * **"18"**: the file format version corresponding to version 1.8 of the library (the default);
     * **"latest"**: the latest file format version.
 
     `high` can be any of the following:

@@ -79,7 +79,15 @@ do
   local file = hdf5.open_file(path)
   local fapl = file:get_file_access_plist()
   local low, high = fapl:get_libver_bounds()
-  assert(low == "earliest")
+  assert(low == "latest")
+  assert(high == "latest")
+end
+collectgarbage()
+
+do
+  local fapl = hdf5.create_plist("file_access")
+  local low, high = fapl:get_libver_bounds()
+  assert(low == "latest")
   assert(high == "latest")
 end
 collectgarbage()
@@ -107,7 +115,9 @@ end
 collectgarbage()
 
 do
-  local file = hdf5.create_file(path)
+  local fapl = hdf5.create_plist("file_access")
+  fapl:set_libver_bounds("earliest", "latest")
+  local file = hdf5.create_file(path, nil, nil, fapl)
   local fcpl = file:get_file_create_plist()
   local super, freelist, stab, shhdr = fcpl:get_version()
   assert(super == 0)
