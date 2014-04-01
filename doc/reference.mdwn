@@ -884,10 +884,10 @@ Property lists
 
   : Sets the property specifying whether missing intermediate groups are to be
     created. If `flag` is **true**, a function creating an object in a group
-    different from the current group will create missing intermediate groups.
-    If `flag` is **false**, a function creating an object in a group different
-    from the current group will raise an error if intermediate groups are
-    missing (the default).
+    different from the current group will create missing intermediate groups
+    (the default). If `flag` is **false**, a function creating an object in a
+    group different from the current group will raise an error if intermediate
+    groups are missing.
 
 `lcpl:get_create_intermediate_group()`
 

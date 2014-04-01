@@ -48,12 +48,16 @@ end
 collectgarbage()
 
 do
-  local file = hdf5.create_file(path)
   local lcpl = hdf5.create_plist("link_create")
-  assert(lcpl:get_create_intermediate_group() == false)
-  lcpl:set_create_intermediate_group(true)
   assert(lcpl:get_create_intermediate_group() == true)
-  file:create_group("particles/dimer/position", lcpl)
+  lcpl:set_create_intermediate_group(false)
+  assert(lcpl:get_create_intermediate_group() == false)
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  file:create_group("particles/dimer/position")
 end
 collectgarbage()
 

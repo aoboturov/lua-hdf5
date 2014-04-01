@@ -50,6 +50,8 @@ assert(C.H5open() == 0)
 assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_STRONG) == 0)
 -- Write files in HDF5 1.8 format by default.
 assert(C.H5Pset_libver_bounds(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_LIBVER_18, C.H5F_LIBVER_LATEST) == 0)
+-- Create missing intermediate links by default.
+assert(C.H5Pset_create_intermediate_group(C.H5P_LINK_CREATE_DEFAULT, true) == 0)
 
 -- Returns error message on top of error stack.
 local function get_error()
