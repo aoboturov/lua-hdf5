@@ -49,31 +49,28 @@ Files
 
   : Returns the [file access properties] with which the file was opened.
 
-`file:get_file_intent()`
+`file:get_name()`
+
+  : Returns the filename.
+
+`file:get_intent()`
 
   : Returns the mode in which the file was opened.
 
-`object:get_file()`
+`file:flush([scope])`
 
-  : Returns the file that contains the given object. `object` may be an
-    attribute, a dataset, a committed datatype, a group, or a file.
-
-`object:get_file_name()`
-
-  : Returns the name of the file that contains the given object. `object` may
-    be an attribute, a dataset, a committed datatype, a group, or a file.
-
-`object:flush_file([scope])`
-
-  : Flushes buffers to disk for the file that contains the given object.
-    `object` may be an attribute, a dataset, a committed datatype, a group,
-    or a file. An optional argument `scope` specifies whether to flush the
-    file, or the file and all files mounted onto the file.
+  : Flushes file contents to disk. An optional argument `scope` specifies
+    whether to flush the file, or the file and all files mounted onto the file.
 
     `scope` can be any of the following:
 
     * **"local"**: flush the file (the default);
     * **"global"**: flush the file and all files mounted onto the file.
+
+`object:get_file()`
+
+  : Returns the file that contains the given object. `object` may be an
+    attribute, a dataset, a committed datatype, a group, or a file.
 
 
 Groups

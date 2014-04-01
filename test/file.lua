@@ -15,8 +15,8 @@ local path = "test_file.h5"
 do
   local file = hdf5.create_file(path, "trunc")
   assert(file:get_file() == file)
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdwr")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdwr")
   assert(file:get_object_name() == "/")
   assert(file:get_object_type() == "file")
 end
@@ -35,8 +35,8 @@ do
   os.remove(path)
   local file = hdf5.create_file(path, "excl")
   assert(file:get_file() == file)
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdwr")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdwr")
 end
 collectgarbage()
 
@@ -47,32 +47,32 @@ end
 
 do
   local file = hdf5.create_file(path)
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdwr")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdwr")
 end
 collectgarbage()
 
 do
   local file = hdf5.open_file(path)
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdonly")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdonly")
 end
 collectgarbage()
 
 do
   local file = hdf5.open_file(path, "rdonly")
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdonly")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdonly")
 end
 collectgarbage()
 
 do
   local file = hdf5.open_file(path, "rdwr")
-  assert(file:get_file_name() == path)
-  assert(file:get_file_intent() == "rdwr")
-  file:flush_file()
-  file:flush_file("local")
-  file:flush_file("global")
+  assert(file:get_name() == path)
+  assert(file:get_intent() == "rdwr")
+  file:flush()
+  file:flush("local")
+  file:flush("global")
 end
 collectgarbage()
 

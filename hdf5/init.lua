@@ -116,12 +116,25 @@ function file.get_file_access_plist(file)
 end
 
 do
+  function file.get_name(file)
+    local ret = C.H5Fget_name(file.id, nil, 0)
+    if ret < 0 then return error(get_error()) end
+    if ret == 0 then return end
+    local size = tonumber(ret)
+    local name = char_n(size + 1)
+    local ret = C.H5Fget_name(file.id, name, size + 1)
+    if ret < 0 then return error(get_error()) end
+    return ffi.string(name, size)
+  end
+end
+
+do
   local flags = {
     [C.H5F_ACC_RDWR]   = "rdwr",
     [C.H5F_ACC_RDONLY] = "rdonly",
   }
 
-  function file.get_file_intent(file)
+  function file.get_intent(file)
     local flag = unsigned_1()
     local err = C.H5Fget_intent(file.id, flag)
     if err < 0 then return error(get_error()) end
@@ -135,9 +148,9 @@ do
     ["global"] = C.H5F_SCOPE_GLOBAL,
   }
 
-  function object.flush_file(object, scope)
+  function file.flush(file, scope)
     if scope ~= nil then scope = flags[scope] else scope = C.H5F_SCOPE_LOCAL end
-    local err = C.H5Fflush(object.id, scope)
+    local err = C.H5Fflush(file.id, scope)
     if err < 0 then return error(get_error()) end
   end
 end
@@ -147,19 +160,6 @@ do
     local id = C.H5Iget_file_id(object.id)
     if id < 0 then return error(get_error()) end
     return file_id(id)
-  end
-end
-
-do
-  function object.get_file_name(object)
-    local ret = C.H5Fget_name(object.id, nil, 0)
-    if ret < 0 then return error(get_error()) end
-    if ret == 0 then return end
-    local size = tonumber(ret)
-    local name = char_n(size + 1)
-    local ret = C.H5Fget_name(object.id, name, size + 1)
-    if ret < 0 then return error(get_error()) end
-    return ffi.string(name, size)
   end
 end
 
