@@ -7,13 +7,11 @@ source = {
 description = {
    summary = "HDF5 for Lua",
    detailed = [[
-      HDF5 for Lua provides bindings for the Hierarchical Data Format (HDF5), a
-      file format and library for portable, flexible and efficient storage of
-      numerical data. Lua is a powerful, fast, lightweight, and embeddable
-      scripting language. LuaJIT is a just-in-time compiler for the Lua
-      language, which allows using native C data structures as part of its
-      foreign function interface library (FFI). HDF5 for Lua supports HDF5 1.8
-      or later, using LuaJIT.
+      HDF5 for Lua provides bindings for the Hierarchical Data Format (HDF5),
+      a file format and library for portable, flexible and efficient storage of
+      numerical data. LuaJIT is a just-in-time compiler for the Lua language
+      that provides native C data structures through its foreign function interface
+      (FFI) library. HDF5 for Lua supports HDF5 1.8 or later using LuaJIT.
    ]],
    homepage = "http://colberg.org/lua-hdf5/",
    license = "MIT/X11",

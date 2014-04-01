@@ -1,4 +1,6 @@
-% Installing
+---
+title: Installing
+---
 
 HDF5 for Lua is available from a [git repository]:
 

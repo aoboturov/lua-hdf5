@@ -1,4 +1,6 @@
-% Reference
+---
+title: Reference
+---
 
 Library
 -------
@@ -21,9 +23,8 @@ Files
 
     `flag` can be any of the following:
 
-    * **"trunc"**: an existing file is overwritten (the default);
-    * **"excl"**: an existing file is not overwritten, and this function raises
-      an error.
+      - **"trunc"**: an existing file is overwritten (the default);
+      - **"excl"**: an existing file is not overwritten, and this function raises an error.
 
 `hdf5.open_file(name[, flag[, fapl]])`
 
@@ -33,8 +34,8 @@ Files
 
     `flag` can be any of the following:
 
-    * **"rdonly"**: read-only mode (the default);
-    * **"rdwr"**: read-write mode.
+      - **"rdonly"**: read-only mode (the default);
+      - **"rdwr"**: read-write mode.
 
 `hdf5.is_hdf5(name)`
 
@@ -64,8 +65,8 @@ Files
 
     `scope` can be any of the following:
 
-    * **"local"**: flush the file (the default);
-    * **"global"**: flush the file and all files mounted onto the file.
+      - **"local"**: flush the file (the default);
+      - **"global"**: flush the file and all files mounted onto the file.
 
 `file:close()`
 
@@ -266,9 +267,9 @@ Dataspaces
 
     `class` can be any of the following:
 
-    * **"scalar"**: a dataspace of a single element;
-    * **"simple"**: a dataspace of a (multi-dimensional) array of elements;
-    * **"null"**: a dataspace that has no elements.
+      - **"scalar"**: a dataspace of a single element;
+      - **"simple"**: a dataspace of a (multi-dimensional) array of elements;
+      - **"null"**: a dataspace that has no elements.
 
 `space:get_simple_extent_type()`
 
@@ -305,12 +306,12 @@ Dataspaces
     new selection is merged with an existing selection of the dataspace.
     `op` can be any of the following, to select elements that are
 
-    * **"set"**: in the new selection;
-    * **"or"**: in the existing selection or in the new selection;
-    * **"and"**: both in the existing selection and in the new selection;
-    * **"xor"**: in the existing selection or in the new selection, but not in both selections;
-    * **"notb"**: in the existing selection, but not in the new selection;
-    * **"nota"**: in the new selection, but not in the existing selection;
+      - **"set"**: in the new selection;
+      - **"or"**: in the existing selection or in the new selection;
+      - **"and"**: both in the existing selection and in the new selection;
+      - **"xor"**: in the existing selection or in the new selection, but not in both selections;
+      - **"notb"**: in the existing selection, but not in the new selection;
+      - **"nota"**: in the new selection, but not in the existing selection;
 
     A hyperslab region consists of disjoint blocks of elements. `start` is a
     table with a sequence that specifies for each dimension the non-negative
@@ -373,16 +374,16 @@ Datatypes
 
   : Returns the class of the datatype, which is one of the following:
 
-    * **"integer"**: integer datatype;
-    * **"float"**: floating-point datatype;
-    * **"string"**: fixed-length or variable-length string datatype;
-    * **"bitfield"**: bit field datatype;
-    * **"opaque"**: opaque datatype;
-    * **"compound"**: compound datatype;
-    * **"reference"**: object or dataset region reference datatype;
-    * **"enum"**: enumeration datatype;
-    * **"vlen"**: variable-length datatype;
-    * **"array"**: array datatype.
+      - **"integer"**: integer datatype;
+      - **"float"**: floating-point datatype;
+      - **"string"**: fixed-length or variable-length string datatype;
+      - **"bitfield"**: bit field datatype;
+      - **"opaque"**: opaque datatype;
+      - **"compound"**: compound datatype;
+      - **"reference"**: object or dataset region reference datatype;
+      - **"enum"**: enumeration datatype;
+      - **"vlen"**: variable-length datatype;
+      - **"array"**: array datatype.
 
 `dtype:get_size()`
 
@@ -405,8 +406,8 @@ Datatypes
   : Sets the character encoding of a string datatype, which may be any of the
     following:
 
-    * **"ascii"**: ASCII character encoding (the default);
-    * **"utf8"**: UTF-8 character encoding of the Unicode character set.
+      - **"ascii"**: ASCII character encoding (the default);
+      - **"utf8"**: UTF-8 character encoding of the Unicode character set.
 
 `dtype:get_cset()`
 
@@ -453,21 +454,16 @@ The library defines the following atomic datatypes.
 #### Integer datatypes
 
 +------------------------------------+------------------------------------+
-| `hdf5.char`                        |                                    |
-|   : C type `char`                  |                                    |
-+------------------------------------+------------------------------------+
+| `hdf5.char`                        | `hdf5.opaque`                      |
+|   : C type `char`                  |   : Opaque byte string             |
 | `hdf5.schar`                       | `hdf5.uchar`                       |
 |   : C type `signed char`           |   : C type `unsigned char`         |
-+------------------------------------+------------------------------------+
 | `hdf5.short`                       | `hdf5.ushort`                      |
 |   : C type `short`                 |   : C type `unsigned short`        |
-+------------------------------------+------------------------------------+
 | `hdf5.int`                         | `hdf5.uint`                        |
 |   : C type `int`                   |   : C type `unsigned int`          |
-+------------------------------------+------------------------------------+
 | `hdf5.long`                        | `hdf5.ulong`                       |
 |   : C type `long`                  |   : C type `unsigned long`         |
-+------------------------------------+------------------------------------+
 | `hdf5.llong`                       | `hdf5.ullong`                      |
 |   : C type `long long`             |   : C type `unsigned long long`    |
 +------------------------------------+------------------------------------+
@@ -475,13 +471,10 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.int8`                        | `hdf5.uint8`                       |
 |   : C type `int8_t`                |   : C type `uint8_t`               |
-+------------------------------------+------------------------------------+
 | `hdf5.int16`                       | `hdf5.uint16`                      |
 |   : C type `int16_t`               |   : C type `uint16_t`              |
-+------------------------------------+------------------------------------+
 | `hdf5.int32`                       | `hdf5.uint32`                      |
 |   : C type `int32_t`               |   : C type `uint32_t`              |
-+------------------------------------+------------------------------------+
 | `hdf5.int64`                       | `hdf5.uint64`                      |
 |   : C type `int64_t`               |   : C type `uint64_t`              |
 +------------------------------------+------------------------------------+
@@ -489,25 +482,18 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.i8be`                        | `hdf5.u8be`                        |
 |   : Signed 8 bit big-endian        |   : Unsigned 8 bit big-endian      |
-+------------------------------------+------------------------------------+
 | `hdf5.i8le`                        | `hdf5.u8le`                        |
 |   : Signed 8 bit little-endian     |   : Unsigned 8 bit little-endian   |
-+------------------------------------+------------------------------------+
 | `hdf5.i16be`                       | `hdf5.u16be`                       |
 |   : Signed 16 bit big-endian       |   : Unsigned 16 bit big-endian     |
-+------------------------------------+------------------------------------+
 | `hdf5.i16le`                       | `hdf5.u16le`                       |
 |   : Signed 16 bit little-endian    |   : Unsigned 16 bit little-endian  |
-+------------------------------------+------------------------------------+
 | `hdf5.i32be`                       | `hdf5.u32be`                       |
 |   : Signed 32 bit big-endian       |   : Unsigned 32 bit big-endian     |
-+------------------------------------+------------------------------------+
 | `hdf5.i32le`                       | `hdf5.u32le`                       |
 |   : Signed 32 bit little-endian    |   : Unsigned 32 bit little-endian  |
-+------------------------------------+------------------------------------+
 | `hdf5.i64be`                       | `hdf5.u64be`                       |
 |   : Signed 64 bit big-endian       |   : Unsigned 64 bit big-endian     |
-+------------------------------------+------------------------------------+
 | `hdf5.i64le`                       | `hdf5.u64le`                       |
 |   : Signed 64 bit little-endian    |   : Unsigned 64 bit little-endian  |
 +------------------------------------+------------------------------------+
@@ -517,7 +503,6 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.b8`                          | `hdf5.b16`                         |
 |   : 1 byte bit field               |   : 2 byte bit field               |
-+------------------------------------+------------------------------------+
 | `hdf5.b32`                         | `hdf5.b64`                         |
 |   : 4 byte bit field               |   : 8 byte bit field               |
 +------------------------------------+------------------------------------+
@@ -525,13 +510,10 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.b8be`                        | `hdf5.b8le`                        |
 |   : 8 bit big-endian               |   : 8 bit little-endian            |
-+------------------------------------+------------------------------------+
 | `hdf5.b16be`                       | `hdf5.b16le`                       |
 |   : 16 bit big-endian              |   : 16 bit little-endian           |
-+------------------------------------+------------------------------------+
 | `hdf5.b32be`                       | `hdf5.b32le`                       |
 |   : 32 bit big-endian              |   : 32 bit little-endian           |
-+------------------------------------+------------------------------------+
 | `hdf5.b64be`                       | `hdf5.b64le`                       |
 |   : 64 bit big-endian              |   : 64 bit little-endian           |
 +------------------------------------+------------------------------------+
@@ -546,7 +528,6 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.f32be`                       | `hdf5.f32le`                       |
 |   : 32 bit big-endian              |   : 32 bit little-endian           |
-+------------------------------------+------------------------------------+
 | `hdf5.f64be`                       | `hdf5.f64le`                       |
 |   : 64 bit big-endian              |   : 64 bit little-endian           |
 +------------------------------------+------------------------------------+
@@ -563,13 +544,6 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.c_s1`                        | `hdf5.fortran_s1`                  |
 |   : C string                       |   : Fortran string                 |
-+------------------------------------+------------------------------------+
-
-#### Opaque datatypes
-
-+------------------------------------+------------------------------------+
-| `hdf5.opaque`                      |                                    |
-|   : Opaque byte string             |                                    |
 +------------------------------------+------------------------------------+
 
 
@@ -632,11 +606,11 @@ Objects
 
   : Returns the type of the given object, which is one of the following:
 
-    * **"file"**: a file;
-    * **"group"**: a group;
-    * **"dataset"**: a dataset;
-    * **"datatype"**: a datatype;
-    * **"attr"**: an attribute.
+      - **"file"**: a file;
+      - **"group"**: a group;
+      - **"dataset"**: a dataset;
+      - **"datatype"**: a datatype;
+      - **"attr"**: an attribute.
 
 `object:get_object_name()`
 
@@ -650,24 +624,24 @@ Objects
 
   : Returns a value with the following methods:
 
-    info:get_atime()
+    `info:get_atime()`
       : Returns the last time the object was read or written.
-    info:get_mtime()
+    `info:get_mtime()`
       : Returns the last time the raw data in the object was changed.
-    info:get_ctime()
+    `info:get_ctime()`
       : Returns the last time the metadata for the object was changed.
-    info:get_btime()
+    `info:get_btime()`
       : Returns the time the object was created.
-    info:get_num_links()
+    `info:get_num_links()`
       : Returns the number of links to the object.
-    info:get_num_attrs()
+    `info:get_num_attrs()`
       : Returns the number of attributes.
-    info:get_type()
+    `info:get_type()`
       : Returns the type of the object, which can be any of the following:
 
-        * **"group"**: a group;
-        * **"dataset"**: a dataset;
-        * **"named_datatype"**: a committed datatype.
+          - **"group"**: a group;
+          - **"dataset"**: a dataset;
+          - **"named_datatype"**: a committed datatype.
 
 
 References
@@ -681,8 +655,8 @@ References
 
     `ref_type` can be any of the following, to create a
 
-    * **"object"**: object reference;
-    * **"dataset_region"**: dataset region reference.
+      - **"object"**: object reference;
+      - **"dataset_region"**: dataset region reference.
 
 `object:dereference(ref, ref_type)`
 
@@ -705,9 +679,9 @@ References
 
     The object type is one of the following:
 
-    * **"group"**,
-    * **"dataset"**,
-    * **"named_datatype"**.
+      - **"group"**,
+      - **"dataset"**,
+      - **"named_datatype"**.
 
 `object:get_reference_region(ref, ref_type)`
 
@@ -724,20 +698,20 @@ Property lists
 
     `class` can be any of the following:
 
-    * **"file_create"**: [file creation properties];
-    * **"file_access"**: [file access properties];
-    * **"file_mount"**: file mounting properties;
-    * **"group_create"**: group creation properties;
-    * **"group_access"**: group access properties;
-    * **"dataset_create"**: [dataset creation properties];
-    * **"dataset_access"**: dataset access properties;
-    * **"dataset_xfer"**: [dataset transfer properties];
-    * **"attribute_create"**: attribute creation properties;
-    * **"datatype_create"**: datatype creation properties;
-    * **"datatype_access"**: datatype access properties;
-    * **"object_copy"**: object copying properties;
-    * **"link_create"**: [link creation properties];
-    * **"link_access"**: link access properties.
+      - **"file_create"**: [file creation properties];
+      - **"file_access"**: [file access properties];
+      - **"file_mount"**: file mounting properties;
+      - **"group_create"**: group creation properties;
+      - **"group_access"**: group access properties;
+      - **"dataset_create"**: [dataset creation properties];
+      - **"dataset_access"**: dataset access properties;
+      - **"dataset_xfer"**: [dataset transfer properties];
+      - **"attribute_create"**: attribute creation properties;
+      - **"datatype_create"**: datatype creation properties;
+      - **"datatype_access"**: datatype access properties;
+      - **"object_copy"**: object copying properties;
+      - **"link_create"**: [link creation properties];
+      - **"link_access"**: link access properties.
 
 
 ### File creation properties
@@ -748,10 +722,10 @@ Property lists
 
     This function returns the following values:
 
-    * the super block version number;
-    * the global freelist version number;
-    * the symbol table version number;
-    * the shared object header version number.
+      - the super block version number;
+      - the global freelist version number;
+      - the symbol table version number;
+      - the shared object header version number.
 
 [file creation properties]: #file-creation-properties
 
@@ -769,14 +743,14 @@ Property lists
 
     `low` can be any of the following:
 
-    * **"earliest"**: the earliest file format version;
-    * **"18"**: the file format version corresponding to version 1.8 of the library (the default);
-    * **"latest"**: the latest file format version.
+      - **"earliest"**: the earliest file format version;
+      - **"18"**: the file format version corresponding to version 1.8 of the library (the default);
+      - **"latest"**: the latest file format version.
 
     `high` can be any of the following:
 
-    * **"18"**: the file format version corresponding to version 1.8 of the library;
-    * **"latest"**: the latest file format version (the default).
+      - **"18"**: the file format version corresponding to version 1.8 of the library;
+      - **"latest"**: the latest file format version (the default).
 
 `fapl:get_libver_bounds()`
 
@@ -798,9 +772,9 @@ Property lists
   : Set the [storage layout] of the raw data of a dataset, which can be any of
     the following:
 
-    * "**contiguous**": the raw data is stored in a contiguous chunk (the default);
-    * "**chunked**": the raw data is in multiple, separate chunks;
-    * "**compact**": the raw data is stored in the dataset object header.
+      - "**contiguous**": the raw data is stored in a contiguous chunk (the default);
+      - "**chunked**": the raw data is in multiple, separate chunks;
+      - "**compact**": the raw data is stored in the dataset object header.
 
     [storage layout]: http://www.hdfgroup.org/HDF5/doc/UG/10_Datasets.html#Allocation
 
@@ -851,9 +825,9 @@ Property lists
 
     The function returns one of the following:
 
-    * **"undefined"**: the fill value is undefined;
-    * **"default"**: the fill value has been set by the library;
-    * **"user_defined"**: the fill value has been set by the program.
+      - **"undefined"**: the fill value is undefined;
+      - **"default"**: the fill value has been set by the library;
+      - **"user_defined"**: the fill value has been set by the program.
 
 [dataset creation properties]: #dataset-creation-properties
 
@@ -866,8 +840,8 @@ Property lists
 
   : Set [MPI-IO data transfer] mode, which can be any of the following:
 
-    * **"independent"**: each process does independent I/O (the default);
-    * **"collective"**: all processes participate in collective I/O.
+      - **"independent"**: each process does independent I/O (the default);
+      - **"collective"**: all processes participate in collective I/O.
 
     [MPI-IO data transfer]: http://www.hdfgroup.org/HDF5/PHDF5/parallelhdf5hints.pdf
 

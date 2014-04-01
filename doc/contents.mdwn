@@ -1,10 +1,10 @@
-% HDF5 for Lua
-% Peter Colberg
-% 2013
+---
+title: HDF5 for Lua
+author: Peter Colberg
+date: "2013–2014"
+---
 
-[![](lua-hdf5.png "HDF5 for Lua")](index.html)
-
-* [HDF5 for Lua](index.html)
-    + [Installing](INSTALL.html)
-    + [Reference](reference.html)
-    + [Mailing list](https://lists.colberg.org/listinfo/lua-hdf5)
+- [HDF5 for Lua](index.html)
+- [Installing](INSTALL.html)
+- [Reference](reference.html)
+- [Mailing list](https://lists.colberg.org/listinfo/lua-hdf5)

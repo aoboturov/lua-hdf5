@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Peter Colberg" />
+  <title>Installing &mdash; HDF5 for Lua</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="pandoc.css" type="text/css" />
+</head>
+<body>
+<div class="header">
+<ul>
+<li><a href="index.html">HDF5 for Lua</a></li>
+<li><a href="INSTALL.html">Installing</a></li>
+<li><a href="reference.html">Reference</a></li>
+<li><a href="https://lists.colberg.org/listinfo/lua-hdf5">Mailing list</a></li>
+</ul>
+</div>
+<div class="body">
+<h1>Installing</h1>
+<p>HDF5 for Lua is available from a <a href="http://git.colberg.org/lua-hdf5">git repository</a>:</p>
+<pre><code>git clone http://git.colberg.org/lua-hdf5</code></pre>
+<p>Before using the module, generate matching C bindings for the HDF5 library:</p>
+<pre><code>make</code></pre>
+<p>To override the default C preprocessor <code>cc</code>, set <code>CPP</code>:</p>
+<pre><code>make CPP=mpicc</code></pre>
+<p>To override the default C compiler <code>gcc</code>, set <code>CC</code>:</p>
+<pre><code>make CC=gcc-4.7</code></pre>
+<p>If the HDF5 header files are not installed in a system path, set CPATH:</p>
+<pre><code>CPATH=/opt/hdf5-1.8.11/include make</code></pre>
+<p>To override the name of the HDF5 library, set <code>LIBNAME</code>:</p>
+<pre><code>make LIBNAME=libhdf5.so.7</code></pre>
+<p>The module is accompanied by a test suite:</p>
+<pre><code>make test</code></pre>
+<p>If HDF5 is compiled with MPI-IO support, set <code>MPIEXEC</code>:</p>
+<pre><code>make test MPIEXEC=&quot;mpirun -np 8&quot;</code></pre>
+<p>To install the module to the default Lua path:</p>
+<pre><code>make install</code></pre>
+</div>
+<div class="footer">
+&copy; Copyright 2013–2014, Peter Colberg.
+Created using <a href="http://johnmacfarlane.net/pandoc/">Pandoc</a>.
+</div>
+</body>
+</html>
