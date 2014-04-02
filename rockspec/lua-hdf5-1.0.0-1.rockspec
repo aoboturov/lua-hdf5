@@ -17,9 +17,13 @@ description = {
    license = "MIT/X11",
 }
 build = {
-   type = "builtin",
-   modules = {
-      ["hdf5"] = "hdf5/init.lua",
-      ["hdf5.C"] = "hdf5/C.lua",
+   type = "make",
+   build_target = "test",
+   install_variables = {
+      PREFIX = "$(PREFIX)",
+      LUADIR = "$(LUADIR)",
+      DOCDIR = "$(PREFIX)/doc",
+   },
+   copy_directories = {
    },
 }
