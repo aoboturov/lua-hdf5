@@ -89,13 +89,13 @@ eval `luarocks path`
 If the LuaRocks mirror is not available, install from the git repository above:
 
 ~~~
-luarocks install --local rockspec/gcc-lua-cdecl-2.0.0-1.rockspec
+luarocks install --local rockspec/gcc-lua-cdecl-2.0.1-1.rockspec
 ~~~
 
 To install the module directly from the git source, use:
 
 ~~~
-luarocks make --local rockspec/gcc-lua-cdecl-2.0.0-1.rockspec
+luarocks make --local rockspec/gcc-lua-cdecl-2.0.1-1.rockspec
 ~~~
 
 In this case you must manually git checkout the corresponding version beforehand.
