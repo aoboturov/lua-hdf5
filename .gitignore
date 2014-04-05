@@ -1,3 +1,4 @@
 /examples/*.h5
 /test/*.h5
 /test/*.out
+*.rock
