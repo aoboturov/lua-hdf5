@@ -2,10 +2,10 @@
 title: Installing
 ---
 
-Before installing HDF5 for Lua, [obtain the HDF5 library] if not shipped with
-your distribution.
+Before installing HDF5 for Lua, [obtain the HDF5 1.8 library] if not shipped
+with your distribution.
 
-[obtain the HDF5 library]: http://www.hdfgroup.org/HDF5/release/obtain5.html
+[obtain the HDF5 1.8 library]: http://www.hdfgroup.org/HDF5/release/obtain5.html
 
 
 Git
@@ -90,11 +90,11 @@ In this case you must manually git checkout the corresponding version beforehand
 FFI C bindings
 --------------
 
-HDF5 for Lua includes precompiled FFI C bindings for the HDF5 library that
-work with most versions and architectures. If you wish to compile FFI C
-bindings that exactly match the installed version of the HDF5 library, or
-use HDF5 with an MPI implementation other than Open MPI, you need to
-install the [Lua plugin for GCC] and [cdecl for GCC].
+HDF5 for Lua includes precompiled FFI C bindings for the HDF5 library with
+support for parallel HDF5 using [Open MPI]. If you wish to compile the FFI
+C bindings yourself, for example when using a different MPI library or when
+packaging for a distribution, you need to install the [Lua plugin for GCC]
+and [cdecl for GCC].
 
 To generate FFI C bindings that match the HDF5 library, run:
 
@@ -140,7 +140,7 @@ make -B hdf5 CC=gcc-4.7
 If the HDF5 header files are not installed in a system path, set `CPATH`:
 
 ~~~
-export CPATH=/opt/hdf5-1.8.10/include:${HOME}/.luarocks/lib/luarocks/rocks/gcc-lua-cdecl/2.0.0-1/conf
+export CPATH=/opt/hdf5-1.8.12/include:${HOME}/.luarocks/lib/luarocks/rocks/gcc-lua-cdecl/2.0.1-1/include
 ~~~
 
 To override the name of the HDF5 library, set `LIBNAME`:
@@ -152,3 +152,4 @@ make -B hdf5 LIBNAME=libhdf5.so.7
 [Lua plugin for GCC]: http://colberg.org/gcc-lua/
 [cdecl for GCC]: http://colberg.org/gcc-lua-cdecl/
 [GCC plugin directory]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
+[Open MPI]: http://www.open-mpi.org/

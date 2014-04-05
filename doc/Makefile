@@ -1,12 +1,15 @@
 PANDOC = pandoc --mathml=https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=MML_HTMLorMML
 
-html: index.html INSTALL.html README.html reference.html
+html: index.html INSTALL.html README.html reference.html CHANGES.html
 
 %.html: %.mdwn pandoc.html
 	$(PANDOC) --template=pandoc.html --css=pandoc.css --toc --toc-depth=2 -o $@ $<
 
 index.html: index.mdwn pandoc.html
 	$(PANDOC) --template=pandoc.html --css=pandoc.css -V pagetitle= -o $@ $<
+
+CHANGES.html: CHANGES.mdwn pandoc.html
+	$(PANDOC) --template=pandoc.html --css=pandoc.css -o $@ $<
 
 pandoc.html: contents.mdwn pandoc.html.in
 	$(PANDOC) --template=pandoc.html.in -o $@ $<

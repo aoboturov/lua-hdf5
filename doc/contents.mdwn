@@ -9,3 +9,4 @@ date: "2013–2014"
 - [User's Guide](README.html)
 - [Reference](reference.html)
 - [Mailing list](https://lists.colberg.org/listinfo/lua-hdf5)
+- [Releases](CHANGES.html)

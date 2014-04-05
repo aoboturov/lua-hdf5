@@ -13,8 +13,8 @@ INSTALL_F = install -m 644
 INSTALL_X = install -m 755
 
 FILES_LUA = C.lua init.lua
-FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn reference.mdwn
-FILES_DOC_HTML = index.html INSTALL.html README.html reference.html pandoc.css lua-hdf5.png hyperslab.svg
+FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn reference.mdwn CHANGES.mdwn
+FILES_DOC_HTML = index.html INSTALL.html README.html reference.html CHANGES.html pandoc.css lua-hdf5.png hyperslab.svg
 FILES_EXAMPLES = attribute.lua dataset.lua dataspace.lua
 
 all: hdf5 doc

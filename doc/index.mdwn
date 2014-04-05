@@ -7,11 +7,10 @@ title: About HDF5 for Lua
 a file format and library for portable, flexible and efficient storage of
 numerical data. [LuaJIT] is a just-in-time compiler for the [Lua] language
 that provides native C data structures through its foreign function interface
-([FFI]) library. HDF5 for Lua supports [HDF5 1.8] or later using LuaJIT.
+([FFI]) library. HDF5 for Lua supports HDF5 1.8 using LuaJIT.
 
 [HDF5 for Lua]: http://colberg.org/lua-hdf5/
 [HDF5]: http://www.hdfgroup.org/HDF5/
 [Lua]: http://www.lua.org/about.html
 [LuaJIT]: http://luajit.org/luajit.html
 [FFI]: http://luajit.org/ext_ffi.html
-[HDF5 1.8]: http://www.hdfgroup.org/HDF5/doc/UG/
