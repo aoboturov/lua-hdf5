@@ -6,5 +6,6 @@ date: "2013–2014"
 
 - [HDF5 for Lua](index.html)
 - [Installing](INSTALL.html)
+- [User's Guide](README.html)
 - [Reference](reference.html)
 - [Mailing list](https://lists.colberg.org/listinfo/lua-hdf5)

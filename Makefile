@@ -10,10 +10,12 @@ DOCDIR = $(PREFIX)/share/doc/lua-hdf5
 
 INSTALL_D = mkdir -p
 INSTALL_F = install -m 644
+INSTALL_X = install -m 755
 
 FILES_LUA = C.lua init.lua
-FILES_DOC = index.mdwn INSTALL.mdwn reference.mdwn
-FILES_DOC_HTML = index.html INSTALL.html reference.html pandoc.css lua-hdf5.png
+FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn reference.mdwn
+FILES_DOC_HTML = index.html INSTALL.html README.html reference.html pandoc.css lua-hdf5.png hyperslab.svg
+FILES_EXAMPLES = attribute.lua dataset.lua dataspace.lua
 
 all: hdf5 doc
 
@@ -31,6 +33,8 @@ install:
 	cd hdf5 && $(INSTALL_F) $(FILES_LUA) $(DESTDIR)$(LUADIR)/hdf5
 	$(INSTALL_D) $(DESTDIR)$(DOCDIR)
 	cd doc && $(INSTALL_F) $(FILES_DOC) $(FILES_DOC_HTML) $(DESTDIR)$(DOCDIR)
+	$(INSTALL_D) $(DESTDIR)$(DOCDIR)/examples
+	cd examples && $(INSTALL_X) $(FILES_EXAMPLES) $(DESTDIR)$(DOCDIR)/examples
 
 clean:
 	@$(MAKE) -C hdf5 clean
