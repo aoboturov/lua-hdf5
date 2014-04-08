@@ -23,7 +23,6 @@ do
   local info = mpi.create_info()
   fapl:set_fapl_mpio(mpi.comm_world, info)
 end
-collectgarbage()
 
 do
   local dxpl = hdf5.create_plist("dataset_xfer")
@@ -32,7 +31,6 @@ do
   dxpl:set_dxpl_mpio("collective")
   assert(dxpl:get_dxpl_mpio() == "collective")
 end
-collectgarbage()
 
 do
   local fapl = hdf5.create_plist("file_access")
@@ -47,8 +45,8 @@ do
   dxpl:set_dxpl_mpio("collective")
   local buf = ffi.new("double[1]", comm:rank())
   dset:write(buf, dtype, memspace, filespace, dxpl)
+  file:close()
 end
-collectgarbage()
 
 do
   local fapl = hdf5.create_plist("file_access")
@@ -64,8 +62,9 @@ do
   local buf = ffi.new("double[1]")
   dset:read(buf, dtype, memspace, filespace, dxpl)
   assert(buf[0] == comm:rank())
+  file:close()
 end
-collectgarbage()
+
 
 do
   local fapl = hdf5.create_plist("file_access")
@@ -77,8 +76,8 @@ do
   local attr = file:create_attribute("boundary", dtype, space)
   local boundary = {"periodic", "periodic", "none"}
   attr:write(ffi.new("const char *[3]", boundary), dtype)
+  file:close()
 end
-collectgarbage()
 
 do
   local fapl = hdf5.create_plist("file_access")
@@ -94,7 +93,9 @@ do
   assert(ffi.string(buf[2]) == "none")
   local space = attr:get_space()
   hdf5.vlen_reclaim(buf, dtype, space)
+  file:close()
 end
+
 collectgarbage()
 
 os.remove(path)

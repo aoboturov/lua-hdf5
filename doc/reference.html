@@ -76,17 +76,11 @@
 <dt><code>file:get_intent()</code></dt>
 <dd><p>Returns the mode in which the file was opened.</p>
 </dd>
-<dt><code>file:flush([scope])</code></dt>
-<dd><p>Flushes file contents to disk. An optional argument <code>scope</code> specifies whether to flush the file, or the file and all files mounted onto the file.</p>
-<p><code>scope</code> can be any of the following:</p>
-<ul>
-<li><strong>&quot;local&quot;</strong>: flush the file (the default);</li>
-<li><strong>&quot;global&quot;</strong>: flush the file and all files mounted onto the file.</li>
-</ul>
+<dt><code>file:flush()</code></dt>
+<dd><p>Flushes file contents to disk.</p>
 </dd>
 <dt><code>file:close()</code></dt>
-<dd><p>Closes the file.</p>
-<p>This function need only be called if the file should be closed <em>immediately</em>; otherwise, the file will be closed eventually when all objects that reference the file have been garbage collected.</p>
+<dd><p>Closes the file and all open objects that reference the file. This function need only be called if a file should be immediately closed; otherwise, the file will be closed when all objects that reference the file have been garbage collected eventually.</p>
 </dd>
 </dl>
 <h2 id="groups">Groups</h2>
@@ -689,7 +683,6 @@
 <ul>
 <li><strong>&quot;file_create&quot;</strong>: <a href="#file-creation-properties">file creation properties</a>;</li>
 <li><strong>&quot;file_access&quot;</strong>: <a href="#file-access-properties">file access properties</a>;</li>
-<li><strong>&quot;file_mount&quot;</strong>: file mounting properties;</li>
 <li><strong>&quot;group_create&quot;</strong>: group creation properties;</li>
 <li><strong>&quot;group_access&quot;</strong>: group access properties;</li>
 <li><strong>&quot;dataset_create&quot;</strong>: <a href="#dataset-creation-properties">dataset creation properties</a>;</li>

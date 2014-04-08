@@ -14,13 +14,14 @@ local path = "test_file.h5"
 
 for i = 1, 3 do
   local file = hdf5.create_file(path, "trunc")
+  collectgarbage()
+  assert(file:get_object_type() == "file")
+  assert(file:get_object_name() == "/")
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
-  assert(file:get_object_name() == "/")
-  assert(file:get_object_type() == "file")
   file:close()
+  assert(file:get_object_type() == nil)
 end
-collectgarbage()
 
 do
   local C = require("hdf5.C")
@@ -70,14 +71,13 @@ do
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
   file:flush()
-  file:flush("local")
-  file:flush("global")
 end
 collectgarbage()
 
 do
   local file = hdf5.open_file(path)
   local fapl = file:get_file_access_plist()
+  file:close()
   local low, high = fapl:get_libver_bounds()
   assert(low == "latest")
   assert(high == "latest")
@@ -97,6 +97,7 @@ do
   fapl:set_libver_bounds("earliest", "18")
   local file = hdf5.create_file(path, nil, nil, fapl)
   local fapl = file:get_file_access_plist()
+  file:close()
   local low, high = fapl:get_libver_bounds()
   assert(low == "earliest")
   assert(high == "latest")
@@ -108,6 +109,7 @@ do
   fapl:set_libver_bounds("18", "latest")
   local file = hdf5.create_file(path, nil, nil, fapl)
   local fapl = file:get_file_access_plist()
+  file:close()
   local low, high = fapl:get_libver_bounds()
   assert(low == "latest")
   assert(high == "latest")
@@ -119,6 +121,7 @@ do
   fapl:set_libver_bounds("earliest", "latest")
   local file = hdf5.create_file(path, nil, nil, fapl)
   local fcpl = file:get_file_create_plist()
+  file:close()
   local super, freelist, stab, shhdr = fcpl:get_version()
   assert(super == 0)
   assert(freelist == 0)
@@ -132,6 +135,7 @@ do
   fapl:set_libver_bounds("18", "latest")
   local file = hdf5.create_file(path, nil, nil, fapl)
   local fcpl = file:get_file_create_plist()
+  file:close()
   local super, freelist, stab, shhdr = fcpl:get_version()
   assert(super == 2)
   assert(freelist == 0)

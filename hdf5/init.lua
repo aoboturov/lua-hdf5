@@ -6,9 +6,10 @@
 
 local C   = require("hdf5.C")
 local ffi = require("ffi")
+local bit = require("bit")
 
 -- Cache library functions.
-local min = math.min
+local assert, error, min, rawget, rawset, tonumber = assert, error, math.min, rawget, rawset, tonumber
 
 local _M = {}
 
@@ -20,18 +21,19 @@ local H5O_info_t         = ffi.typeof("H5O_info_t")
 local H5O_info_t_1       = ffi.typeof("H5O_info_t[1]")
 local H5O_type_t_1       = ffi.typeof("H5O_type_t[1]")
 local char_n             = ffi.typeof("char[?]")
+local hid_t_n            = ffi.typeof("hid_t[?]")
 local hsize_t_n          = ffi.typeof("hsize_t[?]")
 local hssize_t_n         = ffi.typeof("hssize_t[?]")
 local unsigned_1         = ffi.typeof("unsigned[1]")
 
 -- Object identifiers.
-local attribute_id = ffi.typeof("struct { const hid_t id; }")
-local dataset_id   = ffi.typeof("struct { const hid_t id; }")
-local dataspace_id = ffi.typeof("struct { const hid_t id; }")
-local datatype_id  = ffi.typeof("struct { const hid_t id; }")
-local file_id      = ffi.typeof("struct { const hid_t id; }")
-local group_id     = ffi.typeof("struct { const hid_t id; }")
-local plist_id     = ffi.typeof("struct { const hid_t id; }")
+local attribute_id = ffi.typeof("struct { hid_t id; }")
+local dataset_id   = ffi.typeof("struct { hid_t id; }")
+local dataspace_id = ffi.typeof("struct { hid_t id; }")
+local datatype_id  = ffi.typeof("struct { hid_t id; }")
+local file_id      = ffi.typeof("struct { hid_t id; }")
+local group_id     = ffi.typeof("struct { hid_t id; }")
+local plist_id     = ffi.typeof("struct { hid_t id; }")
 
 -- Object methods.
 local attribute = {}
@@ -46,8 +48,8 @@ local plist     = {}
 
 -- Initialise HDF5 constants.
 assert(C.H5open() == 0)
--- Close objects that reference a file when the file is closed.
-assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_STRONG) == 0)
+-- Retain objects that reference a file when the file is closed.
+assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_WEAK) == 0)
 -- Write files in HDF5 1.8 format by default.
 assert(C.H5Pset_libver_bounds(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_LIBVER_18, C.H5F_LIBVER_LATEST) == 0)
 -- Create missing intermediate links by default.
@@ -64,6 +66,16 @@ local function get_error()
   cb:free()
   return desc
 end
+
+-- Closes object identifier.
+local function close_id(object)
+  local err = C.H5Idec_ref(object.id)
+  if err < 0 then return error(get_error()) end
+  object.id = C.H5I_INVALID_HID
+end
+
+-- Weak object identifier references.
+local objects = setmetatable({}, {__mode = "v"})
 
 function _M.get_libversion()
   local maj, min, rel = unsigned_1(), unsigned_1(), unsigned_1()
@@ -148,22 +160,26 @@ do
   end
 end
 
-do
-  local flags = {
-    ["local"]  = C.H5F_SCOPE_LOCAL,
-    ["global"] = C.H5F_SCOPE_GLOBAL,
-  }
-
-  function file.flush(file, scope)
-    if scope ~= nil then scope = flags[scope] else scope = C.H5F_SCOPE_LOCAL end
-    local err = C.H5Fflush(file.id, scope)
-    if err < 0 then return error(get_error()) end
-  end
+function file.flush(file)
+  local err = C.H5Fflush(file.id, C.H5F_SCOPE_LOCAL)
+  if err < 0 then return error(get_error()) end
 end
 
-function file.close(file)
-  local err = C.H5Fclose(file.id)
-  if err < 0 then return error(get_error()) end
+do
+  local types = bit.bor(C.H5F_OBJ_LOCAL, bit.bxor(C.H5F_OBJ_ALL, C.H5F_OBJ_FILE))
+
+  function file.close(file)
+    local size = C.H5Fget_obj_count(file.id, types)
+    if size < 0 then return error(get_error()) end
+    local id = hid_t_n(size)
+    local size = C.H5Fget_obj_ids(file.id, types, size, id)
+    if size < 0 then return error(get_error()) end
+    for i = 0, tonumber(size) - 1 do
+      local object = rawget(objects, id[i])
+      if object then close_id(ffi.gc(object, nil)) end
+    end
+    return close_id(ffi.gc(file, nil))
+  end
 end
 
 function group.create_group(group, name, lcpl, gcpl, gapl)
@@ -722,7 +738,7 @@ do
 
   function object.get_object_type(object)
     local ret = C.H5Iget_type(object.id)
-    if ret < 0 then return error(get_error()) end
+    if ret == C.H5I_BADID then return end
     return types[tonumber(ret)]
   end
 end
@@ -833,7 +849,6 @@ do
   local plists = {
     file_create      = C.H5P_FILE_CREATE_DEFAULT,
     file_access      = C.H5P_FILE_ACCESS_DEFAULT,
-    file_mount       = C.H5P_FILE_MOUNT_DEFAULT,
     group_create     = C.H5P_GROUP_CREATE_DEFAULT,
     group_access     = C.H5P_GROUP_ACCESS_DEFAULT,
     dataset_create   = C.H5P_DATASET_CREATE_DEFAULT,
@@ -1030,26 +1045,19 @@ for name, f in pairs(location) do group[name]     = f end
 for name, f in pairs(location) do datatype[name]  = f end
 for name, f in pairs(group)    do file[name]      = f end
 
--- Compare object identifiers for equality.
-local function equal_id(object, object2)
-  return ffi.istype(object, object2) and object.id == object2.id
+-- Returns new object identifier.
+local function new_id(ctype, id)
+  local object = ffi.new(ctype, id)
+  rawset(objects, id, object)
+  return object
 end
 
--- Close object identifier.
-local function close_id(object)
-  local flag = C.H5Iis_valid(object.id)
-  if flag < 0 then return error(get_error()) end
-  if flag == 0 then return end
-  local err = C.H5Idec_ref(object.id)
-  if err < 0 then return error(get_error()) end
-end
-
-ffi.metatype(attribute_id, {__index = attribute, __eq = equal_id, __gc = close_id})
-ffi.metatype(dataset_id,   {__index = dataset,   __eq = equal_id, __gc = close_id})
-ffi.metatype(dataspace_id, {__index = dataspace, __eq = equal_id, __gc = close_id})
-ffi.metatype(datatype_id,  {__index = datatype,  __eq = equal_id, __gc = close_id})
-ffi.metatype(file_id,      {__index = file,      __eq = equal_id, __gc = close_id})
-ffi.metatype(group_id,     {__index = group,     __eq = equal_id, __gc = close_id})
-ffi.metatype(plist_id,     {__index = plist,     __eq = equal_id, __gc = close_id})
+ffi.metatype(attribute_id, {__index = attribute, __gc = close_id, __new = new_id})
+ffi.metatype(dataset_id,   {__index = dataset,   __gc = close_id, __new = new_id})
+ffi.metatype(dataspace_id, {__index = dataspace, __gc = close_id, __new = new_id})
+ffi.metatype(datatype_id,  {__index = datatype,  __gc = close_id, __new = new_id})
+ffi.metatype(file_id,      {__index = file,      __gc = close_id, __new = new_id})
+ffi.metatype(group_id,     {__index = group,     __gc = close_id, __new = new_id})
+ffi.metatype(plist_id,     {__index = plist,     __gc = close_id, __new = new_id})
 
 return _M

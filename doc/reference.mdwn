@@ -58,23 +58,16 @@ Files
 
   : Returns the mode in which the file was opened.
 
-`file:flush([scope])`
+`file:flush()`
 
-  : Flushes file contents to disk. An optional argument `scope` specifies
-    whether to flush the file, or the file and all files mounted onto the file.
-
-    `scope` can be any of the following:
-
-      - **"local"**: flush the file (the default);
-      - **"global"**: flush the file and all files mounted onto the file.
+  : Flushes file contents to disk.
 
 `file:close()`
 
-  : Closes the file.
-
-    This function need only be called if the file should be closed
-    *immediately*; otherwise, the file will be closed eventually when
-    all objects that reference the file have been garbage collected.
+  : Closes the file and all open objects that reference the file.
+    This function need only be called if a file should be immediately
+    closed; otherwise, the file will be closed when all objects that
+    reference the file have been garbage collected eventually.
 
 
 Groups
@@ -700,7 +693,6 @@ Property lists
 
       - **"file_create"**: [file creation properties];
       - **"file_access"**: [file access properties];
-      - **"file_mount"**: file mounting properties;
       - **"group_create"**: group creation properties;
       - **"group_access"**: group access properties;
       - **"dataset_create"**: [dataset creation properties];
