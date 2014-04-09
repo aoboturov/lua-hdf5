@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- Test MPI-IO.
 -- Copyright © 2013 Peter Colberg.
--- For conditions of distribution and use, see copyright notice in LICENSE.
+-- Distributed under the MIT license. (See accompanying file LICENSE.)
 ------------------------------------------------------------------------------
 
 require("strict")

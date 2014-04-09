@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 -- Generate C declarations for use with a foreign function interface (FFI).
 -- Copyright © 2013 Peter Colberg.
--- For conditions of distribution and use, see copyright notice in LICENSE.
+-- Distributed under the MIT license. (See accompanying file LICENSE.)
 ------------------------------------------------------------------------------
 
 local gcc   = require("gcc")
@@ -29,7 +29,7 @@ gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
 ------------------------------------------------------------------------------
 -- HDF5 for Lua.
 -- Copyright © 2013 Peter Colberg.
--- For conditions of distribution and use, see copyright notice in LICENSE.
+-- Distributed under the MIT license. (See accompanying file LICENSE.)
 ------------------------------------------------------------------------------
 
 local ffi = require("ffi")
