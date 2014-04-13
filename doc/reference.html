@@ -598,6 +598,9 @@
 <dd><p>Returns <strong>true</strong> if an object with the given name exists, otherwise returns <strong>false</strong>. <code>group</code> may be a group or file. A second, optional argument <code>lapl</code> specifies the link access properties.</p>
 <p><em>This function is available with HDF5 1.8.5 or later.</em></p>
 </dd>
+<dt><code>group:copy_object(src_name, dst_group, dst_name[, ocpypl[, lcpl]])</code></dt>
+<dd><p>Copies the object with the given source name to the given destination group or file using the given destination name. <code>group</code> may be a group or file. A fourth, optional argument <code>ocpypl</code> specifies the <a href="#object-copy-properties">object copy properties</a>. A fifth, optional argument <code>lcpl</code> specifies the <a href="#link-creation-properties">link creation properties</a>.</p>
+</dd>
 <dt><code>group:link_object(obj, link_name[, lcpl[, lapl]])</code></dt>
 <dd><p>Links the given object into the file at the given location with the given name. <code>group</code> may be a group or file. A third, optional argument <code>lcpl</code> specifies the <a href="#link-creation-properties">link creation properties</a>. A fourth, optional argument <code>lapl</code> specifies the link access properties.</p>
 </dd>
@@ -796,6 +799,24 @@
 </dd>
 <dt><code>lcpl:get_create_intermediate_group()</code></dt>
 <dd><p>Returns <strong>true</strong> if missing intermediate groups are to be created, otherwise returns <strong>false</strong>.</p>
+</dd>
+</dl>
+<h3 id="object-copy-properties">Object copy properties</h3>
+<dl>
+<dt><code>ocpypl:set_copy_object(flags)</code></dt>
+<dd><p>Sets the object copy properties.</p>
+<p><code>flags</code> can be one or a sequence of the following, in which case the object is copied</p>
+<ul>
+<li><strong>&quot;shallow_hierarchy&quot;</strong>: including only the intermediate members of a group;</li>
+<li><strong>&quot;expand_soft_link&quot;</strong>: expanding soft links into objects;</li>
+<li><strong>&quot;expand_ext_link&quot;</strong>: expanding external links into objects;</li>
+<li><strong>&quot;expand_reference&quot;</strong>: including objects pointed to by references;</li>
+<li><strong>&quot;without_attr&quot;</strong>: excluding attributes;</li>
+<li><strong>&quot;merge_committed_dtype&quot;</strong>: using matching committed datatypes from the destination file.</li>
+</ul>
+</dd>
+<dt><code>ocpypl:get_copy_object()</code></dt>
+<dd><p>Returns a table with the object copy properties (<strong>true</strong> or <strong>nil</strong>).</p>
 </dd>
 </dl>
 </div>

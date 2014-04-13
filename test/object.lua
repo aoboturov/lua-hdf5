@@ -80,4 +80,81 @@ do
 end
 collectgarbage()
 
+do
+  local ocpypl = hdf5.create_plist("object_copy")
+  local flags = ocpypl:get_copy_object()
+  assert(flags.shallow_hierarchy == nil)
+  assert(flags.expand_soft_link == nil)
+  assert(flags.expand_ext_link == nil)
+  assert(flags.expand_reference == nil)
+  assert(flags.without_attr == nil)
+  assert(flags.merge_committed_dtype == nil)
+end
+collectgarbage()
+
+do
+  local ocpypl = hdf5.create_plist("object_copy")
+  ocpypl:set_copy_object("shallow_hierarchy")
+  local flags = ocpypl:get_copy_object()
+  assert(flags.shallow_hierarchy == true)
+  assert(flags.expand_soft_link == nil)
+  assert(flags.expand_ext_link == nil)
+  assert(flags.expand_reference == nil)
+  assert(flags.without_attr == nil)
+  assert(flags.merge_committed_dtype == nil)
+end
+collectgarbage()
+
+do
+  local ocpypl = hdf5.create_plist("object_copy")
+  ocpypl:set_copy_object({"expand_soft_link", "expand_ext_link"})
+  local flags = ocpypl:get_copy_object()
+  assert(flags.shallow_hierarchy == nil)
+  assert(flags.expand_soft_link == true)
+  assert(flags.expand_ext_link == true)
+  assert(flags.expand_reference == nil)
+  assert(flags.without_attr == nil)
+  assert(flags.merge_committed_dtype == nil)
+end
+collectgarbage()
+
+do
+  local ocpypl = hdf5.create_plist("object_copy")
+  ocpypl:set_copy_object({"shallow_hierarchy", "expand_soft_link", "expand_ext_link", "expand_reference", "without_attr", "merge_committed_dtype"})
+  local flags = ocpypl:get_copy_object()
+  assert(flags.shallow_hierarchy == true)
+  assert(flags.expand_soft_link == true)
+  assert(flags.expand_ext_link == true)
+  assert(flags.expand_reference == true)
+  assert(flags.without_attr == true)
+  assert(flags.merge_committed_dtype == true)
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  file:create_group("particles/dimer/position")
+  file:create_group("particles/solvent/position")
+  file:copy_object("particles", file, "molecules")
+  assert(file:exists_link("molecules") == true)
+  assert(file:exists_link("molecules/dimer") == true)
+  assert(file:exists_link("molecules/dimer/position") == true)
+  assert(file:exists_link("molecules/solvent/position") == true)
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  file:create_group("particles/dimer/position")
+  file:create_group("particles/solvent/position")
+  local ocpypl = hdf5.create_plist("object_copy")
+  ocpypl:set_copy_object("shallow_hierarchy")
+  file:copy_object("particles", file, "molecules", ocpypl)
+  assert(file:exists_link("molecules") == true)
+  assert(file:exists_link("molecules/dimer") == true)
+  assert(file:exists_link("molecules/dimer/position") == false)
+  assert(file:exists_link("molecules/solvent/position") == false)
+end
+collectgarbage()
+
 os.remove(path)

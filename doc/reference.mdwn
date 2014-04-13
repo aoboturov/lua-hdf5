@@ -588,6 +588,13 @@ Objects
 
     *This function is available with HDF5 1.8.5 or later.*
 
+`group:copy_object(src_name, dst_group, dst_name[, ocpypl[, lcpl]])`
+
+  : Copies the object with the given source name to the given destination group
+    or file using the given destination name. `group` may be a group or file.
+    A fourth, optional argument `ocpypl` specifies the [object copy properties].
+    A fifth, optional argument `lcpl` specifies the [link creation properties].
+
 `group:link_object(obj, link_name[, lcpl[, lapl]])`
 
   : Links the given object into the file at the given location with the given
@@ -861,3 +868,25 @@ Property lists
     otherwise returns **false**.
 
 [link creation properties]: #link-creation-properties
+
+
+### Object copy properties
+
+`ocpypl:set_copy_object(flags)`
+
+  : Sets the object copy properties.
+
+    `flags` can be one or a sequence of the following, in which case the object is copied
+
+      * **"shallow_hierarchy"**: including only the intermediate members of a group;
+      * **"expand_soft_link"**: expanding soft links into objects;
+      * **"expand_ext_link"**: expanding external links into objects;
+      * **"expand_reference"**: including objects pointed to by references;
+      * **"without_attr"**: excluding attributes;
+      * **"merge_committed_dtype"**: using matching committed datatypes from the destination file.
+
+`ocpypl:get_copy_object()`
+
+  : Returns a table with the object copy properties (**true** or **nil**).
+
+[object copy properties]: #object-copy-properties
