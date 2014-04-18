@@ -214,6 +214,16 @@
 </dl>
 <h2 id="datatypes">Datatypes</h2>
 <dl>
+<dt><code>hdf5.create_type(class, size)</code></dt>
+<dd><p>Creates and returns a datatype of the given size in bytes.</p>
+<p><code>class</code> can be any of the following, which creates a</p>
+<ul>
+<li><strong>&quot;compound&quot;</strong>: compound datatype;</li>
+<li><strong>&quot;opaque&quot;</strong>: opaque datatype;</li>
+<li><strong>&quot;enum&quot;</strong>: enumeration datatype;</li>
+<li><strong>&quot;string&quot;</strong>: fixed-length or variable-length string datatype.</li>
+</ul>
+</dd>
 <dt><code>dtype:commit(group, name[, lcpl[, tcpl[, tapl]]])</code></dt>
 <dd><p>Commit a transient datatype, and link the datatype into into the given group with the given name. A transient datatype is a datatype that is not locked and not committed. A third, optional argument <code>lcpl</code> specifies the <a href="#link-creation-properties">link creation properties</a>. A fourth, optional argument <code>tcpl</code> specifies the datatype creation properties. A fourth, optional argument <code>tapl</code> specifies the datatype access properties.</p>
 </dd>
@@ -268,6 +278,16 @@
 <dl>
 <dt><code>dtype:is_variable_str()</code></dt>
 <dd>Returns <strong>true</strong> if the datatype is a variable-length string datatype, otherwise returns <strong>false</strong>.
+</dd>
+</dl>
+<h3 id="compound-datatypes">Compound datatypes</h3>
+<dl>
+<dt><code>dtype:insert(name, offset, field)</code></dt>
+<dd><p>Adds a member of datatype <code>field</code> with the given name at the given offset in bytes in the compound datatype.</p>
+<p><a href="http://luajit.org/ext_ffi_api.html#ffi_offsetof">ffi.offsetof</a> may be used to determine the offset of a C <code>struct</code> member.</p>
+</dd>
+<dt><code>dtype:pack()</code></dt>
+<dd><p>Recursively removes padding from the compound datatype.</p>
 </dd>
 </dl>
 <h3 id="enumeration-datatypes">Enumeration datatypes</h3>

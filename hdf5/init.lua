@@ -505,6 +505,22 @@ do
   end
 end
 
+do
+  local classes = {
+    compound = C.H5T_COMPOUND,
+    opaque   = C.H5T_OPAQUE,
+    enum     = C.H5T_ENUM,
+    string   = C.H5T_STRING,
+  }
+
+  function _M.create_type(class, size)
+    class = classes[class]
+    local id = C.H5Tcreate(class, size)
+    if id < 0 then return error(get_error()) end
+    return datatype_id(id)
+  end
+end
+
 function datatype.commit(dtype, group, name, lcpl, tcpl, tapl)
   if lcpl ~= nil then lcpl = lcpl.id else lcpl = C.H5P_DEFAULT end
   if tcpl ~= nil then tcpl = tcpl.id else tcpl = C.H5P_DEFAULT end
@@ -601,6 +617,16 @@ function datatype.is_variable_str(dtype)
   local flag = C.H5Tis_variable_str(dtype.id)
   if flag < 0 then return error(get_error()) end
   return flag ~= 0
+end
+
+function datatype.insert(dtype, name, offset, field)
+  local err = C.H5Tinsert(dtype.id, name, offset, field.id)
+  if err < 0 then return error(get_error()) end
+end
+
+function datatype.pack(dtype)
+  local err = C.H5Tpack(dtype.id)
+  if err < 0 then return error(get_error()) end
 end
 
 function datatype.enum_create(dtype)

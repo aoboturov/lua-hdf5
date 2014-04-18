@@ -334,6 +334,17 @@ Dataspaces
 Datatypes
 ---------
 
+`hdf5.create_type(class, size)`
+
+  : Creates and returns a datatype of the given size in bytes.
+
+    `class` can be any of the following, which creates a
+
+      - **"compound"**: compound datatype;
+      - **"opaque"**: opaque datatype;
+      - **"enum"**: enumeration datatype;
+      - **"string"**: fixed-length or variable-length string datatype.
+
 `dtype:commit(group, name[, lcpl[, tcpl[, tapl]]])`
 
   : Commit a transient datatype, and link the datatype into into the given
@@ -413,6 +424,22 @@ Datatypes
 
   : Returns **true** if the datatype is a variable-length string datatype,
     otherwise returns **false**.
+
+
+### Compound datatypes
+
+`dtype:insert(name, offset, field)`
+
+  : Adds a member of datatype `field` with the given name at the given offset
+    in bytes in the compound datatype.
+
+    [ffi.offsetof] may be used to determine the offset of a C `struct` member.
+
+    [ffi.offsetof]: http://luajit.org/ext_ffi_api.html#ffi_offsetof
+
+`dtype:pack()`
+
+  : Recursively removes padding from the compound datatype.
 
 
 ### Enumeration datatypes

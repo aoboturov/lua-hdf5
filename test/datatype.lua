@@ -118,4 +118,41 @@ do
 end
 collectgarbage()
 
+do
+  local ctype = ffi.typeof[[struct {
+    int count;
+    double mean;
+  }]]
+  local memtype = hdf5.create_type("compound", ffi.sizeof(ctype))
+  assert(memtype:get_class() == "compound")
+  assert(memtype:get_size() == ffi.sizeof(ctype))
+  memtype:insert("mean", ffi.offsetof(ctype, "mean"), hdf5.double)
+  memtype:insert("count", ffi.offsetof(ctype, "count"), hdf5.int)
+  assert(memtype:get_size() == ffi.sizeof(ctype))
+  local filetype = memtype:copy()
+  filetype:pack()
+  assert(filetype:get_size() == ffi.sizeof[[struct {
+    int count;
+    double mean;
+  } __attribute__((packed))]])
+  local dspace = hdf5.create_space("scalar")
+  do
+    local file = hdf5.create_file(path)
+    local dset = file:create_dataset("accum", filetype, dspace)
+    local buf = ctype(123456789, math.pi)
+    dset:write(buf, memtype, dspace)
+    file:close()
+  end
+  do
+    local file = hdf5.open_file(path)
+    local dset = file:open_dataset("accum")
+    local buf = ctype()
+    dset:read(buf, memtype)
+    file:close()
+    assert(buf.count == 123456789)
+    assert(buf.mean == math.pi)
+  end
+end
+collectgarbage()
+
 os.remove(path)
