@@ -426,6 +426,14 @@ Datatypes
     otherwise returns **false**.
 
 
+### Array datatypes
+
+`dtype:array_create(dims)`
+
+  : Creates and returns an array datatype of the given element datatype.
+    `dims` is a sequence with the array dimensions.
+
+
 ### Compound datatypes
 
 `dtype:insert(name, offset, field)`

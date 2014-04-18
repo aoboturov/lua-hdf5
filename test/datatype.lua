@@ -155,4 +155,38 @@ do
 end
 collectgarbage()
 
+do
+  local N = 100
+  local dtype = hdf5.double:array_create({N, 3})
+  assert(dtype:get_size() == N * 3 * ffi.sizeof("double"))
+  local dspace = hdf5.create_space("scalar")
+  do
+    local points = ffi.new("struct { double x, y, z; }[?]", N)
+    math.randomseed(42)
+    for i = 0, N - 1 do
+      points[i].x = math.random()
+      points[i].y = math.random()
+      points[i].z = math.random()
+    end
+    local file = hdf5.create_file(path)
+    local dset = file:create_dataset("points", dtype, dspace)
+    dset:write(points, dtype, dspace)
+    file:close()
+  end
+  do
+    local file = hdf5.open_file(path)
+    local dset = file:open_dataset("points")
+    local points = ffi.new("struct { double x, y, z; }[?]", N)
+    dset:read(points, dtype, dspace)
+    file:close()
+    math.randomseed(42)
+    for i = 0, N - 1 do
+      assert(points[i].x == math.random())
+      assert(points[i].y == math.random())
+      assert(points[i].z == math.random())
+    end
+  end
+end
+collectgarbage()
+
 os.remove(path)

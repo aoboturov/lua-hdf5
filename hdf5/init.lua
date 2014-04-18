@@ -619,6 +619,14 @@ function datatype.is_variable_str(dtype)
   return flag ~= 0
 end
 
+function datatype.array_create(dtype, dims)
+  local rank = #dims
+  dims = hsize_t_n(rank, dims)
+  local id = C.H5Tarray_create(dtype.id, rank, dims)
+  if id < 0 then return error(get_error()) end
+  return datatype_id(id)
+end
+
 function datatype.insert(dtype, name, offset, field)
   local err = C.H5Tinsert(dtype.id, name, offset, field.id)
   if err < 0 then return error(get_error()) end
