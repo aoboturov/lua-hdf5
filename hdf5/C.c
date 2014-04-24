@@ -1270,6 +1270,9 @@ cdecl_func(H5Pset_mcdt_search_cb)
 cdecl_func(H5Pget_mcdt_search_cb)
 #endif
 
+cdecl_func(H5Pset_fapl_core)
+cdecl_func(H5Pget_fapl_core)
+
 #ifdef H5_HAVE_PARALLEL
 /* MPI-IO driver */
 cdecl_type(H5FD_mpio_xfer_t)

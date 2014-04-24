@@ -1410,6 +1410,8 @@ herr_t H5Padd_merge_committed_dtype_path(hid_t, const char *);
 herr_t H5Pfree_merge_committed_dtype_paths(hid_t);
 herr_t H5Pset_mcdt_search_cb(hid_t, H5O_mcdt_search_cb_t, void *);
 herr_t H5Pget_mcdt_search_cb(hid_t, H5O_mcdt_search_cb_t *, void **);
+herr_t H5Pset_fapl_core(hid_t, size_t, hbool_t);
+herr_t H5Pget_fapl_core(hid_t, size_t *, hbool_t *);
 typedef enum H5FD_mpio_xfer_t H5FD_mpio_xfer_t;
 enum H5FD_mpio_xfer_t {
   H5FD_MPIO_INDEPENDENT = 0,

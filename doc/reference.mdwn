@@ -790,6 +790,21 @@ Property lists
 
   : Returns the lower and the upper bound on the file format version.
 
+`fapl:set_fapl_core(increment, backing_store)`
+
+  : Sets the core file driver for read and write access to a file. The contents
+    of the file are stored in a buffer for which memory is allocated as needed
+    in multiples of the given increment size in bytes. If `backing_store` is
+    **true**, an empty file is created on disk, and the contents of the file are
+    written to disk when the file is flushed or closed; otherwise, if **false**,
+    the file is not created on disk, and the contents of the file are discarded
+    when the file is closed.
+
+`fapl:get_fapl_core()`
+
+  : Returns the memory increment size in bytes; and **true** if the file is
+    stored on disk, or **false** otherwise.
+
 *The following methods are available if HDF5 is compiled with MPI-IO support.*
 
 `fapl:set_fapl_mpio(comm[, info])`

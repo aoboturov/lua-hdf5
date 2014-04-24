@@ -21,9 +21,11 @@ local H5O_info_t         = ffi.typeof("H5O_info_t")
 local H5O_info_t_1       = ffi.typeof("H5O_info_t[1]")
 local H5O_type_t_1       = ffi.typeof("H5O_type_t[1]")
 local char_n             = ffi.typeof("char[?]")
+local hbool_t_1          = ffi.typeof("hbool_t[1]")
 local hid_t_n            = ffi.typeof("hid_t[?]")
 local hsize_t_n          = ffi.typeof("hsize_t[?]")
 local hssize_t_n         = ffi.typeof("hssize_t[?]")
+local size_t_1           = ffi.typeof("size_t[1]")
 local unsigned_1         = ffi.typeof("unsigned[1]")
 
 -- Object identifiers.
@@ -966,6 +968,19 @@ do
     if err < 0 then return error(get_error()) end
     return flags[tonumber(low[0])], flags[tonumber(high[0])]
   end
+end
+
+function plist.set_fapl_core(fapl, increment, backing_store)
+  local err = C.H5Pset_fapl_core(fapl.id, increment, backing_store)
+  if err < 0 then return error(get_error()) end
+end
+
+function plist.get_fapl_core(fapl)
+  local increment = size_t_1()
+  local backing_store = hbool_t_1()
+  local err = C.H5Pget_fapl_core(fapl.id, increment, backing_store)
+  if err < 0 then return error(get_error()) end
+  return tonumber(increment[0]), backing_store[0] ~= 0
 end
 
 if pcall(function() return C.H5Pset_fapl_mpio end) then
