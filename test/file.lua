@@ -20,6 +20,7 @@ for i = 1, 3 do
   assert(file:get_object_name() == "/")
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
+  assert(file:get_vfd_handle() ~= nil)
   file:close()
   assert(file:get_object_type() == nil)
 end
@@ -38,6 +39,7 @@ do
   local file = hdf5.create_file(path, "excl")
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
+  assert(file:get_vfd_handle() ~= nil)
 end
 collectgarbage()
 
@@ -50,6 +52,7 @@ do
   local file = hdf5.create_file(path)
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
+  assert(file:get_vfd_handle() ~= nil)
 end
 collectgarbage()
 
@@ -57,6 +60,7 @@ do
   local file = hdf5.open_file(path)
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdonly")
+  assert(file:get_vfd_handle() ~= nil)
 end
 collectgarbage()
 
@@ -64,6 +68,7 @@ do
   local file = hdf5.open_file(path, "rdonly")
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdonly")
+  assert(file:get_vfd_handle() ~= nil)
 end
 collectgarbage()
 
@@ -71,6 +76,7 @@ do
   local file = hdf5.open_file(path, "rdwr")
   assert(file:get_name() == path)
   assert(file:get_intent() == "rdwr")
+  assert(file:get_vfd_handle() ~= nil)
   file:flush()
 end
 collectgarbage()

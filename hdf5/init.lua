@@ -27,6 +27,7 @@ local hsize_t_n          = ffi.typeof("hsize_t[?]")
 local hssize_t_n         = ffi.typeof("hssize_t[?]")
 local size_t_1           = ffi.typeof("size_t[1]")
 local unsigned_1         = ffi.typeof("unsigned[1]")
+local void_ptr_1         = ffi.typeof("void *[1]")
 
 -- Object identifiers.
 local attribute_id = ffi.typeof("struct { hid_t id; }")
@@ -179,6 +180,14 @@ do
     if err < 0 then return error(get_error()) end
     return flags[flag[0]]
   end
+end
+
+function file.get_vfd_handle(file, fapl)
+  if fapl ~= nil then fapl = fapl.id else fapl = C.H5P_DEFAULT end
+  local handle = void_ptr_1()
+  local err = C.H5Fget_vfd_handle(file.id, fapl, handle)
+  if err < 0 then return error(get_error()) end
+  return handle[0]
 end
 
 function file.flush(file)

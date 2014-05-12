@@ -58,6 +58,12 @@ Files
 
   : Returns the mode in which the file was opened.
 
+`file:get_vfd_handle([fapl])`
+
+  : Returns a pointer to the file handle from the low-level virtual file driver.
+    A second, optional argument `fapl` specifies the [file access properties]
+    with which the file was created or opened.
+
 `file:flush()`
 
   : Flushes file contents to disk.
