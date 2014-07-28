@@ -1,4 +1,4 @@
-PANDOC = pandoc --mathml=https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=MML_HTMLorMML
+PANDOC = pandoc --mathml=https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML
 
 html: index.html INSTALL.html README.html reference.html CHANGES.html
 
