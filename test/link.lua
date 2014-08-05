@@ -61,4 +61,53 @@ do
 end
 collectgarbage()
 
+do
+  local file = hdf5.create_file(path)
+  file:create_group("B")
+  file:create_group("A")
+  file:create_group("C")
+
+  local link_name = {}
+  for i = 0, 2 do link_name[i + 1] = file:get_link_name_by_idx(".", i) end
+  table.sort(link_name)
+  assert(link_name[1] == "A")
+  assert(link_name[2] == "B")
+  assert(link_name[3] == "C")
+end
+collectgarbage()
+
+do
+  local file = hdf5.create_file(path)
+  file:create_group("B")
+  file:create_group("A")
+  file:create_group("C")
+
+  assert(file:get_link_name_by_idx(".", 0, "name", "inc") == "A")
+  assert(file:get_link_name_by_idx(".", 1, "name", "inc") == "B")
+  assert(file:get_link_name_by_idx(".", 2, "name", "inc") == "C")
+
+  assert(file:get_link_name_by_idx(".", 0, "name", "dec") == "C")
+  assert(file:get_link_name_by_idx(".", 1, "name", "dec") == "B")
+  assert(file:get_link_name_by_idx(".", 2, "name", "dec") == "A")
+end
+collectgarbage()
+
+do
+  local fcpl = hdf5.create_plist("file_create")
+  fcpl:set_link_creation_order("tracked")
+  local file = hdf5.create_file(path, nil, fcpl)
+  file:create_group("B")
+  file:create_group("A")
+  file:create_group("C")
+
+  assert(file:get_link_name_by_idx(".", 0, "crt_order", "inc") == "B")
+  assert(file:get_link_name_by_idx(".", 1, "crt_order", "inc") == "A")
+  assert(file:get_link_name_by_idx(".", 2, "crt_order", "inc") == "C")
+
+  assert(file:get_link_name_by_idx(".", 0, "crt_order", "dec") == "C")
+  assert(file:get_link_name_by_idx(".", 1, "crt_order", "dec") == "A")
+  assert(file:get_link_name_by_idx(".", 2, "crt_order", "dec") == "B")
+end
+collectgarbage()
+
 os.remove(path)

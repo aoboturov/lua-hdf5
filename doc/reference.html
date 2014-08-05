@@ -89,13 +89,35 @@
 <h2 id="groups">Groups</h2>
 <dl>
 <dt><code>group:create_group(name[, lcpl[, gcpl[, gapl]]])</code></dt>
-<dd><p>Creates and returns a group that is linked into the file at the given location with the given name. <code>group</code> may be a group or file. A second, optional argument <code>lcpl</code> specifies the <a href="#link-creation-properties">link creation properties</a>. A third, optional argument <code>gcpl</code> specifies the group creation properties. A fourth, optional argument <code>gapl</code> specifies the group access properties.</p>
+<dd><p>Creates and returns a group that is linked into the file at the given location with the given name. <code>group</code> may be a group or file. A second, optional argument <code>lcpl</code> specifies the <a href="#link-creation-properties">link creation properties</a>. A third, optional argument <code>gcpl</code> specifies the <a href="#group-creation-properties">group creation properties</a>. A fourth, optional argument <code>gapl</code> specifies the group access properties.</p>
 </dd>
 <dt><code>group:create_anon_group([gcpl[, gapl]])</code></dt>
-<dd><p>Creates and returns a group in the file that contains the given location. The group must be <a href="#objects">linked</a> into the file separately, otherwise it is deleted when the file is closed. <code>group</code> may be a group or file. A first, optional argument <code>gcpl</code> specifies the group creation properties. A second, optional argument <code>gapl</code> specifies the group specifies the group access properties.</p>
+<dd><p>Creates and returns a group in the file that contains the given location. The group must be <a href="#objects">linked</a> into the file separately, otherwise it is deleted when the file is closed. <code>group</code> may be a group or file. A first, optional argument <code>gcpl</code> specifies the <a href="#group-creation-properties">group creation properties</a>. A second, optional argument <code>gapl</code> specifies the group specifies the group access properties.</p>
 </dd>
 <dt><code>group:open_group(name[, gapl])</code></dt>
 <dd><p>Opens and returns the group at the given location with the given name. <code>group</code> may be a group or file. A second, optional argument <code>gapl</code> specifies the group access properties.</p>
+</dd>
+<dt><code>group:get_group_info()</code></dt>
+<dd><p>Returns a value with the following methods:</p>
+<dl>
+<dt><code>info:get_num_links()</code></dt>
+<dd>Returns the number of links in the group.
+</dd>
+<dt><code>info:get_max_corder()</code></dt>
+<dd>Returns the current maximum creation order value.
+</dd>
+<dt><code>info:get_mounted()</code></dt>
+<dd>Returns <strong>true</strong> if a file is mounted onto the group; otherwise returns <strong>false</strong>.
+</dd>
+<dt><code>info:get_storage_type()</code></dt>
+<dd><p>Returns the storage type for links in the group:</p>
+<ul>
+<li><strong>&quot;compact&quot;</strong>: compact storage;</li>
+<li><strong>&quot;dense&quot;</strong>: indexed storage;</li>
+<li><strong>&quot;symbol_table&quot;</strong>: symbol tables.</li>
+</ul>
+</dd>
+</dl>
 </dd>
 </dl>
 <h2 id="datasets">Datasets</h2>
@@ -617,6 +639,20 @@
 <dt><code>group:delete_link(name[, lapl])</code></dt>
 <dd><p>Deletes the link with the given name. A second, optional argument <code>lapl</code> specifies the link access properties.</p>
 </dd>
+<dt><code>group:get_link_name_by_idx(group_name, n[, index_type[, order[, lapl]]])</code></dt>
+<dd><p>Returns the name of the <code>n</code>-th link in the group with the given name, where the links are ordered according to the given index type and order. A fifth, optional argument <code>lapl</code> specifies the link access properties.</p>
+<p><code>index_type</code> may be one of the following values, to order links by</p>
+<ul>
+<li><strong>&quot;name&quot;</strong>: link name (the default);</li>
+<li><strong>&quot;crt_order&quot;</strong>: creation order.</li>
+</ul>
+<p><code>order</code> may be one of the following values, to order links in</p>
+<ul>
+<li><strong>&quot;inc&quot;</strong>: increasing order;</li>
+<li><strong>&quot;dec&quot;</strong>: decreasing order;</li>
+<li><strong>&quot;native&quot;</strong>: fastest available order (the default).</li>
+</ul>
+</dd>
 </dl>
 <h2 id="objects">Objects</h2>
 <dl>
@@ -715,7 +751,7 @@
 <ul>
 <li><strong>&quot;file_create&quot;</strong>: <a href="#file-creation-properties">file creation properties</a>;</li>
 <li><strong>&quot;file_access&quot;</strong>: <a href="#file-access-properties">file access properties</a>;</li>
-<li><strong>&quot;group_create&quot;</strong>: group creation properties;</li>
+<li><strong>&quot;group_create&quot;</strong>: <a href="#group-creation-properties">group creation properties</a>;</li>
 <li><strong>&quot;group_access&quot;</strong>: group access properties;</li>
 <li><strong>&quot;dataset_create&quot;</strong>: <a href="#dataset-creation-properties">dataset creation properties</a>;</li>
 <li><strong>&quot;dataset_access&quot;</strong>: dataset access properties;</li>
@@ -825,6 +861,21 @@
 </dd>
 <dt><code>dxpl:get_dxpl_mpio()</code></dt>
 <dd><p>Returns MPI-IO data transfer mode.</p>
+</dd>
+</dl>
+<h3 id="group-creation-properties">Group creation properties</h3>
+<dl>
+<dt><code>gcpl:set_link_creation_order(flags)</code></dt>
+<dd><p>Sets creation order tracking and indexing of links in a group.</p>
+<p><code>flags</code> can be one or a sequence of the following:</p>
+<ul>
+<li><strong>&quot;tracked&quot;</strong>: link creation order is tracked;</li>
+<li><strong>&quot;indexed&quot;</strong>: link creation order is indexed (requires <strong>&quot;tracked&quot;</strong>).</li>
+</ul>
+<p>By default link creation order is neither tracked nor indexed.</p>
+</dd>
+<dt><code>gcpl:get_link_creation_order()</code></dt>
+<dd><p>Returns a table with the link creation order flags (<strong>true</strong> or <strong>nil</strong>).</p>
 </dd>
 </dl>
 <h3 id="link-creation-properties">Link creation properties</h3>

@@ -17,6 +17,8 @@ local _M = {}
 local H5D_fill_value_t_1 = ffi.typeof("H5D_fill_value_t[1]")
 local H5E_walk_t         = ffi.typeof("H5E_walk_t")
 local H5F_libver_t_1     = ffi.typeof("H5F_libver_t[1]")
+local H5G_info_t         = ffi.typeof("H5G_info_t")
+local H5G_info_t_1       = ffi.typeof("H5G_info_t[1]")
 local H5O_info_t         = ffi.typeof("H5O_info_t")
 local H5O_info_t_1       = ffi.typeof("H5O_info_t[1]")
 local H5O_type_t_1       = ffi.typeof("H5O_type_t[1]")
@@ -234,6 +236,30 @@ function group.open_group(group, name, gapl)
   local id = C.H5Gopen(group.id, name, gapl)
   if id < 0 then return error(get_error()) end
   return group_id(id)
+end
+
+function group.get_group_info(group)
+  local info = H5G_info_t_1()
+  local err = C.H5Gget_info(group.id, info)
+  if err < 0 then return error(get_error()) end
+  return H5G_info_t(info[0])
+end
+
+do
+  local storage_types = {
+    [C.H5G_STORAGE_TYPE_COMPACT]      = "compact",
+    [C.H5G_STORAGE_TYPE_DENSE]        = "dense",
+    [C.H5G_STORAGE_TYPE_SYMBOL_TABLE] = "symbol_table",
+  }
+
+  ffi.metatype(H5G_info_t, {
+    __index = {
+      get_num_links    = function(info) return tonumber(info.nlinks) end,
+      get_max_corder   = function(info) return tonumber(info.max_corder) end,
+      get_mounted      = function(info) return info.mounted ~= 0 end,
+      get_storage_type = function(info) return storage_types[tonumber(info.storage_type)] end,
+    },
+  })
 end
 
 function group.create_dataset(group, name, dtype, space, lcpl, dcpl, dapl)
@@ -759,6 +785,33 @@ function group.delete_link(group, name, lapl)
 end
 
 do
+  local index_types = {
+    name      = C.H5_INDEX_NAME,
+    crt_order = C.H5_INDEX_CRT_ORDER,
+  }
+
+  local iter_orders = {
+    inc    = C.H5_ITER_INC,
+    dec    = C.H5_ITER_DEC,
+    native = C.H5_ITER_NATIVE,
+  }
+
+  function group.get_link_name_by_idx(group, group_name, n, index_type, order, lapl)
+    if index_type ~= nil then index_type = index_types[index_type] else index_type = C.H5_INDEX_NAME end
+    if order ~= nil then order = iter_orders[order] else order = C.H5_ITER_NATIVE end
+    if lapl ~= nil then lapl = lapl.id else lapl = C.H5P_DEFAULT end
+    local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, nil, 0, lapl)
+    if ret < 0 then return error(get_error()) end
+    if ret == 0 then return end
+    local size = tonumber(ret)
+    local name = char_n(size + 1)
+    local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, name, size + 1, lapl)
+    if ret < 0 then return error(get_error()) end
+    return ffi.string(name, size)
+  end
+end
+
+do
   local types = {
     [C.H5I_DATASET]  = dataset_id,
     [C.H5I_DATATYPE] = datatype_id,
@@ -1106,6 +1159,33 @@ if pcall(function() return C.H5Pset_dxpl_mpio end) then
       if err < 0 then return error(get_error()) end
       return xfer_modes[tonumber(xfer_mode[0])]
     end
+  end
+end
+
+do
+  local creation_order_flags = {
+    tracked = C.H5P_CRT_ORDER_TRACKED,
+    indexed = C.H5P_CRT_ORDER_INDEXED,
+  }
+
+  function plist.set_link_creation_order(gcpl, flags)
+    flags = strtobit(flags, creation_order_flags)
+    local err = C.H5Pset_link_creation_order(gcpl.id, flags)
+    if err < 0 then return error(get_error()) end
+  end
+end
+
+do
+  local creation_order_flags = {
+    [C.H5P_CRT_ORDER_TRACKED] = "tracked",
+    [C.H5P_CRT_ORDER_INDEXED] = "indexed",
+  }
+
+  function plist.get_link_creation_order(gcpl)
+    local flags = unsigned_1()
+    local err = C.H5Pget_link_creation_order(gcpl.id, flags)
+    if err < 0 then return error(get_error()) end
+    return bittobool(flags[0], creation_order_flags)
   end
 end
 

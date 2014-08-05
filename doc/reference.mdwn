@@ -84,7 +84,7 @@ Groups
   : Creates and returns a group that is linked into the file at the given
     location with the given name. `group` may be a group or file. A second,
     optional argument `lcpl` specifies the [link creation properties]. A
-    third, optional argument `gcpl` specifies the group creation properties.
+    third, optional argument `gcpl` specifies the [group creation properties].
     A fourth, optional argument `gapl` specifies the group access properties.
 
 `group:create_anon_group([gcpl[, gapl]])`
@@ -92,7 +92,7 @@ Groups
   : Creates and returns a group in the file that contains the given location.
     The group must be [linked](#objects) into the file separately, otherwise it
     is deleted when the file is closed. `group` may be a group or file. A first,
-    optional argument `gcpl` specifies the group creation properties. A second,
+    optional argument `gcpl` specifies the [group creation properties]. A second,
     optional argument `gapl` specifies the group specifies the group access
     properties.
 
@@ -101,6 +101,23 @@ Groups
   : Opens and returns the group at the given location with the given name.
     `group` may be a group or file. A second, optional argument `gapl` specifies
     the group access properties.
+
+`group:get_group_info()`
+
+  : Returns a value with the following methods:
+
+    `info:get_num_links()`
+      : Returns the number of links in the group.
+    `info:get_max_corder()`
+      : Returns the current maximum creation order value.
+    `info:get_mounted()`
+      : Returns **true** if a file is mounted onto the group; otherwise returns **false**.
+    `info:get_storage_type()`
+      : Returns the storage type for links in the group:
+
+          - **"compact"**: compact storage;
+          - **"dense"**: indexed storage;
+          - **"symbol_table"**: symbol tables.
 
 
 Datasets
@@ -611,6 +628,23 @@ Links
   : Deletes the link with the given name. A second, optional argument `lapl`
     specifies the link access properties.
 
+`group:get_link_name_by_idx(group_name, n[, index_type[, order[, lapl]]])`
+
+  : Returns the name of the `n`-th link in the group with the given name,
+    where the links are ordered according to the given index type and order.
+    A fifth, optional argument `lapl` specifies the link access properties.
+
+    `index_type` may be one of the following values, to order links by
+
+      - **"name"**: link name (the default);
+      - **"crt_order"**: creation order.
+
+    `order` may be one of the following values, to order links in
+
+      - **"inc"**: increasing order;
+      - **"dec"**: decreasing order;
+      - **"native"**: fastest available order (the default).
+
 
 Objects
 -------
@@ -741,7 +775,7 @@ Property lists
 
       - **"file_create"**: [file creation properties];
       - **"file_access"**: [file access properties];
-      - **"group_create"**: group creation properties;
+      - **"group_create"**: [group creation properties];
       - **"group_access"**: group access properties;
       - **"dataset_create"**: [dataset creation properties];
       - **"dataset_access"**: dataset access properties;
@@ -905,6 +939,26 @@ Property lists
   : Returns MPI-IO data transfer mode.
 
 [dataset transfer properties]: #dataset-transfer-properties
+
+
+### Group creation properties
+
+`gcpl:set_link_creation_order(flags)`
+
+  : Sets creation order tracking and indexing of links in a group.
+
+    `flags` can be one or a sequence of the following:
+
+      - **"tracked"**: link creation order is tracked;
+      - **"indexed"**: link creation order is indexed (requires **"tracked"**).
+
+    By default link creation order is neither tracked nor indexed.
+
+`gcpl:get_link_creation_order()`
+
+  : Returns a table with the link creation order flags (**true** or **nil**).
+
+[group creation properties]: #group-creation-properties
 
 
 ### Link creation properties
