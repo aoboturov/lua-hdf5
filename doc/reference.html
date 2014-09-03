@@ -832,6 +832,9 @@
 <dt><code>dcpl:set_deflate(level)</code></dt>
 <dd><p>Enables compression of the raw data using the <a href="http://www.zlib.net/feldspar.html">deflate algorithm</a> of zlib. The compression level is a number in the range <strong>0</strong> to <strong>9</strong>, where a higher level corresponds to a better compression ratio.</p>
 </dd>
+<dt><code>dcpl:set_shuffle()</code></dt>
+<dd><p>Sets the <a href="http://www.hdfgroup.org/HDF5/doc_resource/H5Shuffle_Perf.pdf">shuffle filter</a>, which reorders bytes for better compressibility.</p>
+</dd>
 <dt><code>dcpl:set_fill_value(buf, buf_type)</code></dt>
 <dd><p>Sets the fill value for a dataset. The fill value is read from the array <code>buf</code>, whose element type corresponds to the datatype <code>buf_type</code>. The datatype of the buffer must be <a href="http://www.hdfgroup.org/HDF5/doc/UG/11_Datatypes.html#Dtransfer">convertible</a> to the datatype of the dataset.</p>
 <p>The fill value may be set to be undefined by passing <strong>nil</strong> as <code>buf</code>. In this case, the argument <code>buf_type</code> may be omitted.</p>

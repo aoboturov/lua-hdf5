@@ -891,6 +891,12 @@ Property lists
 
     [deflate algorithm]: http://www.zlib.net/feldspar.html
 
+`dcpl:set_shuffle()`
+
+  : Sets the [shuffle filter], which reorders bytes for better compressibility.
+
+    [shuffle filter]: http://www.hdfgroup.org/HDF5/doc_resource/H5Shuffle_Perf.pdf
+
 `dcpl:set_fill_value(buf, buf_type)`
 
   : Sets the fill value for a dataset. The fill value is read from the array

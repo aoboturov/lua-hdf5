@@ -80,6 +80,7 @@ do
   local file_space = hdf5.create_simple_space({5, 0}, {5, nil})
   local dcpl = hdf5.create_plist("dataset_create")
   dcpl:set_chunk({5, 10})
+  dcpl:set_shuffle()
   dcpl:set_deflate(6)
   local dset = file:create_dataset("position", file_type, file_space, nil, dcpl)
   dset:set_extent({5, 123})

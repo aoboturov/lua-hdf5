@@ -1107,6 +1107,11 @@ function plist.set_deflate(plist, level)
   if err < 0 then return error(get_error()) end
 end
 
+function plist.set_shuffle(plist)
+  local err = C.H5Pset_shuffle(plist.id)
+  if err < 0 then return error(get_error()) end
+end
+
 function plist.set_fill_value(plist, buf, buf_type)
   if buf_type ~= nil then buf_type = buf_type.id else buf_type = C.H5I_INVALID_HID end
   local err = C.H5Pset_fill_value(plist.id, buf_type, buf)
