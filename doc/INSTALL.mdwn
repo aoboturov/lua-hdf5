@@ -52,7 +52,7 @@ make test MPIEXEC="mpirun -np 8"
 LuaRocks
 --------
 
-HDF5 for Lua is available from the default [LuaRocks mirror]:
+HDF5 for Lua is available from [LuaRocks]:
 
 ~~~
 luarocks install --local lua-hdf5
@@ -84,7 +84,7 @@ luarocks make --local rockspec/lua-hdf5-1.1.0-1.rockspec
 
 In this case you must manually git checkout the corresponding version beforehand.
 
-[LuaRocks mirror]: http://luarocks.org/repositories/rocks/#lua-hdf5
+[LuaRocks]: http://luarocks.org/
 
 
 FFI C bindings
