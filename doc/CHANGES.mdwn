@@ -9,6 +9,18 @@ The version numbers follow [semantic versioning].
 [semantic versioning]: http://semver.org/spec/v2.0.0.html
 
 
+## lua‑hdf5 1.1.0 (2014-09-23) {#v1.1.0}
+
+  * Add method to copy object from one group to another group.
+  * Support compound datatype.
+  * Support array datatype.
+  * Add core file driver to store file in memory.
+  * Add method to query file handle of file driver.
+  * Update FFI C bindings to HDF5 1.8.13.
+  * Add method to query information about a group.
+  * Add method to retrieve names of links in a group.
+  * Add shuffle filter to reorder bytes for better compressibility.
+
 ## lua‑hdf5 1.0.0 (2014-04-04) {#v1.0.0}
 
   * Initial release of HDF5 for Lua.
