@@ -68,7 +68,7 @@ make test GCCLUA=gcclua.so
 LuaRocks
 --------
 
-cdecl for GCC is available from the default [LuaRocks mirror]:
+cdecl for GCC is available from [LuaRocks]:
 
 ~~~
 luarocks install --local gcc-lua-cdecl
@@ -100,4 +100,4 @@ luarocks make --local rockspec/gcc-lua-cdecl-2.0.1-1.rockspec
 
 In this case you must manually git checkout the corresponding version beforehand.
 
-[LuaRocks mirror]: http://luarocks.org/repositories/rocks/#gcc-lua-cdecl
+[LuaRocks]: http://luarocks.org/
