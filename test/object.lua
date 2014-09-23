@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 -- Test objects.
--- Copyright © 2013 Peter Colberg.
+-- Copyright © 2013–2014 Peter Colberg.
 -- Distributed under the MIT license. (See accompanying file LICENSE.)
 ------------------------------------------------------------------------------
 
