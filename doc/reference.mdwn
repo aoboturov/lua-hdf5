@@ -311,6 +311,14 @@ Dataspaces
     dataspace. For each dimension of unlimited maximum size, the corresponding
     element of the second table is **nil**.
 
+`space:get_simple_extent_ndims()`
+
+  : Returns the number of dimensions of the dataspace.
+
+`space:get_simple_extent_npoints()`
+
+  : Returns the number of elements of the dataspace.
+
 `space:extent_equal(space2)`
 
   : Returns **true** if the dataspace extents of the given dataspaces are

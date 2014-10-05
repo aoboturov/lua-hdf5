@@ -487,6 +487,18 @@ do
   end
 end
 
+function dataspace.get_simple_extent_ndims(space)
+  local ret = C.H5Sget_simple_extent_ndims(space.id)
+  if ret < 0 then return error(get_error()) end
+  return ret
+end
+
+function dataspace.get_simple_extent_npoints(space)
+  local ret = C.H5Sget_simple_extent_npoints(space.id)
+  if ret < 0 then return error(get_error()) end
+  return tonumber(ret)
+end
+
 function dataspace.extent_equal(space, space2)
   local flag = C.H5Sextent_equal(space.id, space2.id)
   if flag < 0 then return error(get_error()) end
