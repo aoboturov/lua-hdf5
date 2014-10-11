@@ -247,6 +247,23 @@ Attributes
 
   : Deletes the attribute with the given name.
 
+`loc:get_attr_name_by_idx(obj_name, n[, index_type[, order[, lapl]]])`
+
+  : Returns the name of the `n`-th attribute of the object with the given name,
+    where the attributes are ordered according to the given index type and order.
+    A fifth, optional argument `lapl` specifies the link access properties.
+
+    `index_type` may be one of the following values, to order attributes by
+
+      - **"name"**: attribute name (the default);
+      - **"crt_order"**: creation order.
+
+    `order` may be one of the following values, to order attributes in
+
+      - **"inc"**: increasing order;
+      - **"dec"**: decreasing order;
+      - **"native"**: fastest available order (the default).
+
 `attr:get_name()`
 
   : Returns the name of the attribute.
@@ -973,6 +990,26 @@ Property lists
   : Returns a table with the link creation order flags (**true** or **nil**).
 
 [group creation properties]: #group-creation-properties
+
+
+### Object creation properties
+
+`ocpl:set_attr_creation_order(flags)`
+
+  : Sets creation order tracking and indexing of attributes of an object.
+
+    `flags` can be one or a sequence of the following:
+
+      - **"tracked"**: attribute creation order is tracked;
+      - **"indexed"**: attribute creation order is indexed (requires **"tracked"**).
+
+    By default attribute creation order is neither tracked nor indexed.
+
+`ocpl:get_attr_creation_order()`
+
+  : Returns a table with the attribute creation order flags (**true** or **nil**).
+
+[object creation properties]: #object-creation-properties
 
 
 ### Link creation properties

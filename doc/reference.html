@@ -176,6 +176,20 @@
 <dt><code>loc:delete_attribute(name)</code></dt>
 <dd><p>Deletes the attribute with the given name.</p>
 </dd>
+<dt><code>loc:get_attr_name_by_idx(obj_name, n[, index_type[, order[, lapl]]])</code></dt>
+<dd><p>Returns the name of the <code>n</code>-th attribute of the object with the given name, where the attributes are ordered according to the given index type and order. A fifth, optional argument <code>lapl</code> specifies the link access properties.</p>
+<p><code>index_type</code> may be one of the following values, to order attributes by</p>
+<ul>
+<li><strong>&quot;name&quot;</strong>: attribute name (the default);</li>
+<li><strong>&quot;crt_order&quot;</strong>: creation order.</li>
+</ul>
+<p><code>order</code> may be one of the following values, to order attributes in</p>
+<ul>
+<li><strong>&quot;inc&quot;</strong>: increasing order;</li>
+<li><strong>&quot;dec&quot;</strong>: decreasing order;</li>
+<li><strong>&quot;native&quot;</strong>: fastest available order (the default).</li>
+</ul>
+</dd>
 <dt><code>attr:get_name()</code></dt>
 <dd><p>Returns the name of the attribute.</p>
 </dd>
@@ -903,6 +917,21 @@
 </dd>
 <dt><code>gcpl:get_link_creation_order()</code></dt>
 <dd><p>Returns a table with the link creation order flags (<strong>true</strong> or <strong>nil</strong>).</p>
+</dd>
+</dl>
+<h3 id="object-creation-properties">Object creation properties</h3>
+<dl>
+<dt><code>ocpl:set_attr_creation_order(flags)</code></dt>
+<dd><p>Sets creation order tracking and indexing of attributes of an object.</p>
+<p><code>flags</code> can be one or a sequence of the following:</p>
+<ul>
+<li><strong>&quot;tracked&quot;</strong>: attribute creation order is tracked;</li>
+<li><strong>&quot;indexed&quot;</strong>: attribute creation order is indexed (requires <strong>&quot;tracked&quot;</strong>).</li>
+</ul>
+<p>By default attribute creation order is neither tracked nor indexed.</p>
+</dd>
+<dt><code>ocpl:get_attr_creation_order()</code></dt>
+<dd><p>Returns a table with the attribute creation order flags (<strong>true</strong> or <strong>nil</strong>).</p>
 </dd>
 </dl>
 <h3 id="link-creation-properties">Link creation properties</h3>

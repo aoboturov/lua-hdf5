@@ -375,6 +375,31 @@ function location.delete_attribute(loc, name)
   if err < 0 then return error(get_error()) end
 end
 
+local index_types = {
+  name      = C.H5_INDEX_NAME,
+  crt_order = C.H5_INDEX_CRT_ORDER,
+}
+
+local iter_orders = {
+  inc    = C.H5_ITER_INC,
+  dec    = C.H5_ITER_DEC,
+  native = C.H5_ITER_NATIVE,
+}
+
+function location.get_attr_name_by_idx(loc, obj_name, n, index_type, order, lapl)
+  if index_type ~= nil then index_type = index_types[index_type] else index_type = C.H5_INDEX_NAME end
+  if order ~= nil then order = iter_orders[order] else order = C.H5_ITER_NATIVE end
+  if lapl ~= nil then lapl = lapl.id else lapl = C.H5P_DEFAULT end
+  local ret = C.H5Aget_name_by_idx(loc.id, obj_name, index_type, order, n, nil, 0, lapl)
+  if ret < 0 then return error(get_error()) end
+  if ret == 0 then return end
+  local size = tonumber(ret)
+  local name = char_n(size + 1)
+  local ret = C.H5Aget_name_by_idx(loc.id, obj_name, index_type, order, n, name, size + 1, lapl)
+  if ret < 0 then return error(get_error()) end
+  return ffi.string(name, size)
+end
+
 function attribute.get_name(attr)
   local ret = C.H5Aget_name(attr.id, 0, nil)
   if ret < 0 then return error(get_error()) end
@@ -796,31 +821,18 @@ function group.delete_link(group, name, lapl)
   if err < 0 then return error(get_error()) end
 end
 
-do
-  local index_types = {
-    name      = C.H5_INDEX_NAME,
-    crt_order = C.H5_INDEX_CRT_ORDER,
-  }
-
-  local iter_orders = {
-    inc    = C.H5_ITER_INC,
-    dec    = C.H5_ITER_DEC,
-    native = C.H5_ITER_NATIVE,
-  }
-
-  function group.get_link_name_by_idx(group, group_name, n, index_type, order, lapl)
-    if index_type ~= nil then index_type = index_types[index_type] else index_type = C.H5_INDEX_NAME end
-    if order ~= nil then order = iter_orders[order] else order = C.H5_ITER_NATIVE end
-    if lapl ~= nil then lapl = lapl.id else lapl = C.H5P_DEFAULT end
-    local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, nil, 0, lapl)
-    if ret < 0 then return error(get_error()) end
-    if ret == 0 then return end
-    local size = tonumber(ret)
-    local name = char_n(size + 1)
-    local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, name, size + 1, lapl)
-    if ret < 0 then return error(get_error()) end
-    return ffi.string(name, size)
-  end
+function group.get_link_name_by_idx(group, group_name, n, index_type, order, lapl)
+  if index_type ~= nil then index_type = index_types[index_type] else index_type = C.H5_INDEX_NAME end
+  if order ~= nil then order = iter_orders[order] else order = C.H5_ITER_NATIVE end
+  if lapl ~= nil then lapl = lapl.id else lapl = C.H5P_DEFAULT end
+  local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, nil, 0, lapl)
+  if ret < 0 then return error(get_error()) end
+  if ret == 0 then return end
+  local size = tonumber(ret)
+  local name = char_n(size + 1)
+  local ret = C.H5Lget_name_by_idx(group.id, group_name, index_type, order, n, name, size + 1, lapl)
+  if ret < 0 then return error(get_error()) end
+  return ffi.string(name, size)
 end
 
 do
@@ -1190,6 +1202,12 @@ do
     local err = C.H5Pset_link_creation_order(gcpl.id, flags)
     if err < 0 then return error(get_error()) end
   end
+
+  function plist.set_attr_creation_order(ocpl, flags)
+    flags = strtobit(flags, creation_order_flags)
+    local err = C.H5Pset_attr_creation_order(ocpl.id, flags)
+    if err < 0 then return error(get_error()) end
+  end
 end
 
 do
@@ -1201,6 +1219,13 @@ do
   function plist.get_link_creation_order(gcpl)
     local flags = unsigned_1()
     local err = C.H5Pget_link_creation_order(gcpl.id, flags)
+    if err < 0 then return error(get_error()) end
+    return bittobool(flags[0], creation_order_flags)
+  end
+
+  function plist.get_attr_creation_order(ocpl)
+    local flags = unsigned_1()
+    local err = C.H5Pget_attr_creation_order(ocpl.id, flags)
     if err < 0 then return error(get_error()) end
     return bittobool(flags[0], creation_order_flags)
   end

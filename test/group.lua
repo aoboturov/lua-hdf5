@@ -94,6 +94,32 @@ end
 collectgarbage()
 
 do
+  local gcpl = hdf5.create_plist("group_create")
+  local flags = gcpl:get_attr_creation_order()
+  assert(flags.tracked == nil)
+  assert(flags.indexed == nil)
+end
+collectgarbage()
+
+do
+  local gcpl = hdf5.create_plist("group_create")
+  gcpl:set_attr_creation_order("tracked")
+  local flags = gcpl:get_attr_creation_order()
+  assert(flags.tracked == true)
+  assert(flags.indexed == nil)
+end
+collectgarbage()
+
+do
+  local gcpl = hdf5.create_plist("group_create")
+  gcpl:set_attr_creation_order({"tracked", "indexed"})
+  local flags = gcpl:get_attr_creation_order()
+  assert(flags.tracked == true)
+  assert(flags.indexed == true)
+end
+collectgarbage()
+
+do
   local file = hdf5.create_file(path)
 
   local info1 = file:get_group_info()

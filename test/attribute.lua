@@ -64,4 +64,40 @@ do
 end
 collectgarbage()
 
+do
+  local file = hdf5.create_file(path)
+  local space = hdf5.create_space("scalar")
+  file:create_attribute("B", hdf5.double, space)
+  file:create_attribute("A", hdf5.double, space)
+  file:create_attribute("C", hdf5.double, space)
+
+  assert(file:get_attr_name_by_idx(".", 0, "name", "inc") == "A")
+  assert(file:get_attr_name_by_idx(".", 1, "name", "inc") == "B")
+  assert(file:get_attr_name_by_idx(".", 2, "name", "inc") == "C")
+
+  assert(file:get_attr_name_by_idx(".", 0, "name", "dec") == "C")
+  assert(file:get_attr_name_by_idx(".", 1, "name", "dec") == "B")
+  assert(file:get_attr_name_by_idx(".", 2, "name", "dec") == "A")
+end
+collectgarbage()
+
+do
+  local fcpl = hdf5.create_plist("file_create")
+  fcpl:set_attr_creation_order("tracked")
+  local file = hdf5.create_file(path, nil, fcpl)
+  local space = hdf5.create_space("scalar")
+  file:create_attribute("B", hdf5.double, space)
+  file:create_attribute("A", hdf5.double, space)
+  file:create_attribute("C", hdf5.double, space)
+
+  assert(file:get_attr_name_by_idx(".", 0, "crt_order", "inc") == "B")
+  assert(file:get_attr_name_by_idx(".", 1, "crt_order", "inc") == "A")
+  assert(file:get_attr_name_by_idx(".", 2, "crt_order", "inc") == "C")
+
+  assert(file:get_attr_name_by_idx(".", 0, "crt_order", "dec") == "C")
+  assert(file:get_attr_name_by_idx(".", 1, "crt_order", "dec") == "A")
+  assert(file:get_attr_name_by_idx(".", 2, "crt_order", "dec") == "B")
+end
+collectgarbage()
+
 os.remove(path)
