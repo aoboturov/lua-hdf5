@@ -45,15 +45,15 @@
 <pre><code>make test MPIEXEC=&quot;mpirun -np 8&quot;</code></pre>
 <h2 id="luarocks">LuaRocks</h2>
 <p>HDF5 for Lua is available from <a href="http://luarocks.org/">LuaRocks</a>:</p>
-<pre><code>luarocks install --local lua-hdf5</code></pre>
+<pre><code>luarocks install --local hdf5</code></pre>
 <p>You may wish to remove older versions before installing:</p>
-<pre><code>luarocks remove --local lua-hdf5</code></pre>
+<pre><code>luarocks remove --local hdf5</code></pre>
 <p>To use the module, set the Lua module path in your shell's startup file:</p>
 <pre><code>eval `luarocks path`</code></pre>
 <p>If the LuaRocks mirror is not available, install from the git repository above:</p>
-<pre><code>luarocks install --local rockspec/lua-hdf5-1.1.0-1.rockspec</code></pre>
+<pre><code>luarocks install --local rockspec/hdf5-1.1.0-1.rockspec</code></pre>
 <p>To install the module directly from the git source, use:</p>
-<pre><code>luarocks make --local rockspec/lua-hdf5-1.1.0-1.rockspec</code></pre>
+<pre><code>luarocks make --local rockspec/hdf5-1.1.0-1.rockspec</code></pre>
 <p>In this case you must manually git checkout the corresponding version beforehand.</p>
 <h2 id="ffi-c-bindings">FFI C bindings</h2>
 <p>HDF5 for Lua includes precompiled FFI C bindings for the HDF5 library with support for parallel HDF5 using <a href="http://www.open-mpi.org/">Open MPI</a>. If you wish to compile the FFI C bindings yourself, for example when using a different MPI library or when packaging for a distribution, you need to install the <a href="http://colberg.org/gcc-lua/">Lua plugin for GCC</a> and <a href="http://colberg.org/gcc-lua-cdecl/">cdecl for GCC</a>.</p>

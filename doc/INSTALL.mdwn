@@ -55,13 +55,13 @@ LuaRocks
 HDF5 for Lua is available from [LuaRocks]:
 
 ~~~
-luarocks install --local lua-hdf5
+luarocks install --local hdf5
 ~~~
 
 You may wish to remove older versions before installing:
 
 ~~~
-luarocks remove --local lua-hdf5
+luarocks remove --local hdf5
 ~~~
 
 To use the module, set the Lua module path in your shell's startup file:
@@ -73,13 +73,13 @@ eval `luarocks path`
 If the LuaRocks mirror is not available, install from the git repository above:
 
 ~~~
-luarocks install --local rockspec/lua-hdf5-1.1.0-1.rockspec
+luarocks install --local rockspec/hdf5-1.1.0-1.rockspec
 ~~~
 
 To install the module directly from the git source, use:
 
 ~~~
-luarocks make --local rockspec/lua-hdf5-1.1.0-1.rockspec
+luarocks make --local rockspec/hdf5-1.1.0-1.rockspec
 ~~~
 
 In this case you must manually git checkout the corresponding version beforehand.
