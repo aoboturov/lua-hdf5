@@ -649,16 +649,16 @@ do
   end
 end
 
-function datatype.get_size(dtype)
-  local size = C.H5Tget_size(dtype.id)
-  if size < 0 then return error(get_error()) end
-  return tonumber(size)
-end
-
 function datatype.set_size(dtype, size)
   if size == "variable" then size = C.H5T_VARIABLE end
   local err = C.H5Tset_size(dtype.id, size)
   if err < 0 then return error(get_error()) end
+end
+
+function datatype.get_size(dtype)
+  local size = C.H5Tget_size(dtype.id)
+  if size < 0 then return error(get_error()) end
+  return tonumber(size)
 end
 
 do
@@ -685,6 +685,28 @@ do
     if cset < 0 then return error(get_error()) end
     return csets[tonumber(cset)]
   end
+end
+
+function datatype.set_precision(dtype, precision)
+  local err = C.H5Tset_precision(dtype.id, precision)
+  if err < 0 then return error(get_error()) end
+end
+
+function datatype.get_precision(dtype)
+  local ret = C.H5Tget_precision(dtype.id)
+  if ret < 0 then return error(get_error()) end
+  return ret
+end
+
+function datatype.set_offset(dtype, offset)
+  local err = C.H5Tset_offset(dtype.id, offset)
+  if err < 0 then return error(get_error()) end
+end
+
+function datatype.get_offset(dtype)
+  local ret = C.H5Tget_offset(dtype.id)
+  if ret < 0 then return error(get_error()) end
+  return ret
 end
 
 function datatype.is_variable_str(dtype)

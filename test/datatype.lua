@@ -41,6 +41,22 @@ end
 collectgarbage()
 
 do
+  local dtype = hdf5.uint32:copy()
+  assert(dtype:get_precision() == 32)
+  assert(dtype:get_offset() == 0)
+  dtype:set_precision(16)
+  assert(dtype:get_precision() == 16)
+  assert(dtype:get_offset() == 0)
+  dtype:set_offset(16)
+  assert(dtype:get_precision() == 16)
+  assert(dtype:get_offset() == 16)
+  dtype:set_precision(32)
+  assert(dtype:get_precision() == 32)
+  assert(dtype:get_offset() == 0)
+end
+collectgarbage()
+
+do
   local file = hdf5.create_file(path)
   local dtype = hdf5.double:copy()
   assert(dtype:committed() == false)

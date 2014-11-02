@@ -437,6 +437,12 @@ Datatypes
       - **"vlen"**: variable-length datatype;
       - **"array"**: array datatype.
 
+`dtype:set_size(size)`
+
+  : Sets the size in bytes of the datatype. If `dtype` is a string datatype,
+    `size` may be specified as **"variable"** to create a variable-length
+    datatype.
+
 `dtype:get_size()`
 
   : Returns the size in bytes of the datatype. If `dtype` is a variable-length
@@ -446,12 +452,6 @@ Datatypes
 
 
 ### Atomic datatypes
-
-`dtype:set_size(size)`
-
-  : Sets the size in bytes of the datatype. If `dtype` is a string datatype,
-    `size` may be specified as **"variable"** to create a variable-length
-    datatype.
 
 `dtype:set_cset(cset)`
 
@@ -464,6 +464,22 @@ Datatypes
 `dtype:get_cset()`
 
   : Returns the character encoding of a string datatype.
+
+`dtype:set_precision(precision)`
+
+  : Sets the number of significant bits.
+
+`dtype:get_precision()`
+
+  : Returns the number of significant bits.
+
+`dtype:set_offset(offset)`
+
+  : Sets the offset in bits of the first significant bit.
+
+`dtype:get_offset()`
+
+  : Returns the offset in bits of the first significant bit.
 
 
 ### Variable-length datatypes
