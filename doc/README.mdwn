@@ -261,10 +261,9 @@ We allocate an array for the strings and read the attribute:
 
 ~~~ {.lua}
 local buf = ffi.new("char[?][50]", N)
-local memspace = hdf5.create_simple_space({N})
 local memtype = hdf5.c_s1:copy()
 memtype:set_size(50)
-attr:read(buf, memtype, memspace)
+attr:read(buf, memtype)
 f:close()
 ~~~
 

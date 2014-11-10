@@ -30,10 +30,9 @@ do
   local N = dims[1]
   assert(N == #species)
   local buf = ffi.new("char[?][50]", N)
-  local memspace = hdf5.create_simple_space({N})
   local memtype = hdf5.c_s1:copy()
   memtype:set_size(50)
-  attr:read(buf, memtype, memspace)
+  attr:read(buf, memtype)
   f:close()
   for i = 0, N - 1 do
     assert(ffi.string(buf[i]) == species[i + 1])

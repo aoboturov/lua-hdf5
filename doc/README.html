@@ -164,10 +164,9 @@ GROUP &quot;/&quot; {
 <span class="fu">assert</span><span class="ot">(</span>N <span class="ot">==</span> <span class="ot">#</span>species<span class="ot">)</span></code></pre>
 <p>We allocate an array for the strings and read the attribute:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> buf <span class="ot">=</span> ffi<span class="ot">.</span>new<span class="ot">(</span><span class="st">&quot;char[?][50]&quot;</span><span class="ot">,</span> N<span class="ot">)</span>
-<span class="kw">local</span> memspace <span class="ot">=</span> hdf5<span class="ot">.</span>create_simple_space<span class="ot">({</span>N<span class="ot">})</span>
 <span class="kw">local</span> memtype <span class="ot">=</span> hdf5<span class="ot">.</span>c_s1:copy<span class="ot">()</span>
 memtype:set_size<span class="ot">(</span><span class="dv">50</span><span class="ot">)</span>
-attr:<span class="fu">read</span><span class="ot">(</span>buf<span class="ot">,</span> memtype<span class="ot">,</span> memspace<span class="ot">)</span>
+attr:<span class="fu">read</span><span class="ot">(</span>buf<span class="ot">,</span> memtype<span class="ot">)</span>
 f:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <p>The size of the memory datatype (50 characters) need not match the size of the file datatype (100 characters). If a string exceeds the size of the memory datatype, the HDF5 library truncates and terminates the string safely with a null character.</p>
 <p>Finally we verify the data read from the attribute:</p>
