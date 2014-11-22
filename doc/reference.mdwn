@@ -108,10 +108,13 @@ Groups
 
     `info:get_num_links()`
       : Returns the number of links in the group.
+
     `info:get_max_corder()`
       : Returns the current maximum creation order value.
+
     `info:get_mounted()`
       : Returns **true** if a file is mounted onto the group; otherwise returns **false**.
+
     `info:get_storage_type()`
       : Returns the storage type for links in the group:
 
@@ -548,14 +551,19 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.char`                        | `hdf5.opaque`                      |
 |   : C type `char`                  |   : Opaque byte string             |
+|                                    |                                    |
 | `hdf5.schar`                       | `hdf5.uchar`                       |
 |   : C type `signed char`           |   : C type `unsigned char`         |
+|                                    |                                    |
 | `hdf5.short`                       | `hdf5.ushort`                      |
 |   : C type `short`                 |   : C type `unsigned short`        |
+|                                    |                                    |
 | `hdf5.int`                         | `hdf5.uint`                        |
 |   : C type `int`                   |   : C type `unsigned int`          |
+|                                    |                                    |
 | `hdf5.long`                        | `hdf5.ulong`                       |
 |   : C type `long`                  |   : C type `unsigned long`         |
+|                                    |                                    |
 | `hdf5.llong`                       | `hdf5.ullong`                      |
 |   : C type `long long`             |   : C type `unsigned long long`    |
 +------------------------------------+------------------------------------+
@@ -563,10 +571,13 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.int8`                        | `hdf5.uint8`                       |
 |   : C type `int8_t`                |   : C type `uint8_t`               |
+|                                    |                                    |
 | `hdf5.int16`                       | `hdf5.uint16`                      |
 |   : C type `int16_t`               |   : C type `uint16_t`              |
+|                                    |                                    |
 | `hdf5.int32`                       | `hdf5.uint32`                      |
 |   : C type `int32_t`               |   : C type `uint32_t`              |
+|                                    |                                    |
 | `hdf5.int64`                       | `hdf5.uint64`                      |
 |   : C type `int64_t`               |   : C type `uint64_t`              |
 +------------------------------------+------------------------------------+
@@ -574,18 +585,25 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.i8be`                        | `hdf5.u8be`                        |
 |   : Signed 8 bit big-endian        |   : Unsigned 8 bit big-endian      |
+|                                    |                                    |
 | `hdf5.i8le`                        | `hdf5.u8le`                        |
 |   : Signed 8 bit little-endian     |   : Unsigned 8 bit little-endian   |
+|                                    |                                    |
 | `hdf5.i16be`                       | `hdf5.u16be`                       |
 |   : Signed 16 bit big-endian       |   : Unsigned 16 bit big-endian     |
+|                                    |                                    |
 | `hdf5.i16le`                       | `hdf5.u16le`                       |
 |   : Signed 16 bit little-endian    |   : Unsigned 16 bit little-endian  |
+|                                    |                                    |
 | `hdf5.i32be`                       | `hdf5.u32be`                       |
 |   : Signed 32 bit big-endian       |   : Unsigned 32 bit big-endian     |
+|                                    |                                    |
 | `hdf5.i32le`                       | `hdf5.u32le`                       |
 |   : Signed 32 bit little-endian    |   : Unsigned 32 bit little-endian  |
+|                                    |                                    |
 | `hdf5.i64be`                       | `hdf5.u64be`                       |
 |   : Signed 64 bit big-endian       |   : Unsigned 64 bit big-endian     |
+|                                    |                                    |
 | `hdf5.i64le`                       | `hdf5.u64le`                       |
 |   : Signed 64 bit little-endian    |   : Unsigned 64 bit little-endian  |
 +------------------------------------+------------------------------------+
@@ -595,6 +613,7 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.b8`                          | `hdf5.b16`                         |
 |   : 1 byte bit field               |   : 2 byte bit field               |
+|                                    |                                    |
 | `hdf5.b32`                         | `hdf5.b64`                         |
 |   : 4 byte bit field               |   : 8 byte bit field               |
 +------------------------------------+------------------------------------+
@@ -602,10 +621,13 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.b8be`                        | `hdf5.b8le`                        |
 |   : 8 bit big-endian               |   : 8 bit little-endian            |
+|                                    |                                    |
 | `hdf5.b16be`                       | `hdf5.b16le`                       |
 |   : 16 bit big-endian              |   : 16 bit little-endian           |
+|                                    |                                    |
 | `hdf5.b32be`                       | `hdf5.b32le`                       |
 |   : 32 bit big-endian              |   : 32 bit little-endian           |
+|                                    |                                    |
 | `hdf5.b64be`                       | `hdf5.b64le`                       |
 |   : 64 bit big-endian              |   : 64 bit little-endian           |
 +------------------------------------+------------------------------------+
@@ -620,6 +642,7 @@ The library defines the following atomic datatypes.
 +------------------------------------+------------------------------------+
 | `hdf5.f32be`                       | `hdf5.f32le`                       |
 |   : 32 bit big-endian              |   : 32 bit little-endian           |
+|                                    |                                    |
 | `hdf5.f64be`                       | `hdf5.f64le`                       |
 |   : 64 bit big-endian              |   : 64 bit little-endian           |
 +------------------------------------+------------------------------------+
@@ -742,16 +765,22 @@ Objects
 
     `info:get_atime()`
       : Returns the last time the object was read or written.
+
     `info:get_mtime()`
       : Returns the last time the raw data in the object was changed.
+
     `info:get_ctime()`
       : Returns the last time the metadata for the object was changed.
+
     `info:get_btime()`
       : Returns the time the object was created.
+
     `info:get_num_links()`
       : Returns the number of links to the object.
+
     `info:get_num_attrs()`
       : Returns the number of attributes.
+
     `info:get_type()`
       : Returns the type of the object, which can be any of the following:
 
