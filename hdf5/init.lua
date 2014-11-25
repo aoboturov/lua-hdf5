@@ -1040,6 +1040,10 @@ do
   end
 end
 
+function plist.close(plist)
+  return close_id(ffi.gc(plist, nil))
+end
+
 function plist.get_version(fcpl)
   local super = unsigned_1()
   local freelist = unsigned_1()

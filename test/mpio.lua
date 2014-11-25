@@ -20,8 +20,7 @@ local path = "test_mpi.h5"
 do
   local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_mpio(mpi.comm_world)
-  local info = mpi.create_info()
-  fapl:set_fapl_mpio(mpi.comm_world, info)
+  fapl:close()
 end
 
 do
@@ -36,6 +35,7 @@ do
   local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_mpio(comm)
   local file = hdf5.create_file(path, nil, nil, fapl)
+  fapl:close()
   local filespace = hdf5.create_simple_space({comm:size()})
   local dtype = hdf5.double
   local dset = file:create_dataset("rank", dtype, filespace)
@@ -52,6 +52,7 @@ do
   local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_mpio(comm)
   local file = hdf5.open_file(path, nil, fapl)
+  fapl:close()
   local dset = file:open_dataset("rank")
   local dtype = hdf5.double
   local memspace = hdf5.create_simple_space({1})
@@ -70,6 +71,7 @@ do
   local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_mpio(comm)
   local file = hdf5.create_file(path, nil, nil, fapl)
+  fapl:close()
   local dtype = hdf5.c_s1:copy()
   dtype:set_size("variable")
   local space = hdf5.create_simple_space({3})
@@ -83,6 +85,7 @@ do
   local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_mpio(comm)
   local file = hdf5.open_file(path, nil, fapl)
+  fapl:close()
   local attr = file:open_attribute("boundary")
   local dtype = hdf5.c_s1:copy()
   dtype:set_size("variable")
@@ -95,7 +98,5 @@ do
   hdf5.vlen_reclaim(buf, dtype, space)
   file:close()
 end
-
-collectgarbage()
 
 os.remove(path)

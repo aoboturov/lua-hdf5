@@ -857,6 +857,12 @@ Property lists
       - **"link_create"**: [link creation properties];
       - **"link_access"**: link access properties.
 
+`plist:close()`
+
+  : Closes the property list. This function need only be called if the
+    resources used by the property list should be freed immediately;
+    otherwise, the propery list will be closed when garbage collected.
+
 
 ### File creation properties
 
