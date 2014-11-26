@@ -23,14 +23,7 @@
 </div>
 <div class="body">
 <h1>Installing</h1>
-<div class="toc">
-<ul>
-<li><a href="#git">Git</a></li>
-<li><a href="#luarocks">LuaRocks</a></li>
-</ul>
-</div>
 <p>Before installing the module, make sure to <a href="http://colberg.org/gcc-lua/INSTALL.html">install the Lua plugin for GCC</a>.</p>
-<h2 id="git">Git</h2>
 <p>cdecl for GCC is available from a <a href="http://git.colberg.org/gcc-lua-cdecl">git repository</a>:</p>
 <pre><code>git clone http://git.colberg.org/gcc-lua-cdecl</code></pre>
 <p>In the repository, checkout the latest release version:</p>
@@ -48,18 +41,6 @@
 <pre><code>export LD_LIBRARY_PATH=&quot;${HOME}/projects/gcc-lua/gcc${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}&quot;</code></pre>
 <p>The plugin may then be loaded by passing its filename:</p>
 <pre><code>make test GCCLUA=gcclua.so</code></pre>
-<h2 id="luarocks">LuaRocks</h2>
-<p>cdecl for GCC is available from <a href="http://luarocks.org/">LuaRocks</a>:</p>
-<pre><code>luarocks install --local gcc-lua-cdecl</code></pre>
-<p>You may wish to remove older versions before installing:</p>
-<pre><code>luarocks remove --local gcc-lua-cdecl</code></pre>
-<p>To use the module, set the Lua module path in your shell's startup file:</p>
-<pre><code>eval `luarocks path`</code></pre>
-<p>If the LuaRocks mirror is not available, install from the git repository above:</p>
-<pre><code>luarocks install --local rockspec/gcc-lua-cdecl-2.0.1-1.rockspec</code></pre>
-<p>To install the module directly from the git source, use:</p>
-<pre><code>luarocks make --local rockspec/gcc-lua-cdecl-2.0.1-1.rockspec</code></pre>
-<p>In this case you must manually git checkout the corresponding version beforehand.</p>
 </div>
 <div class="footer">
 &copy; Copyright 2013–2014, Peter Colberg.
