@@ -19,8 +19,6 @@ FILES_FFICDECL_LUA = ffi-cdecl.lua
 FILES_FFICDECL_INC = ffi-cdecl.h ffi-cdecl-luajit.h ffi-cdecl-python.h
 FILES_FFICDECL_DOC = C.c C.lua.in Makefile
 
-all: doc
-
 test:
 	@$(MAKE) -C test
 
@@ -40,6 +38,6 @@ install:
 	cd ffi-cdecl && $(INSTALL_F) $(FILES_FFICDECL_DOC) $(DESTDIR)$(DOCDIR)/examples/ffi-cdecl
 
 clean:
-	@$(MAKE) -C doc clean
+	@$(MAKE) -C ffi-cdecl clean
 
 .PHONY: test install doc clean
