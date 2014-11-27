@@ -1,7 +1,13 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -pedantic -O2
-GCCLUA = gcclua
+GCCLUA = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
+
+ifdef LUA_PATH
+LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;$(LUA_PATH)
+else
+LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;;
+endif
 
 all: C.lua
 

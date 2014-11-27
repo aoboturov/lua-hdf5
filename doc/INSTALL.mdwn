@@ -35,11 +35,17 @@ The module is accompanied by a test suite:
 make test
 ~~~
 
-By default, the tests assume that the Lua plugin for GCC is installed in the
-[GCC plugin directory].
+By default, the tests assume that the Lua plugin for GCC is located in the
+parent directory of the repository.
 
-If the plugin is located in a different directory, override the make variable
-`GCCLUA`:
+If the plugin is installed in the [GCC plugin directory], override the make
+variable `GCCLUA`.
+
+~~~
+make test GCCLUA=gcclua
+~~~
+
+If the plugin is located in a different directory:
 
 ~~~
 make test GCCLUA=${HOME}/projects/gcc-lua/gcc/gcclua.so

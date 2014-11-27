@@ -34,8 +34,10 @@
      Subkey fingerprint: 983B F9D0 F02A 6014 0CEC  529F 767E 12A8 C92A 31CB</code></pre>
 <p>The module is accompanied by a test suite:</p>
 <pre><code>make test</code></pre>
-<p>By default, the tests assume that the Lua plugin for GCC is installed in the <a href="http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html">GCC plugin directory</a>.</p>
-<p>If the plugin is located in a different directory, override the make variable <code>GCCLUA</code>:</p>
+<p>By default, the tests assume that the Lua plugin for GCC is located in the parent directory of the repository.</p>
+<p>If the plugin is installed in the <a href="http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html">GCC plugin directory</a>, override the make variable <code>GCCLUA</code>.</p>
+<pre><code>make test GCCLUA=gcclua</code></pre>
+<p>If the plugin is located in a different directory:</p>
 <pre><code>make test GCCLUA=${HOME}/projects/gcc-lua/gcc/gcclua.so</code></pre>
 <p>You may also specify the plugin directory in the environment variable <code>LD_LIBRARY_PATH</code>:</p>
 <pre><code>export LD_LIBRARY_PATH=&quot;${HOME}/projects/gcc-lua/gcc${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}&quot;</code></pre>
