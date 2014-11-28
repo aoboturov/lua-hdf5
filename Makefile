@@ -17,7 +17,7 @@ FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn reference.mdwn CHANGES.mdwn
 FILES_DOC_HTML = index.html INSTALL.html README.html reference.html CHANGES.html pandoc.css lua-hdf5.png hyperslab.svg
 FILES_EXAMPLES = attribute.lua dataset.lua dataspace.lua
 
-all: hdf5 doc
+all: hdf5
 
 hdf5:
 	@$(MAKE) -C hdf5
@@ -39,6 +39,5 @@ install:
 clean:
 	@$(MAKE) -C hdf5 clean
 	@$(MAKE) -C test clean
-	@$(MAKE) -C doc clean
 
 .PHONY: hdf5 test doc install clean
