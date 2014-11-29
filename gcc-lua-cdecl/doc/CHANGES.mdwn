@@ -1,0 +1,82 @@
+---
+title: Releases
+---
+
+This document lists the changes between stable releases.
+
+The version numbers follow [semantic versioning].
+
+[semantic versioning]: http://semver.org/spec/v2.0.0.html
+
+
+## gcc‑lua‑cdecl 2.0.1 (2014-04-02) {#v2.0.1}
+
+  * Default to GCC plugin directory for test suite.
+
+
+## gcc‑lua‑cdecl 2.0.0 (2014-04-01) {#v2.0.0}
+
+  * FFI C: Add `ffi-cdecl` module.
+
+    The module may be used to generate FFI C declarations in a Lua script for GCC.
+
+    The module supersedes the static template files used in previous versions.
+
+  * FFI C: Reordering of type declarations is optional using `table.sort`.
+
+  * cdecl: Support overriding canonical type names.
+
+  * FFI C: Add capture macro `cdecl_typealias`.
+
+    This macro may be used to substitute standard integer types.
+
+  * cdecl: Fix parsing of variable-length argument list (`va_list`).
+
+    For FFI C you may instead substitute `va_list` as follows:
+
+    ~~~ {.c}
+    #define __GNUC_VA_LIST
+    #define __gnuc_va_list void *
+    ~~~
+
+    The above must be defined before including any header files.
+
+  * FFI C: Fix declaration of empty struct.
+
+  * FFI C: Fix missing `__asm__` labels when compiling with -O2.
+
+Thanks to Dennis Schridde for contributing to this release.
+
+
+## gcc‑lua‑cdecl 1.2.0 (2013-12-12) {#v1.2.0}
+
+  * Fix test suite with GCC 4.6.
+
+  * Fix parsing of variable-length struct types.
+
+  * FFI C: output types in the order of their definition.
+
+    Capture macros may appear in arbitrary order, which facilitates
+    generation of capture files using ctags.
+
+  * Support GCC 4.5.
+
+Thanks to Dennis Schridde for contributing to this release.
+
+
+## gcc‑lua‑cdecl 1.1.0 (2013-10-06) {#v1.1.0}
+
+  * The `cdecl_const` macro of `ffi-cdecl.lua` supports comma operators.
+
+    This allows parsing C preprocessor constants with side effects:
+
+    ~~~ {.c}
+    #define H5F_ACC_EXCL (H5check_version(1, 8, 11), 0x0004u)
+    ~~~
+
+    The resulting FFI C constant is defined with value `4`.
+
+
+## gcc‑lua‑cdecl 1.0.0 (2013-09-29) {#v1.0.0}
+
+  * Initial release of the C declaration composer for GCC.

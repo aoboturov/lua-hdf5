@@ -1,0 +1,340 @@
+---
+title: FFI C example
+---
+
+This example illustrates how to generate foreign function interface (FFI)
+bindings for a C library using the Lua plugin for GCC and the `ffi-cdecl`
+module. The module extracts the C API of the library with the help of a C
+source file with capture macros and generates matching FFI C bindings.
+
+After following the [installation] instructions, you may run the example:
+
+~~~
+make -C ffi-cdecl
+~~~
+
+If the GCC plugin is not installed in the [GCC plugin directory]:
+
+~~~
+make -C ffi-cdecl GCCLUA=$HOME/projects/gcc-lua/gcc/gcclua.so
+~~~
+
+The FFI C bindings are written to the file `C.lua`:
+
+~~~ {.lua}
+local ffi = require("ffi")
+
+ffi.cdef[[
+int getopt(int, char *const *, const char *);
+extern char *optarg;
+typedef int clockid_t;
+struct timespec {
+  long int tv_sec;
+  long int tv_nsec;
+};
+static const int RLIM_INFINITY = -1;
+]]
+~~~
+
+[installation]: INSTALL.html
+
+
+Usage
+-----
+
+To generate FFI C bindings for a library, we compose a Lua script for the
+GCC C compiler:
+
+~~~ {.lua}
+local gcc = require("gcc")
+local cdecl = require("ffi-cdecl")
+
+-- Output generated assembly to /dev/null
+gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
+~~~
+
+First, we define a function that captures C declarations in a table:
+
+~~~ {.lua}
+local decls = {}
+
+-- Parse C declaration from capture macro.
+gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(node)
+  local decl = cdecl.parse(node)
+  if decl then table.insert(decls, decl) end
+end)
+~~~
+
+Second, we output FFI C bindings for the captured declarations to a Lua file:
+
+~~~ {.lua}
+-- Output captured C declarations to Lua file.
+gcc.register_callback(gcc.PLUGIN_FINISH_UNIT, function()
+  local result = {}
+  table.sort(decls)
+  for i, decl in ipairs(decls) do
+    result[i] = tostring(decl) .. ";\n"
+  end
+  local f = assert(io.open(arg.output, "w"))
+  f:write[=[
+local ffi = require("ffi")
+
+ffi.cdef[[
+]=]
+  f:write(table.concat(result))
+  f:write[=[
+]]
+
+-- Load POSIX real time extensions into global namespace.
+if not pcall(function() return ffi.C.clock_gettime end) then
+  ffi.load("rt", true)
+end
+
+return ffi.C
+]=]
+  f:close()
+end)
+~~~
+
+Note we reorder the captured C declarations using `table.sort` before writing
+them to the Lua file, which orders type declarations in the same order as in
+the header file. This way C capture macros may be specified in arbitrary order,
+which facilitates generation of capture source files, e.g., using [ctags].
+
+[ctags]: http://ctags.sourceforge.net/
+
+The script is executed by loading the Lua plugin for GCC as follows:
+
+~~~
+gcc -S C.c -fplugin=gcclua -fplugin-arg-gcclua-script=C.lua.in -fplugin-arg-gcclua-output=C.lua
+~~~
+
+If the GCC plugin is not installed in the [GCC plugin directory]:
+
+~~~
+gcc -S C.c -fplugin=$HOME/projects/gcc-lua/gcc/gcclua.so -fplugin-arg-gcclua-script=C.lua.in -fplugin-arg-gcclua-output=C.lua
+~~~
+
+
+C capture files
+---------------
+
+For the purpose of capturing the C API of a library, the C header `ffi-cdecl.h`
+defines a range of [capture macros](#c-capture-macros). These macros are used
+in a C source file that includes the header(s) of the library. Each capture
+macro receives an identifier that refers to a C declaration or preprocessor
+constant.
+
+Consider the following capture file `C.c` for the POSIX C API:
+
+~~~ {.c}
+#define _XOPEN_SOURCE 700
+#include <libgen.h>
+#include <sys/resource.h>
+#include <time.h>
+#include <unistd.h>
+
+#include "ffi-cdecl.h"
+#include "ffi-cdecl-luajit.h"
+
+/* capture a function */
+cdecl_func(getopt)
+/* capture a global variable */
+cdecl_var(optarg)
+/* capture a type declaration */
+cdecl_type(clockid_t)
+/* capture a struct */
+cdecl_struct(timespec)
+/* capture a constant */
+cdecl_const(RLIM_INFINITY)
+~~~
+
+The identifier in the generated FFI C binding may be overridden using the
+preprocessor:
+
+~~~ {.c}
+#define mygetopt getopt
+cdecl_func(mygetopt)
+~~~
+
+
+
+
+C capture macros
+----------------
+
+The C header `ffi-cdecl.h` defines the following capture macros:
+
+cdecl_typename(id)
+
+  : Declares the type with the given identifier. The macro does not output
+    a C declaration; it is intended to be used with types that have already
+    been defined, for example in another module of a program.
+
+    For the [FFI library of LuaJIT], built-in types may be declared as follows:
+
+    ~~~ {.c}
+    #include "ffi-cdecl-luajit.h"
+    ~~~
+
+    [FFI library of LuaJIT]: http://luajit.org/ext_ffi_semantics.html#clang
+
+    For the [CFFI module for Python], built-in types may be declared as follows:
+
+    ~~~ {.c}
+    #include "ffi-cdecl-python.h"
+    ~~~
+
+    [CFFI module for Python]: http://cffi.readthedocs.org/en/latest/#declaring-types-and-functions
+
+cdecl_type(id)
+
+  : Defines the type with the given identifier.
+
+    The macro outputs a C declaration of the following form:
+
+    ~~~ {.c}
+    typedef <type> <id>;
+    ~~~
+
+    If `id` is a struct, union or enum type, the members are only defined
+    if the struct, union or enum is unnamed. For a named struct, union or
+    enum, the members may be defined using the macro `cdecl_memb`. This
+    allows for forward declarations, or declarations of incomplete types.
+
+cdecl_typealias(id, alias)
+
+  : Defines the type with the given identifier. If the type definition refers
+    to a type with the given alias, the alias name is substituted for the
+    canonical name of the referred type.
+
+    This macro may be used to substitute [standard integer types]:
+
+    ~~~ {.c}
+    cdecl_typealias(ssize_t, intptr_t)
+    ~~~
+
+    This outputs a C declaration that defines `ssize_t` using `intptr_t` rather
+    than, e.g., `long int`.
+
+    [standard integer types]: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stdint.h.html#tag_13_47_03_01
+
+cdecl_memb(id)
+
+  : Defines the members of a struct, union or enum type with the given
+    identifier. The type of a member of a struct or union is recursively
+    expanded; unless the type has already been defined, or the type is a
+    named struct, union or enum.
+
+    The macro outputs a C declaration of any of the following forms:
+
+    ~~~ {.c}
+    struct <id> {
+      <type> <member>;
+      …
+    };
+    ~~~
+
+    ~~~ {.c}
+    union <id> {
+      <type> <member>;
+      …
+    };
+    ~~~
+
+    ~~~ {.c}
+    enum <id> {
+      <member> = <value>,
+      …
+    };
+    ~~~
+
+cdecl_struct(tag)
+
+  : Defines the members of a struct with the given tag.
+
+    The macro outputs a C declaration of of the following form:
+
+    ~~~ {.c}
+    struct <tag> {
+      <type> <member>;
+      …
+    };
+    ~~~
+
+cdecl_union(tag)
+
+  : Defines the members of a union with the given tag.
+
+    The macro outputs a C declaration of of the following form:
+
+    ~~~ {.c}
+    union <tag> {
+      <type> <member>;
+      …
+    };
+    ~~~
+
+cdecl_enum(tag)
+
+  : Defines the members of an enumeration with the given tag.
+
+    The macro outputs a C declaration of of the following form:
+
+    ~~~ {.c}
+    enum <tag> {
+      <member> = <value>,
+      …
+    };
+    ~~~
+
+cdecl_func(id)
+
+  : Declares the function with the given identifier.
+
+    The macro outputs a C declaration of the following form:
+
+    ~~~ {.c}
+    <rtype> <id>(<argtype>, <argtype>, …);
+    ~~~
+
+    The output contains an assembler label if the symbol name differs from `id`:
+
+    ~~~ {.c}
+    <rtype> <id>(<argtype>, <argtype>, …) __asm__("<label>");
+    ~~~
+
+cdecl_var(id)
+
+  : Declares the global variable with the given identifier.
+
+    The macro outputs a C declaration of the following form:
+
+    ~~~ {.c}
+    <type> <id>;
+    ~~~
+
+    The output contains an assembler label if the symbol name differs from `id`:
+
+    ~~~ {.c}
+    <type> <id> __asm__("<label>");
+    ~~~
+
+cdecl_const(id)
+
+  : Declares the function or global variable, or defines the integer constant,
+    with the given identifier. Any expression containing an address-of, cast,
+    or comma operator as part of the expression referred to by `id` is replaced
+    by the right-most operand.
+
+    If `id` refers to an integer constant, the macro outputs a C declaration of
+    the following form:
+
+    ~~~ {.c}
+    static const int <id> = <value>;
+    ~~~
+
+    Otherwise, the macro outputs a C declaration of one of the above forms.
+
+
+[GCC plugin directory]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
