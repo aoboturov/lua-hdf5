@@ -2,10 +2,16 @@
 title: Installing
 ---
 
-Before installing HDF5 for Lua, [obtain the HDF5 1.8 library] if not shipped
+Before installing HDF5 for Lua, obtain the [HDF5 1.8] library if not shipped
 with your distribution.
 
-[obtain the HDF5 1.8 library]: http://www.hdfgroup.org/HDF5/release/obtain5.html
+GCC 4.5 or later is required to compile [FFI] bindings for the HDF5 library.
+
+For parallel HDF5, you need an MPI C compiler and [MPI for Lua].
+
+[HDF5 1.8]: http://www.hdfgroup.org/HDF5/release/obtain5.html
+[FFI]: http://luajit.org/ext_ffi.html
+[MPI for Lua]: http://colberg.org/lua-mpi/
 
 
 Git
@@ -34,16 +40,46 @@ Primary key fingerprint: 2997 6EC2 2BD1 EBBC CC77  F3A6 183B D5ED 3527 8611
      Subkey fingerprint: 983B F9D0 F02A 6014 0CEC  529F 767E 12A8 C92A 31CB
 ~~~
 
-The module is accompanied by a test suite:
+If the HDF5 header files are in a nonstandard include path, set `CPATH`:
 
 ~~~
-make test
+export CPATH=/usr/include/hdf5/mpich
 ~~~
 
-If HDF5 is compiled with MPI-IO support, set `MPIEXEC`:
+If the HDF5 library is in a nonstandard library path, set `LIBRARY_PATH`:
 
 ~~~
-make test MPIEXEC="mpirun -np 8"
+export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/hdf5/mpich
+~~~
+
+If LuaJIT is not installed system-wide, set `PKG_CONFIG_PATH`:
+
+~~~
+export PKG_CONFIG_PATH=/opt/luajit-2.0.3/lib/pkgconfig
+~~~
+
+Compile the [FFI] bindings for the HDF5 library and run the test suite:
+
+~~~
+make
+~~~
+
+To override the default GCC C compiler `gcc`, set `CC`:
+
+~~~
+make CC=gcc-4.7
+~~~
+
+For parallel HDF5, to override the default MPI C compiler `mpicc`, set `CPP`:
+
+~~~
+make CPP=mpicc.mpich
+~~~
+
+To test parallel HDF5 using the MPI-IO driver:
+
+~~~
+make MPIEXEC="mpirun -np 8"
 ~~~
 
 [git repository]: http://git.colberg.org/lua-hdf5
@@ -85,71 +121,3 @@ luarocks make --local rockspec/hdf5-1.1.0-1.rockspec
 In this case you must manually git checkout the corresponding version beforehand.
 
 [LuaRocks]: http://luarocks.org/
-
-
-FFI C bindings
---------------
-
-HDF5 for Lua includes precompiled FFI C bindings for the HDF5 library with
-support for parallel HDF5 using [Open MPI]. If you wish to compile the FFI
-C bindings yourself, for example when using a different MPI library or when
-packaging for a distribution, you need to install the [Lua plugin for GCC]
-and [cdecl for GCC].
-
-To generate FFI C bindings that match the HDF5 library, run:
-
-~~~
-make -B hdf5
-~~~
-
-This assumes that the Lua plugin for GCC is installed in the [GCC plugin
-directory].
-
-If the plugin is located in a different directory, override the make variable
-`GCCLUA`:
-
-~~~
-make -B hdf5 GCCLUA=${HOME}/projects/gcc-lua/gcc/gcclua.so
-~~~
-
-You may also specify the plugin directory in the environment variable
-`LD_LIBRARY_PATH`:
-
-~~~
-export LD_LIBRARY_PATH="${HOME}/projects/gcc-lua/gcc${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}"
-~~~
-
-The plugin may then be loaded by passing its filename:
-
-~~~
-make -B hdf5 GCCLUA=gcclua.so
-~~~
-
-To override the default MPI compiler `mpicc` for parallel HDF5, set `CPP`:
-
-~~~
-make -B hdf5 CPP=mpicc.mpich
-~~~
-
-To override the default GCC C compiler `gcc`, set `CC`:
-
-~~~
-make -B hdf5 CC=gcc-4.7
-~~~
-
-If the HDF5 header files are not installed in a system path, set `CPATH`:
-
-~~~
-export CPATH=/opt/hdf5-1.8.12/include:${HOME}/.luarocks/lib/luarocks/rocks/gcc-lua-cdecl/2.0.1-1/include
-~~~
-
-To override the name of the HDF5 library, set `LIBNAME`:
-
-~~~
-make -B hdf5 LIBNAME=libhdf5.so.7
-~~~
-
-[Lua plugin for GCC]: http://colberg.org/gcc-lua/
-[cdecl for GCC]: http://colberg.org/gcc-lua-cdecl/
-[GCC plugin directory]: http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html
-[Open MPI]: http://www.open-mpi.org/

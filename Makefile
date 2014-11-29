@@ -17,16 +17,10 @@ FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn reference.mdwn CHANGES.mdwn
 FILES_DOC_HTML = index.html INSTALL.html README.html reference.html CHANGES.html pandoc.css lua-hdf5.png hyperslab.svg
 FILES_EXAMPLES = attribute.lua dataset.lua dataspace.lua
 
-all: hdf5
-
-hdf5:
-	@$(MAKE) -C hdf5
-
-test:
-	@$(MAKE) -C test
-
-doc:
-	@$(MAKE) -C doc
+all: hdf5 test
+gcc-lua-cdecl: gcc-lua
+hdf5: gcc-lua-cdecl
+test: hdf5
 
 install:
 	$(INSTALL_D) $(DESTDIR)$(LUADIR)/hdf5
@@ -39,5 +33,12 @@ install:
 clean:
 	@$(MAKE) -C hdf5 clean
 	@$(MAKE) -C test clean
+	@$(MAKE) -C gcc-lua clean
+	@$(MAKE) -C gcc-lua-cdecl clean
 
-.PHONY: hdf5 test doc install clean
+SUBDIRS = hdf5 test doc gcc-lua gcc-lua-cdecl
+
+.PHONY: $(SUBDIRS)
+
+$(SUBDIRS):
+	@$(MAKE) -C $@

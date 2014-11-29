@@ -41,10 +41,8 @@ ffi.cdef[[
 -- If the HDF5 library has been linked to the application, use HDF5
 -- symbols from default, global namespace. Otherwise, dynamically load
 -- the HDF5 library into its own, non-global C library namespace.
-local C
-if pcall(function() return ffi.C.H5open end) then
-  C = ffi.C
-else
+local C = ffi.C
+if not pcall(function() return ffi.C.H5open end) then
   C = ffi.load("]=], arg.libname, [=[")
 end
 return C
