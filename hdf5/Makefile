@@ -11,9 +11,14 @@ ifneq (,$(findstring H5_HAVE_PARALLEL,$(shell $(CC) $(CPPFLAGS) -E -dM -include 
 endif
 CC        = gcc
 CFLAGS    = -Wall
-LDFLAGS   = -ldl -lhdf5
+LDFLAGS   = -lhdf5
 GCCLUA    = $(CURDIR)/../gcc-lua/gcc/gcclua.so
 LIBNAME   = $(firstword $(shell $(CURDIR)/hdf5) hdf5)
+
+HOST_SYS := $(shell uname -s)
+ifeq (Linux,$(HOST_SYS))
+LDFLAGS  += -ldl
+endif
 
 ifdef LUA_PATH
 LUA_PATH := $(CURDIR)/../gcc-lua-cdecl/ffi-cdecl/?.lua;$(CURDIR)/../gcc-lua-cdecl/?.lua;$(LUA_PATH)
