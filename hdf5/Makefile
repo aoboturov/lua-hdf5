@@ -20,6 +20,7 @@ LUA_PATH := $(CURDIR)/../gcc-lua-cdecl/ffi-cdecl/?.lua;$(CURDIR)/../gcc-lua-cdec
 else
 LUA_PATH := $(CURDIR)/../gcc-lua-cdecl/ffi-cdecl/?.lua;$(CURDIR)/../gcc-lua-cdecl/?.lua;;
 endif
+export LUA_PATH
 
 all: C.lua
 
