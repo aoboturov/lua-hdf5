@@ -14,6 +14,7 @@ LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;$(LUA_PATH)
 else
 LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;;
 endif
+export LUA_PATH
 
 all: array composite enum function pointer scalar variable vector
 

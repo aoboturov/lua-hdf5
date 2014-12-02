@@ -8,6 +8,7 @@ LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;$(LUA_PATH)
 else
 LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;;
 endif
+export LUA_PATH
 
 all: C.lua
 
