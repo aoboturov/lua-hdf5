@@ -1278,8 +1278,10 @@ do
     expand_ext_link       = C.H5O_COPY_EXPAND_EXT_LINK_FLAG,
     expand_reference      = C.H5O_COPY_EXPAND_REFERENCE_FLAG,
     without_attr          = C.H5O_COPY_WITHOUT_ATTR_FLAG,
-    merge_committed_dtype = C.H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG,
   }
+
+  local status, flag = pcall(function() return C.H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG end)
+  if status then copy_flags.merge_committed_dtype = flag end
 
   function plist.set_copy_object(ocpypl, flags)
     flags = strtobit(flags, copy_flags)
@@ -1295,8 +1297,10 @@ do
     [C.H5O_COPY_EXPAND_EXT_LINK_FLAG]       = "expand_ext_link",
     [C.H5O_COPY_EXPAND_REFERENCE_FLAG]      = "expand_reference",
     [C.H5O_COPY_WITHOUT_ATTR_FLAG]          = "without_attr",
-    [C.H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG] = "merge_committed_dtype",
   }
+
+  local status, flag = pcall(function() return C.H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG end)
+  if status then copy_flags[flag] = "merge_committed_dtype" end
 
   function plist.get_copy_object(ocpypl)
     local flags = unsigned_1()
