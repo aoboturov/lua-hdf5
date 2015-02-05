@@ -17,4 +17,6 @@ do
   end
 end
 
+assert(_M.require_version(1, 8, 0))
+
 return _M
