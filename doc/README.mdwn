@@ -36,7 +36,7 @@ end
 Next we create an empty HDF5 file:
 
 ~~~ {.lua}
-local f = hdf5.create_file("dataset.h5")
+local file = hdf5.create_file("dataset.h5")
 ~~~
 
 An HDF5 file has a hierarchical structure analogous to a filesystem.
@@ -52,7 +52,7 @@ A dataset is described by a location in the file, a datatype and a dataspace:
 ~~~ {.lua}
 local datatype = hdf5.double
 local dataspace = hdf5.create_simple_space({N, 3})
-local dataset = f:create_dataset("particles/solvent/position", datatype, dataspace)
+local dataset = file:create_dataset("particles/solvent/position", datatype, dataspace)
 ~~~
 
 The location of the dataset is specified as a path relative to the file root;
@@ -81,13 +81,14 @@ double and single precision when writing the data.
 We close the HDF5 file, which flushes the written data to disk:
 
 ~~~ {.lua}
-f:close()
+dataset:close()
+file:close()
 ~~~
 
-If not closed explicitly, a file is closed when all objects that reference
-the file have been [garbage collected] eventually.
-
-[garbage collected]: http://www.lua.org/manual/5.2/manual.html#2.5
+Any open objects in the file, which includes groups, datasets, attributes
+and *committed* datatypes, must be closed before closing the file itself;
+otherwise, the HDF5 library will raise an error when attempting to close
+the file.
 
 To inspect the HDF5 file, we use the `h5dump` tool:
 
@@ -125,8 +126,8 @@ which case the dataset may be resized to arbitrary dimensions.
 Next we open the HDF5 file and the dataset for reading:
 
 ~~~ {.lua}
-local f = hdf5.open_file("dataset.h5")
-local dataset = f:open_dataset("particles/solvent/position")
+local file = hdf5.open_file("dataset.h5")
+local dataset = file:open_dataset("particles/solvent/position")
 ~~~
 
 We retrieve and verify the dimensions of the dataset:
@@ -146,7 +147,8 @@ local pos = ffi.new("struct { float x, y, z; }[?]", N)
 local memtype = hdf5.float
 local memspace = hdf5.create_simple_space({N, 3})
 dataset:read(pos, memtype, memspace)
-f:close()
+dataset:close()
+file:close()
 ~~~
 
 The array stores elements with single precision, while we created the dataset
@@ -176,8 +178,8 @@ In this example we store a sequence of strings to an attribute.
 We create an empty HDF5 file with a group `/molecules`:
 
 ~~~ {.lua}
-local f = hdf5.create_file("attribute.h5")
-local group = f:create_group("molecules")
+local file = hdf5.create_file("attribute.h5")
+local group = file:create_group("molecules")
 ~~~
 
 To the group we attach an attribute for a given set of strings:
@@ -204,7 +206,9 @@ Next we write the strings to the attribute:
 
 ~~~ {.lua}
 attr:write(ffi.new("char[?][100]", #species, species), datatype)
-f:close()
+attr:close()
+group:close()
+file:close()
 ~~~
 
 For writing, the Lua strings in the `species` table are converted to an array
@@ -243,8 +247,8 @@ characters discarded.
 Next we open the file, the group, and the attached attribute:
 
 ~~~ {.lua}
-local f = hdf5.open_file("attribute.h5")
-local group = f:open_group("molecules")
+local file = hdf5.open_file("attribute.h5")
+local group = file:open_group("molecules")
 local attr = group:open_attribute("species")
 ~~~
 
@@ -264,7 +268,9 @@ local buf = ffi.new("char[?][50]", N)
 local memtype = hdf5.c_s1:copy()
 memtype:set_size(50)
 attr:read(buf, memtype)
-f:close()
+attr:close()
+group:close()
+file:close()
 ~~~
 
 The size of the memory datatype (50 characters) need not match the size of the
@@ -303,12 +309,12 @@ local nstep = 100
 We begin by creating a dataset for the particle positions:
 
 ~~~ {.lua}
-local f = hdf5.create_file("dataspace.h5")
+local file = hdf5.create_file("dataspace.h5")
 local dcpl = hdf5.create_plist("dataset_create")
 dcpl:set_chunk({1, 1000, 3})
 dcpl:set_deflate(6)
 local dataspace = hdf5.create_simple_space({0, N, 3}, {nil, N, 3})
-local dataset = f:create_dataset("particles/solvent/position/value", hdf5.double, dataspace, nil, dcpl)
+local dataset = file:create_dataset("particles/solvent/position/value", hdf5.double, dataspace, nil, dcpl)
 ~~~
 
 Here we specify the dataspace of the dataset using two sets of dimensions.
@@ -388,7 +394,8 @@ for step = 1, nstep do
   dataset:write(pos, hdf5.double, memspace, filespace)
   filespace:offset_simple({step, 0, 0})
 end
-f:close()
+dataset:close()
+file:close()
 ~~~
 
 Before writing the positions, we append an additional slab of dimensions
@@ -427,8 +434,8 @@ GROUP "/" {
 To check the stored particle positions, we open the dataset for reading:
 
 ~~~ {.lua}
-local f = hdf5.open_file("dataspace.h5")
-local dataset = f:open_dataset("particles/solvent/position/value")
+local file = hdf5.open_file("dataspace.h5")
+local dataset = file:open_dataset("particles/solvent/position/value")
 ~~~
 
 We retrieve and verify the dimensions of the dataset:
@@ -469,5 +476,6 @@ for step = 1, nstep do
   end
   filespace:offset_simple({step, 0, 0})
 end
-f:close()
+dataset:close()
+file:close()
 ~~~

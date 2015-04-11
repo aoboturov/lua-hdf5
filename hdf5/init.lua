@@ -41,22 +41,23 @@ local group_id     = ffi.typeof("struct { hid_t id; }")
 local plist_id     = ffi.typeof("struct { hid_t id; }")
 
 -- Object methods.
-local attribute = {}
-local dataset   = {}
-local dataspace = {}
-local datatype  = {}
-local file      = {}
-local group     = {}
-local location  = {}
-local object    = {}
-local plist     = {}
+local attribute  = {}
+local dataset    = {}
+local dataspace  = {}
+local datatype   = {}
+local file       = {}
+local group      = {}
+local identifier = {}
+local location   = {}
+local object     = {}
+local plist      = {}
 
 -- Compare header and library version.
 assert(C.H5check_version(C.H5_VERS_MAJOR, C.H5_VERS_MINOR, C.H5_VERS_RELEASE) == 0)
 -- Initialise HDF5 constants.
 assert(C.H5open() == 0)
--- Retain objects that reference a file when the file is closed.
-assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_WEAK) == 0)
+-- Raise an error when closing a file with open objects.
+assert(C.H5Pset_fclose_degree(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_CLOSE_SEMI) == 0)
 -- Write files in HDF5 1.8 format by default.
 assert(C.H5Pset_libver_bounds(C.H5P_FILE_ACCESS_DEFAULT, C.H5F_LIBVER_18, C.H5F_LIBVER_LATEST) == 0)
 -- Create missing intermediate links by default.
@@ -73,16 +74,6 @@ local function get_error()
   cb:free()
   return desc
 end
-
--- Closes object identifier.
-local function close_id(object)
-  local err = C.H5Idec_ref(object.id)
-  if err < 0 then return error(get_error()) end
-  object.id = C.H5I_INVALID_HID
-end
-
--- Weak object identifier references.
-local objects = setmetatable({}, {__mode = "v"})
 
 -- Converts a bit-field to a table of boolean values.
 local function bittobool(b, map)
@@ -197,23 +188,6 @@ end
 function file.flush(file)
   local err = C.H5Fflush(file.id, C.H5F_SCOPE_LOCAL)
   if err < 0 then return error(get_error()) end
-end
-
-do
-  local types = bit.bor(C.H5F_OBJ_LOCAL, bit.bxor(C.H5F_OBJ_ALL, C.H5F_OBJ_FILE))
-
-  function file.close(file)
-    local size = C.H5Fget_obj_count(file.id, types)
-    if size < 0 then return error(get_error()) end
-    local id = hid_t_n(size)
-    local size = C.H5Fget_obj_ids(file.id, types, size, id)
-    if size < 0 then return error(get_error()) end
-    for i = 0, tonumber(size) - 1 do
-      local object = rawget(objects, id[i])
-      if object then close_id(ffi.gc(object, nil)) end
-    end
-    return close_id(ffi.gc(file, nil))
-  end
 end
 
 function group.create_group(group, name, lcpl, gcpl, gapl)
@@ -1042,10 +1016,6 @@ do
   end
 end
 
-function plist.close(plist)
-  return close_id(ffi.gc(plist, nil))
-end
-
 function plist.get_version(fcpl)
   local super = unsigned_1()
   local freelist = unsigned_1()
@@ -1310,27 +1280,33 @@ do
   end
 end
 
--- Inherit object methods.
-for name, f in pairs(object)   do attribute[name] = f end
-for name, f in pairs(object)   do location[name]  = f end
-for name, f in pairs(location) do dataset[name]   = f end
-for name, f in pairs(location) do group[name]     = f end
-for name, f in pairs(location) do datatype[name]  = f end
-for name, f in pairs(group)    do file[name]      = f end
-
--- Returns new object identifier.
-local function new_id(ctype, id)
-  local object = ffi.new(ctype, id)
-  rawset(objects, id, object)
-  return object
+local function close_id(object)
+  local err = C.H5Idec_ref(object.id)
+  if err < 0 then return error(get_error()) end
+  object.id = C.H5I_INVALID_HID
 end
 
-ffi.metatype(attribute_id, {__index = attribute, __gc = close_id, __new = new_id})
-ffi.metatype(dataset_id,   {__index = dataset,   __gc = close_id, __new = new_id})
-ffi.metatype(dataspace_id, {__index = dataspace, __gc = close_id, __new = new_id})
-ffi.metatype(datatype_id,  {__index = datatype,  __gc = close_id, __new = new_id})
-ffi.metatype(file_id,      {__index = file,      __gc = close_id, __new = new_id})
-ffi.metatype(group_id,     {__index = group,     __gc = close_id, __new = new_id})
-ffi.metatype(plist_id,     {__index = plist,     __gc = close_id, __new = new_id})
+function identifier.close(object)
+  return close_id(ffi.gc(object, nil))
+end
+
+-- Inherit object methods.
+for k, v in pairs(identifier) do object[k] = v end
+for k, v in pairs(identifier) do dataspace[k] = v end
+for k, v in pairs(identifier) do plist[k] = v end
+for k, v in pairs(object) do attribute[k] = v end
+for k, v in pairs(object) do location[k] = v end
+for k, v in pairs(location) do dataset[k] = v end
+for k, v in pairs(location) do group[k] = v end
+for k, v in pairs(location) do datatype[k] = v end
+for k, v in pairs(group) do file[k] = v end
+
+ffi.metatype(attribute_id, {__index = attribute, __gc = close_id})
+ffi.metatype(dataset_id,   {__index = dataset,   __gc = close_id})
+ffi.metatype(dataspace_id, {__index = dataspace, __gc = close_id})
+ffi.metatype(datatype_id,  {__index = datatype,  __gc = close_id})
+ffi.metatype(file_id,      {__index = file,      __gc = close_id})
+ffi.metatype(group_id,     {__index = group,     __gc = close_id})
+ffi.metatype(plist_id,     {__index = plist,     __gc = close_id})
 
 return _M

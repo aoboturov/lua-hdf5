@@ -11,12 +11,12 @@ local ffi = require("ffi")
 do
   local N = 4200
   local nstep = 100
-  local f = hdf5.create_file("dataspace.h5")
+  local file = hdf5.create_file("dataspace.h5")
   local dcpl = hdf5.create_plist("dataset_create")
   dcpl:set_chunk({1, 1000, 3})
   dcpl:set_deflate(6)
   local dataspace = hdf5.create_simple_space({0, N, 3}, {nil, N, 3})
-  local dataset = f:create_dataset("particles/solvent/position/value", hdf5.double, dataspace, nil, dcpl)
+  local dataset = file:create_dataset("particles/solvent/position/value", hdf5.double, dataspace, nil, dcpl)
   local filespace = hdf5.create_simple_space({nstep, N, 3})
   filespace:select_hyperslab("set", {0, 0, 0}, nil, {1, N, 3})
   local pos = ffi.new("struct { double x, y, z, w; }[?]", N)
@@ -33,12 +33,13 @@ do
     dataset:write(pos, hdf5.double, memspace, filespace)
     filespace:offset_simple({step, 0, 0})
   end
-  f:close()
+  dataset:close()
+  file:close()
 end
 
 do
-  local f = hdf5.open_file("dataspace.h5")
-  local dataset = f:open_dataset("particles/solvent/position/value")
+  local file = hdf5.open_file("dataspace.h5")
+  local dataset = file:open_dataset("particles/solvent/position/value")
   local filespace = dataset:get_space()
   local dims = filespace:get_simple_extent_dims()
   local nstep, N, D = dims[1], dims[2], dims[3]
@@ -59,5 +60,6 @@ do
     end
     filespace:offset_simple({step, 0, 0})
   end
-  f:close()
+  dataset:close()
+  file:close()
 end

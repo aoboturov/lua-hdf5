@@ -62,19 +62,20 @@ code > span.er { color: #ff0000; font-weight: bold; }
   pos<span class="ot">[</span>i<span class="ot">].</span>z <span class="ot">=</span> <span class="fu">math.random</span><span class="ot">()</span>
 <span class="kw">end</span></code></pre>
 <p>Next we create an empty HDF5 file:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;dataset.h5&quot;</span><span class="ot">)</span></code></pre>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;dataset.h5&quot;</span><span class="ot">)</span></code></pre>
 <p>An HDF5 file has a hierarchical structure analogous to a filesystem. Where a filesystem consists of directories that contain subdirectories and files, an HDF5 file consists of groups that contain subgroups and datasets. In an HDF5 file, data is stored in datasets and attributes. Datasets store large data and may be read and written partially. Attributes store small metadata that is attached to groups or datasets and may be read and written only atomically.</p>
 <p>A dataset is described by a location in the file, a datatype and a dataspace:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> datatype <span class="ot">=</span> hdf5<span class="ot">.</span>double
 <span class="kw">local</span> dataspace <span class="ot">=</span> hdf5<span class="ot">.</span>create_simple_space<span class="ot">({</span>N<span class="ot">,</span> <span class="dv">3</span><span class="ot">})</span>
-<span class="kw">local</span> dataset <span class="ot">=</span> f:create_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position&quot;</span><span class="ot">,</span> datatype<span class="ot">,</span> dataspace<span class="ot">)</span></code></pre>
+<span class="kw">local</span> dataset <span class="ot">=</span> file:create_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position&quot;</span><span class="ot">,</span> datatype<span class="ot">,</span> dataspace<span class="ot">)</span></code></pre>
 <p>The location of the dataset is specified as a path relative to the file root; its absolute path is <code>/particles/solvent/position</code>. The group <code>/particles</code> and the subgroup <code>/particles/solvent</code> are implicitly created since they do not exist yet. We pass the datatype <code>hdf5.double</code> to store data in double-precision floating point format. The dataspace describes the dimensions of the dataset. A dataset may be created with fixed or variable-size dimensions. We choose a dataspace of fixed dimensions N×3 equal to the dimensions of the array.</p>
 <p>Next we write the contents of the <code>pos</code> array to the dataset:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua">dataset:<span class="fu">write</span><span class="ot">(</span>pos<span class="ot">,</span> datatype<span class="ot">,</span> dataspace<span class="ot">)</span></code></pre>
 <p>Note that datatype and dataspace are also passed to the <code>write</code> function. These tell the HDF5 library about the memory layout of the <code>pos</code> array, which happens to match the file layout of the dataset. For advanced use cases file and memory layouts may differ. For example, the data could be stored in memory with double precision and stored in the file with single precision to halve disk I/O, in which case the HDF5 library would automatically convert between double and single precision when writing the data.</p>
 <p>We close the HDF5 file, which flushes the written data to disk:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua">f:<span class="fu">close</span><span class="ot">()</span></code></pre>
-<p>If not closed explicitly, a file is closed when all objects that reference the file have been <a href="http://www.lua.org/manual/5.2/manual.html#2.5">garbage collected</a> eventually.</p>
+<pre class="sourceCode lua"><code class="sourceCode lua">dataset:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
+<p>Any open objects in the file, which includes groups, datasets, attributes and <em>committed</em> datatypes, must be closed before closing the file itself; otherwise, the HDF5 library will raise an error when attempting to close the file.</p>
 <p>To inspect the HDF5 file, we use the <code>h5dump</code> tool:</p>
 <pre><code>h5dump dataset.h5</code></pre>
 <p>To show only the metadata of the file:</p>
@@ -93,8 +94,8 @@ GROUP &quot;/&quot; {
 }</code></pre>
 <p>The dimensions of the dataset are shown twice, as the current dimensions and the maximum dimensions. A dataset may be resized at any point in time, as long as the new dimensions fit within the maximum dimensions specified upon creation. The maximum dimensions may further be specified as variable, in which case the dataset may be resized to arbitrary dimensions.</p>
 <p>Next we open the HDF5 file and the dataset for reading:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;dataset.h5&quot;</span><span class="ot">)</span>
-<span class="kw">local</span> dataset <span class="ot">=</span> f:open_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position&quot;</span><span class="ot">)</span></code></pre>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;dataset.h5&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> dataset <span class="ot">=</span> file:open_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position&quot;</span><span class="ot">)</span></code></pre>
 <p>We retrieve and verify the dimensions of the dataset:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> filespace <span class="ot">=</span> dataset:get_space<span class="ot">()</span>
 <span class="kw">local</span> dims <span class="ot">=</span> filespace:get_simple_extent_dims<span class="ot">()</span>
@@ -106,7 +107,8 @@ GROUP &quot;/&quot; {
 <span class="kw">local</span> memtype <span class="ot">=</span> hdf5<span class="ot">.</span>float
 <span class="kw">local</span> memspace <span class="ot">=</span> hdf5<span class="ot">.</span>create_simple_space<span class="ot">({</span>N<span class="ot">,</span> <span class="dv">3</span><span class="ot">})</span>
 dataset:<span class="fu">read</span><span class="ot">(</span>pos<span class="ot">,</span> memtype<span class="ot">,</span> memspace<span class="ot">)</span>
-f:<span class="fu">close</span><span class="ot">()</span></code></pre>
+dataset:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <p>The array stores elements with single precision, while we created the dataset with double precision. In passing a different memory datatype to the <code>read</code> function, we instruct the HDF5 library to convert from double precision to single precision when reading.</p>
 <p>Finally we verify the data read from the dataset:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="fu">math.randomseed</span><span class="ot">(</span><span class="dv">42</span><span class="ot">)</span>
@@ -119,8 +121,8 @@ f:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <h2 id="attributes">Attributes</h2>
 <p>In this example we store a sequence of strings to an attribute.</p>
 <p>We create an empty HDF5 file with a group <code>/molecules</code>:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;attribute.h5&quot;</span><span class="ot">)</span>
-<span class="kw">local</span> group <span class="ot">=</span> f:create_group<span class="ot">(</span><span class="st">&quot;molecules&quot;</span><span class="ot">)</span></code></pre>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;attribute.h5&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> group <span class="ot">=</span> file:create_group<span class="ot">(</span><span class="st">&quot;molecules&quot;</span><span class="ot">)</span></code></pre>
 <p>To the group we attach an attribute for a given set of strings:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> species <span class="ot">=</span> <span class="ot">{</span><span class="st">&quot;H2O&quot;</span><span class="ot">,</span> <span class="st">&quot;C8H10N4O2&quot;</span><span class="ot">,</span> <span class="st">&quot;C6H12O6&quot;</span><span class="ot">}</span>
 <span class="kw">local</span> dataspace <span class="ot">=</span> hdf5<span class="ot">.</span>create_simple_space<span class="ot">({#</span>species<span class="ot">})</span>
@@ -130,7 +132,9 @@ datatype:set_size<span class="ot">(</span><span class="dv">100</span><span class
 <p>Like a dataset, an attribute is described by a datatype and a dataspace. The HDF5 library defines a special datatype <code>hdf5.c_s1</code> for C strings, which needs to be copied and adjusted for the length of the strings to be written. The size of a string datatype must be equal to or greater than the number of characters of the longest string plus a terminating <a href="http://en.wikipedia.org/wiki/Null_character">null character</a>. We choose 100 characters including a null terminator, to avoid having to determine an exact size at the expense of padding with null characters.</p>
 <p>Next we write the strings to the attribute:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua">attr:<span class="fu">write</span><span class="ot">(</span>ffi<span class="ot">.</span>new<span class="ot">(</span><span class="st">&quot;char[?][100]&quot;</span><span class="ot">,</span> <span class="ot">#</span>species<span class="ot">,</span> species<span class="ot">),</span> datatype<span class="ot">)</span>
-f:<span class="fu">close</span><span class="ot">()</span></code></pre>
+attr:<span class="fu">close</span><span class="ot">()</span>
+group:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <p>For writing, the Lua strings in the <code>species</code> table are converted to an array of C strings that match the string datatype.</p>
 <p>We inspect the contents of the HDF5 file:</p>
 <pre><code>h5dump -A attribute.h5</code></pre>
@@ -154,8 +158,8 @@ GROUP &quot;/&quot; {
 }</code></pre>
 <p>The strings are shown according to their actual lengths and the padding null characters discarded.</p>
 <p>Next we open the file, the group, and the attached attribute:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;attribute.h5&quot;</span><span class="ot">)</span>
-<span class="kw">local</span> group <span class="ot">=</span> f:open_group<span class="ot">(</span><span class="st">&quot;molecules&quot;</span><span class="ot">)</span>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;attribute.h5&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> group <span class="ot">=</span> file:open_group<span class="ot">(</span><span class="st">&quot;molecules&quot;</span><span class="ot">)</span>
 <span class="kw">local</span> attr <span class="ot">=</span> group:open_attribute<span class="ot">(</span><span class="st">&quot;species&quot;</span><span class="ot">)</span></code></pre>
 <p>We retrieve and verify the dimensions of the attribute:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> filespace <span class="ot">=</span> attr:get_space<span class="ot">()</span>
@@ -167,7 +171,9 @@ GROUP &quot;/&quot; {
 <span class="kw">local</span> memtype <span class="ot">=</span> hdf5<span class="ot">.</span>c_s1:copy<span class="ot">()</span>
 memtype:set_size<span class="ot">(</span><span class="dv">50</span><span class="ot">)</span>
 attr:<span class="fu">read</span><span class="ot">(</span>buf<span class="ot">,</span> memtype<span class="ot">)</span>
-f:<span class="fu">close</span><span class="ot">()</span></code></pre>
+attr:<span class="fu">close</span><span class="ot">()</span>
+group:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <p>The size of the memory datatype (50 characters) need not match the size of the file datatype (100 characters). If a string exceeds the size of the memory datatype, the HDF5 library truncates and terminates the string safely with a null character.</p>
 <p>Finally we verify the data read from the attribute:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">for</span> i <span class="ot">=</span> <span class="dv">0</span><span class="ot">,</span> N <span class="ot">-</span> <span class="dv">1</span> <span class="kw">do</span>
@@ -181,12 +187,12 @@ f:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> N <span class="ot">=</span> <span class="dv">4200</span>
 <span class="kw">local</span> nstep <span class="ot">=</span> <span class="dv">100</span></code></pre>
 <p>We begin by creating a dataset for the particle positions:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;dataspace.h5&quot;</span><span class="ot">)</span>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>create_file<span class="ot">(</span><span class="st">&quot;dataspace.h5&quot;</span><span class="ot">)</span>
 <span class="kw">local</span> dcpl <span class="ot">=</span> hdf5<span class="ot">.</span>create_plist<span class="ot">(</span><span class="st">&quot;dataset_create&quot;</span><span class="ot">)</span>
 dcpl:set_chunk<span class="ot">({</span><span class="dv">1</span><span class="ot">,</span> <span class="dv">1000</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">})</span>
 dcpl:set_deflate<span class="ot">(</span><span class="dv">6</span><span class="ot">)</span>
 <span class="kw">local</span> dataspace <span class="ot">=</span> hdf5<span class="ot">.</span>create_simple_space<span class="ot">({</span><span class="dv">0</span><span class="ot">,</span> N<span class="ot">,</span> <span class="dv">3</span><span class="ot">},</span> <span class="ot">{</span><span class="kw">nil</span><span class="ot">,</span> N<span class="ot">,</span> <span class="dv">3</span><span class="ot">})</span>
-<span class="kw">local</span> dataset <span class="ot">=</span> f:create_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position/value&quot;</span><span class="ot">,</span> hdf5<span class="ot">.</span>double<span class="ot">,</span> dataspace<span class="ot">,</span> <span class="kw">nil</span><span class="ot">,</span> dcpl<span class="ot">)</span></code></pre>
+<span class="kw">local</span> dataset <span class="ot">=</span> file:create_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position/value&quot;</span><span class="ot">,</span> hdf5<span class="ot">.</span>double<span class="ot">,</span> dataspace<span class="ot">,</span> <span class="kw">nil</span><span class="ot">,</span> dcpl<span class="ot">)</span></code></pre>
 <p>Here we specify the dataspace of the dataset using two sets of dimensions. The dimensions <code>{0, N, 3}</code> specify the sizes of the dataset after creation. The dimensions <code>{nil, N, 3}</code> specify the maximum sizes to which the dataset may be resized, where <strong>nil</strong> stands for a variable size in that dimension. Here the dataset is empty after creation and resizable to an arbitrary number of steps. When a dataset is resizable, i.e. when the current and maximum dimensions of a dataset differ upon creation, the data is stored using a chunked layout, rather than a contiguous layout as for a fixed-size dataset. The size of the chunks needs to be specified upon creation of the dataset using a <a href="reference.html#dataset-creation-properties">dataset creation property list</a>.</p>
 <p>The choice of chunk size affects write and read performance, since each chunk is written or read as a whole. Here we choose a chunk size of <code>{1, 1000, 3}</code>. To write or read the positions of all 4200 particles at a given step, the HDF5 library needs to write or read 5 chunks altogether, of which the fifth chunk is partially filled. Tracing the position of a single particle through all 100 steps, however, would require the HDF5 library to fetch 100 chunks. As a general guideline, the chunk size in bytes should be well above 1 kB and below 1 MB, and the chunk dimensions should match the write and read access patterns as closely as possible.</p>
 <p>Chunks may be individually compressed by specifying a compression algorithm and level in the dataset creation property list. Here we use the <a href="https://en.wikipedia.org/wiki/DEFLATE">deflate</a> algorithm with a compression level of 6, which is the default level of the gzip program. Note for this example compression is pointless since we store random data. Compression is sensible when the data within each chunk is correlated.</p>
@@ -195,7 +201,8 @@ dcpl:set_deflate<span class="ot">(</span><span class="dv">6</span><span class="o
 filespace:select_hyperslab<span class="ot">(</span><span class="st">&quot;set&quot;</span><span class="ot">,</span> <span class="ot">{</span><span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">},</span> <span class="kw">nil</span><span class="ot">,</span> <span class="ot">{</span><span class="dv">1</span><span class="ot">,</span> N<span class="ot">,</span> <span class="dv">3</span><span class="ot">})</span></code></pre>
 <p>The file dataspace specifies a selection within the dataset that data is written to or read from. We select a 3‑dimensional slab from the file dataspace that has its origin at <code>{0, 0, 0}</code> and a size of <code>{1, N, 3}</code>. As shown in the figure below, at each step we extend the dimensions of the dataset by one slab, and move the hyperslab selection by one in the dimension of steps.</p>
 <div class="figure">
-<img src="hyperslab.svg" alt="Dataset dimensions with hyperslab selection at steps 1, 2, 3." /><p class="caption">Dataset dimensions with hyperslab selection at steps 1, 2, 3.</p>
+<img src="hyperslab.svg" alt="Dataset dimensions with hyperslab selection at steps 1, 2, 3." />
+<p class="caption">Dataset dimensions with hyperslab selection at steps 1, 2, 3.</p>
 </div>
 <p>Similarly we prepare a memory dataspace for writing:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> pos <span class="ot">=</span> ffi<span class="ot">.</span>new<span class="ot">(</span><span class="st">&quot;struct { double x, y, z, w; }[?]&quot;</span><span class="ot">,</span> N<span class="ot">)</span>
@@ -214,7 +221,8 @@ memspace:select_hyperslab<span class="ot">(</span><span class="st">&quot;set&quo
   dataset:<span class="fu">write</span><span class="ot">(</span>pos<span class="ot">,</span> hdf5<span class="ot">.</span>double<span class="ot">,</span> memspace<span class="ot">,</span> filespace<span class="ot">)</span>
   filespace:offset_simple<span class="ot">({</span>step<span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">})</span>
 <span class="kw">end</span>
-f:<span class="fu">close</span><span class="ot">()</span></code></pre>
+dataset:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
 <p>Before writing the positions, we append an additional slab of dimensions <code>{1, N, 3}</code> to the dataset by extending its dimensions to <code>{step, N, 3}</code>. We pass the memory dataspace to select the region for reading from the array and the file dataspace to select the region for writing to the dataset. Recall the file dataspace has rank 3 and the memory dataspace has rank 2; the dimensionality of file and memory dataspaces may differ as long as the number of selected elements is equal. After writing the positions, we move the origin of the hyperslab selection within the file dataspace to offset <code>{step, 0, 0}</code> to prepare the next step.</p>
 <p>At the end of the simulation the HDF5 file contains:</p>
 <pre><code>h5dump -A dataspace.h5</code></pre>
@@ -233,8 +241,8 @@ GROUP &quot;/&quot; {
 }
 }</code></pre>
 <p>To check the stored particle positions, we open the dataset for reading:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> f <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;dataspace.h5&quot;</span><span class="ot">)</span>
-<span class="kw">local</span> dataset <span class="ot">=</span> f:open_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position/value&quot;</span><span class="ot">)</span></code></pre>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> file <span class="ot">=</span> hdf5<span class="ot">.</span>open_file<span class="ot">(</span><span class="st">&quot;dataspace.h5&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> dataset <span class="ot">=</span> file:open_dataset<span class="ot">(</span><span class="st">&quot;particles/solvent/position/value&quot;</span><span class="ot">)</span></code></pre>
 <p>We retrieve and verify the dimensions of the dataset:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> filespace <span class="ot">=</span> dataset:get_space<span class="ot">()</span>
 <span class="kw">local</span> dims <span class="ot">=</span> filespace:get_simple_extent_dims<span class="ot">()</span>
@@ -259,7 +267,8 @@ memspace:select_hyperslab<span class="ot">(</span><span class="st">&quot;set&quo
   <span class="kw">end</span>
   filespace:offset_simple<span class="ot">({</span>step<span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">})</span>
 <span class="kw">end</span>
-f:<span class="fu">close</span><span class="ot">()</span></code></pre>
+dataset:<span class="fu">close</span><span class="ot">()</span>
+file:<span class="fu">close</span><span class="ot">()</span></code></pre>
 </div>
 <div class="footer">
 &copy; Copyright 2013–2014, Peter Colberg.

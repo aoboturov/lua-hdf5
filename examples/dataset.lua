@@ -17,17 +17,18 @@ do
     pos[i].y = math.random()
     pos[i].z = math.random()
   end
-  local f = hdf5.create_file("dataset.h5")
+  local file = hdf5.create_file("dataset.h5")
   local datatype = hdf5.double
   local dataspace = hdf5.create_simple_space({N, 3})
-  local dataset = f:create_dataset("particles/solvent/position", datatype, dataspace)
+  local dataset = file:create_dataset("particles/solvent/position", datatype, dataspace)
   dataset:write(pos, datatype, dataspace)
-  f:close()
+  dataset:close()
+  file:close()
 end
 
 do
-  local f = hdf5.open_file("dataset.h5")
-  local dataset = f:open_dataset("particles/solvent/position")
+  local file = hdf5.open_file("dataset.h5")
+  local dataset = file:open_dataset("particles/solvent/position")
   local filespace = dataset:get_space()
   local dims = filespace:get_simple_extent_dims()
   local N, D = dims[1], dims[2]
@@ -37,7 +38,8 @@ do
   local memtype = hdf5.float
   local memspace = hdf5.create_simple_space({N, 3})
   dataset:read(pos, memtype, memspace)
-  f:close()
+  dataset:close()
+  file:close()
   math.randomseed(42)
   for i = 0, N - 1 do
     assert(math.abs(pos[i].x - math.random()) < 1e-7)

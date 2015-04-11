@@ -13,40 +13,37 @@ local hdf5 = require("hdf5")
 local path = "test_group.h5"
 
 for i = 1, 3 do
-  local file = hdf5.create_file(path)
-  local group = file:create_group("particles")
+  do
+    local file = hdf5.create_file(path)
+    local group = file:create_group("particles")
+    assert(group:get_object_type() == "group")
+    assert(group:get_object_name() == "/particles")
+    local subgroup = group:create_group("solvent")
+    assert(subgroup:get_object_type() == "group")
+    assert(subgroup:get_object_name() == "/particles/solvent")
+  end
   collectgarbage()
-  assert(group:get_object_type() == "group")
-  assert(group:get_object_name() == "/particles")
-  local subgroup = group:create_group("solvent")
-  collectgarbage()
-  assert(subgroup:get_object_type() == "group")
-  assert(subgroup:get_object_name() == "/particles/solvent")
-  file:close()
 end
 
 for i = 1, 3 do
   local file = hdf5.create_file(path)
   local group = file:create_group("particles")
-  file:close()
-  local file = hdf5.create_file(path)
-  local subgroup = file:create_group("particles/solvent")
-  assert(group:get_object_type() == nil)
-  assert(subgroup:get_object_type() == "group")
-  file:close()
-end
-
-do
-  local group
-  do
-    local file = hdf5.create_file(path)
-    group = file:create_group("particles")
-  end
-  collectgarbage()
+  assert(file:get_object_type() == "file")
   assert(group:get_object_type() == "group")
-  assert(group:get_object_name() == "/particles")
+  group:close()
+  local group2 = file:create_group("observables")
+  assert(file:get_object_type() == "file")
+  assert(group:get_object_type() == nil)
+  assert(group2:get_object_type() == "group")
+  group2:close()
+  assert(file:get_object_type() == "file")
+  assert(group:get_object_type() == nil)
+  assert(group2:get_object_type() == nil)
+  file:close()
+  assert(file:get_object_type() == nil)
+  assert(group:get_object_type() == nil)
+  assert(group2:get_object_type() == nil)
 end
-collectgarbage()
 
 do
   local file = hdf5.create_file(path)

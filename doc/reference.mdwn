@@ -70,10 +70,12 @@ Files
 
 `file:close()`
 
-  : Closes the file and all open objects that reference the file.
-    This function need only be called if a file should be immediately
-    closed; otherwise, the file will be closed when all objects that
-    reference the file have been garbage collected eventually.
+  : Closes the file. Any open objects in the file, which includes groups,
+    datasets, attributes and *committed* datatypes, must be closed before
+    closing the file itself; otherwise, this function raises an error.
+    If the file is not closed manually, it will be closed automatically
+    when it is garbage collected, where the same caveat of open objects
+    applies.
 
 
 Groups
@@ -122,6 +124,10 @@ Groups
           - **"dense"**: indexed storage;
           - **"symbol_table"**: symbol tables.
 
+`group:close()`
+
+  : Closes the group. If the group is not closed manually, it will be
+    closed automatically when it is garbage collected.
 
 Datasets
 --------
@@ -218,6 +224,11 @@ Datasets
     the dataset or attribute. `dxpl` is the [dataset transfer properties]
     specified when the dataset was read.
 
+`dataset:close()`
+
+  : Closes the dataset. If the dataset is not closed manually, it will be
+    closed automatically when it is garbage collected.
+
 
 Attributes
 ----------
@@ -292,6 +303,11 @@ Attributes
     C array object. `mem_type` is a datatype that corresponds to the C type of
     the buffer; it must be [convertible][Datatype Conversion and Selection] to
     the datatype of the attribute.
+
+`attr:close()`
+
+  : Closes the attribute. If the attribute is not closed manually, it will be
+    closed automatically when it is garbage collected.
 
 
 Dataspaces
@@ -379,6 +395,11 @@ Dataspaces
     a sequence that specifies for each dimension the offset of the origin of
     the selected region relative to the origin of the dataspace.
 
+`space:close()`
+
+  : Closes the dataspace. If the dataspace is not closed manually, it will be
+    closed automatically when it is garbage collected.
+
 [Dataspaces and Data Transfer]: http://www.hdfgroup.org/HDF5/doc/UG/12_Dataspaces.html#Dtransfer
 
 
@@ -450,6 +471,11 @@ Datatypes
 
   : Returns the size in bytes of the datatype. If `dtype` is a variable-length
     datatype, returns the size of a pointer to an element of that datatype.
+
+`dtype:close()`
+
+  : Closes the datatype. If the datatype is not closed manually, it will be
+    closed automatically when it is garbage collected.
 
 [Datatype Conversion and Selection]: http://www.hdfgroup.org/HDF5/doc/UG/11_Datatypes.html#Dtransfer
 
@@ -859,9 +885,8 @@ Property lists
 
 `plist:close()`
 
-  : Closes the property list. This function need only be called if the
-    resources used by the property list should be freed immediately;
-    otherwise, the propery list will be closed when garbage collected.
+  : Closes the property list. If the property list is not closed manually,
+    it will be closed automatically when it is garbage collected.
 
 
 ### File creation properties

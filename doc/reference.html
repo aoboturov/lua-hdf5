@@ -83,7 +83,7 @@
 <dd><p>Flushes file contents to disk.</p>
 </dd>
 <dt><code>file:close()</code></dt>
-<dd><p>Closes the file and all open objects that reference the file. This function need only be called if a file should be immediately closed; otherwise, the file will be closed when all objects that reference the file have been garbage collected eventually.</p>
+<dd><p>Closes the file. Any open objects in the file, which includes groups, datasets, attributes and <em>committed</em> datatypes, must be closed before closing the file itself; otherwise, this function raises an error. If the file is not closed manually, it will be closed automatically when it is garbage collected, where the same caveat of open objects applies.</p>
 </dd>
 </dl>
 <h2 id="groups">Groups</h2>
@@ -118,6 +118,9 @@
 </ul>
 </dd>
 </dl>
+</dd>
+<dt><code>group:close()</code></dt>
+<dd><p>Closes the group. If the group is not closed manually, it will be closed automatically when it is garbage collected.</p>
 </dd>
 </dl>
 <h2 id="datasets">Datasets</h2>
@@ -157,6 +160,9 @@
 </dd>
 <dt><code>hdf5.vlen_reclaim(buf, mem_type, mem_space[, dxpl])</code></dt>
 <dd><p>Free the memory allocated when reading a dataset or an attribute of variable-length datatype. <code>buf</code> is the buffer specified when the dataset or attribute was read. <code>mem_type</code> is the datatype specified when the dataset or attribute was read. <code>mem_space</code> is the memory dataspace specified when the dataset was read; or, if a memory dataspace was not specified, the file dataspace specified when the dataset was read; otherwise the dataspace of the dataset or attribute. <code>dxpl</code> is the <a href="#dataset-transfer-properties">dataset transfer properties</a> specified when the dataset was read.</p>
+</dd>
+<dt><code>dataset:close()</code></dt>
+<dd><p>Closes the dataset. If the dataset is not closed manually, it will be closed automatically when it is garbage collected.</p>
 </dd>
 </dl>
 <h2 id="attributes">Attributes</h2>
@@ -204,6 +210,9 @@
 </dd>
 <dt><code>attr:read(buf, mem_type)</code></dt>
 <dd><p>Reads data from the given buffer to the attribute. <code>buf</code> specifies a C array object. <code>mem_type</code> is a datatype that corresponds to the C type of the buffer; it must be <a href="http://www.hdfgroup.org/HDF5/doc/UG/11_Datatypes.html#Dtransfer">convertible</a> to the datatype of the attribute.</p>
+</dd>
+<dt><code>attr:close()</code></dt>
+<dd><p>Closes the attribute. If the attribute is not closed manually, it will be closed automatically when it is garbage collected.</p>
 </dd>
 </dl>
 <h2 id="dataspaces">Dataspaces</h2>
@@ -256,6 +265,9 @@
 <dt><code>space:offset_simple(offset)</code></dt>
 <dd><p>Sets the offset of the selection of the dataspace. <code>offset</code> is a table with a sequence that specifies for each dimension the offset of the origin of the selected region relative to the origin of the dataspace.</p>
 </dd>
+<dt><code>space:close()</code></dt>
+<dd><p>Closes the dataspace. If the dataspace is not closed manually, it will be closed automatically when it is garbage collected.</p>
+</dd>
 </dl>
 <h2 id="datatypes">Datatypes</h2>
 <dl>
@@ -304,6 +316,9 @@
 </dd>
 <dt><code>dtype:get_size()</code></dt>
 <dd><p>Returns the size in bytes of the datatype. If <code>dtype</code> is a variable-length datatype, returns the size of a pointer to an element of that datatype.</p>
+</dd>
+<dt><code>dtype:close()</code></dt>
+<dd><p>Closes the datatype. If the datatype is not closed manually, it will be closed automatically when it is garbage collected.</p>
 </dd>
 </dl>
 <h3 id="atomic-datatypes">Atomic datatypes</h3>
@@ -815,7 +830,7 @@
 </ul>
 </dd>
 <dt><code>plist:close()</code></dt>
-<dd><p>Closes the property list. This function need only be called if the resources used by the property list should be freed immediately; otherwise, the propery list will be closed when garbage collected.</p>
+<dd><p>Closes the property list. If the property list is not closed manually, it will be closed automatically when it is garbage collected.</p>
 </dd>
 </dl>
 <h3 id="file-creation-properties">File creation properties</h3>
