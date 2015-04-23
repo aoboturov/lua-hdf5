@@ -44,6 +44,12 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h1>Releases</h1>
 <p>This document lists the changes between stable releases.</p>
 <p>The version numbers follow <a href="http://semver.org/spec/v2.0.0.html">semantic versioning</a>.</p>
+<h2 id="v3.0.0">gcc‑lua‑cdecl 3.0.0 (2015-04-23)</h2>
+<ul>
+<li><p>FFI C: Format C declarations in GCC plugin script.</p>
+<p>The <code>ffi-cdecl</code> module no longer formats C declarations itself. The function <code>parse()</code> now returns the captured C declaration and its identifier. The conversion to a C code string with <code>cdecl.declare()</code> is performed in the GCC plugin script instead. This allows overriding the formatting for specific use cases.</p></li>
+<li><p>Run test suite with default make target.</p></li>
+</ul>
 <h2 id="v2.0.1">gcc‑lua‑cdecl 2.0.1 (2014-04-02)</h2>
 <ul>
 <li>Default to GCC plugin directory for test suite.</li>
