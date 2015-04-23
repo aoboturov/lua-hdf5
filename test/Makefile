@@ -12,9 +12,6 @@ ifdef LUA_PATH
 else
   LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;;
 endif
-ifdef MPIEXEC
-  LUA_PATH := $(CURDIR)/../../lua-mpi/?.lua;$(CURDIR)/../../lua-mpi/?/init.lua;$(LUA_PATH)
-endif
 export LUA_PATH
 
 TESTS = library file group dataset attribute dataspace datatype link object reference
