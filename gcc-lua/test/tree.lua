@@ -1,6 +1,6 @@
 --
 -- Lua plugin for the GNU Compiler Collection.
--- Copyright © 2012 Peter Colberg.
+-- Copyright © 2012–2015 Peter Colberg.
 -- Distributed under the MIT license. (See accompanying file LICENSE.)
 --
 
@@ -410,6 +410,7 @@ function test.vector_2_of_double(decl)
   assert(decl:type():type():name():class() == "declaration")
   assert(decl:type():type():name():code() == "type_decl")
   assert(decl:type():type():name():name():value() == "double")
+  assert(decl:type():type():mode() == "DF")
   assert(decl:type():size():class() == "constant")
   assert(decl:type():size():code() == "integer_cst")
   assert(decl:type():size():value() == 128)
@@ -429,6 +430,7 @@ function test.vector_8_of_int(decl)
   assert(decl:type():type():name():class() == "declaration")
   assert(decl:type():type():name():code() == "type_decl")
   assert(decl:type():type():name():name():value() == "int")
+  assert(decl:type():type():mode() == "SI")
   assert(decl:type():size():class() == "constant")
   assert(decl:type():size():code() == "integer_cst")
   assert(decl:type():size():value() == 256)
