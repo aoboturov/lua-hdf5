@@ -27,6 +27,20 @@ gcc.register_callback(gcc.PLUGIN_PRE_GENERICIZE, function(node)
   end
 end)
 
+-- MPI C handle types.
+local handles = {
+  MPI_Comm = true,
+  MPI_Datatype = true,
+  MPI_Errhandler = true,
+  MPI_File = true,
+  MPI_Group = true,
+  MPI_Info = true,
+  MPI_Message = true,
+  MPI_Op = true,
+  MPI_Request = true,
+  MPI_Win = true,
+}
+
 -- Formats the given declaration as a string of C code.
 local function format(decl, id)
   if decl:class() == "constant" then
@@ -34,6 +48,11 @@ local function format(decl, id)
   end
   return cdecl.declare(decl, function(node)
     if node == decl then return id end
+    local id = node:name() and node:name():value()
+    if handles[id] then
+      local mode = node:type():mode()
+      return "struct _" .. id .. " *__attribute__((mode(" .. mode .. ")))"
+    end
     return types[node]
   end)
 end

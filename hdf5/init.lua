@@ -1069,8 +1069,8 @@ end
 
 if pcall(function() return C.H5Pset_fapl_mpio end) then
   function plist.set_fapl_mpio(fapl, comm, info)
-    if info ~= nil then info = info.id else info = ffi.cast("MPI_Info", C.MPI_INFO_NULL) end
-    local err = C.H5Pset_fapl_mpio(fapl.id, comm.id, info)
+    if info == nil then info = ffi.cast("MPI_Info", C.MPI_INFO_NULL) end
+    local err = C.H5Pset_fapl_mpio(fapl.id, comm, info)
     if err < 0 then return error(get_error()) end
   end
 end
