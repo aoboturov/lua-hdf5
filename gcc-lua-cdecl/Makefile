@@ -1,6 +1,6 @@
 #
 # C declaration composer for GCC Lua plugin.
-# Copyright © 2013 Peter Colberg.
+# Copyright © 2013–2015 Peter Colberg.
 # Distributed under the MIT license. (See accompanying file LICENSE.)
 #
 
@@ -16,7 +16,7 @@ FILES_LUA = cdecl.lua
 FILES_DOC = index.mdwn INSTALL.mdwn README.mdwn ffi-cdecl.mdwn reference.mdwn CHANGES.mdwn
 FILES_DOC_HTML = index.html INSTALL.html README.html ffi-cdecl.html reference.html CHANGES.html pandoc.css gcc-lua-cdecl.png
 FILES_FFICDECL_LUA = ffi-cdecl.lua
-FILES_FFICDECL_INC = ffi-cdecl.h ffi-cdecl-luajit.h ffi-cdecl-python.h
+FILES_FFICDECL_INC = ffi-cdecl.h
 FILES_FFICDECL_DOC = C.c C.lua.in Makefile
 
 all: test

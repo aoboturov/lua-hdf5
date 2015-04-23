@@ -49,7 +49,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <li><a href="#c-capture-macros">C capture macros</a></li>
 </ul>
 </div>
-<p>This example illustrates how to generate foreign function interface (FFI) bindings for a C library using the Lua plugin for GCC and the <code>ffi-cdecl</code> module. The module extracts the C API of the library with the help of a C source file with capture macros and generates matching FFI C bindings.</p>
+<p>This example illustrates how to generate foreign function interface (FFI) bindings for a C library using the Lua plugin for GCC and the <code>ffi-cdecl</code> module. The C API of the library is extracted using a C source file that contains capture macros, and matching FFI C bindings are generated using the C declaration composer for GCC.</p>
 <p>After following the <a href="INSTALL.html">installation</a> instructions, you may run the example:</p>
 <pre><code>make -C ffi-cdecl</code></pre>
 <p>If the GCC plugin is not installed in the <a href="http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html">GCC plugin directory</a>:</p>
@@ -70,46 +70,63 @@ ffi<span class="ot">.</span>cdef<span class="st">[[</span>
 <h2 id="usage">Usage</h2>
 <p>To generate FFI C bindings for a library, we compose a Lua script for the GCC C compiler:</p>
 <pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> gcc <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc&quot;</span><span class="ot">)</span>
-<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;ffi-cdecl&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> cdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;gcc.cdecl&quot;</span><span class="ot">)</span>
+<span class="kw">local</span> fficdecl <span class="ot">=</span> <span class="fu">require</span><span class="ot">(</span><span class="st">&quot;ffi-cdecl&quot;</span><span class="ot">)</span>
 
 <span class="co">-- Output generated assembly to /dev/null</span>
 gcc<span class="ot">.</span>set_asm_file_name<span class="ot">(</span>gcc<span class="ot">.</span>HOST_BIT_BUCKET<span class="ot">)</span></code></pre>
 <p>First, we define a function that captures C declarations in a table:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="kw">local</span> decls <span class="ot">=</span> <span class="ot">{}</span>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- Captured C declarations.</span>
+<span class="kw">local</span> decls <span class="ot">=</span> <span class="ot">{}</span>
+<span class="co">-- Type declaration identifiers.</span>
+<span class="kw">local</span> types <span class="ot">=</span> <span class="ot">{}</span>
 
 <span class="co">-- Parse C declaration from capture macro.</span>
 gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_PRE_GENERICIZE<span class="ot">,</span> <span class="kw">function</span><span class="ot">(</span>node<span class="ot">)</span>
-  <span class="kw">local</span> decl <span class="ot">=</span> cdecl<span class="ot">.</span>parse<span class="ot">(</span>node<span class="ot">)</span>
-  <span class="kw">if</span> decl <span class="kw">then</span> <span class="fu">table.insert</span><span class="ot">(</span>decls<span class="ot">,</span> decl<span class="ot">)</span> <span class="kw">end</span>
+  <span class="kw">local</span> decl<span class="ot">,</span> id <span class="ot">=</span> fficdecl<span class="ot">.</span>parse<span class="ot">(</span>node<span class="ot">)</span>
+  <span class="kw">if</span> decl <span class="kw">then</span>
+    <span class="kw">if</span> decl:class<span class="ot">()</span> <span class="ot">==</span> <span class="st">&quot;type&quot;</span> <span class="kw">or</span> decl:code<span class="ot">()</span> <span class="ot">==</span> <span class="st">&quot;type_decl&quot;</span> <span class="kw">then</span>
+      types<span class="ot">[</span>decl<span class="ot">]</span> <span class="ot">=</span> id
+    <span class="kw">end</span>
+    <span class="fu">table.insert</span><span class="ot">(</span>decls<span class="ot">,</span> <span class="ot">{</span>decl <span class="ot">=</span> decl<span class="ot">,</span> id <span class="ot">=</span> id<span class="ot">})</span>
+  <span class="kw">end</span>
 <span class="kw">end</span><span class="ot">)</span></code></pre>
 <p>Second, we output FFI C bindings for the captured declarations to a Lua file:</p>
-<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- Output captured C declarations to Lua file.</span>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="co">-- Formats the given declaration as a string of C code.</span>
+<span class="kw">local</span> <span class="kw">function</span> <span class="fu">format</span><span class="ot">(</span>decl<span class="ot">,</span> id<span class="ot">)</span>
+  <span class="kw">if</span> decl:class<span class="ot">()</span> <span class="ot">==</span> <span class="st">&quot;constant&quot;</span> <span class="kw">then</span>
+    <span class="kw">return</span> <span class="st">&quot;static const int &quot;</span> <span class="ot">..</span> id <span class="ot">..</span> <span class="st">&quot; = &quot;</span> <span class="ot">..</span> decl:value<span class="ot">()</span>
+  <span class="kw">end</span>
+  <span class="kw">return</span> cdecl<span class="ot">.</span>declare<span class="ot">(</span>decl<span class="ot">,</span> <span class="kw">function</span><span class="ot">(</span>node<span class="ot">)</span>
+    <span class="kw">if</span> node <span class="ot">==</span> decl <span class="kw">then</span> <span class="kw">return</span> id <span class="kw">end</span>
+    <span class="kw">return</span> types<span class="ot">[</span>node<span class="ot">]</span>
+  <span class="kw">end</span><span class="ot">)</span>
+<span class="kw">end</span>
+
+<span class="co">-- Output captured C declarations to Lua file.</span>
 gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span class="ot">.</span>PLUGIN_FINISH_UNIT<span class="ot">,</span> <span class="kw">function</span><span class="ot">()</span>
   <span class="kw">local</span> result <span class="ot">=</span> <span class="ot">{}</span>
-  <span class="fu">table.sort</span><span class="ot">(</span>decls<span class="ot">)</span>
   <span class="kw">for</span> i<span class="ot">,</span> decl <span class="kw">in</span> <span class="fu">ipairs</span><span class="ot">(</span>decls<span class="ot">)</span> <span class="kw">do</span>
-    result<span class="ot">[</span>i<span class="ot">]</span> <span class="ot">=</span> <span class="fu">tostring</span><span class="ot">(</span>decl<span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;</span><span class="ot">\n</span><span class="st">&quot;</span>
+    result<span class="ot">[</span>i<span class="ot">]</span> <span class="ot">=</span> <span class="fu">format</span><span class="ot">(</span>decl<span class="ot">.</span>decl<span class="ot">,</span> decl<span class="ot">.</span>id<span class="ot">)</span> <span class="ot">..</span> <span class="st">&quot;;</span><span class="ot">\n</span><span class="st">&quot;</span>
   <span class="kw">end</span>
   <span class="kw">local</span> f <span class="ot">=</span> <span class="fu">assert</span><span class="ot">(</span><span class="fu">io.open</span><span class="ot">(</span>arg<span class="ot">.</span>output<span class="ot">,</span> <span class="st">&quot;w&quot;</span><span class="ot">))</span>
-  f:<span class="fu">write</span><span class="st">[=[</span>
+  f:<span class="fu">write</span><span class="ot">(</span><span class="st">[=[</span>
 <span class="st">local ffi = require(&quot;ffi&quot;)</span>
 
 <span class="st">ffi.cdef[[</span>
-<span class="st">]=]</span>
-  f:<span class="fu">write</span><span class="ot">(</span><span class="fu">table.concat</span><span class="ot">(</span>result<span class="ot">))</span>
-  f:<span class="fu">write</span><span class="st">[=[</span>
+<span class="st">]=]</span><span class="ot">,</span> <span class="fu">table.concat</span><span class="ot">(</span>result<span class="ot">),</span> <span class="st">[=[</span>
 <span class="st">]]</span>
 
 <span class="st">-- Load POSIX real time extensions into global namespace.</span>
+<span class="st">local C = ffi.C</span>
 <span class="st">if not pcall(function() return ffi.C.clock_gettime end) then</span>
-<span class="st">  ffi.load(&quot;rt&quot;, true)</span>
+<span class="st">  C = ffi.load(&quot;rt&quot;, true)</span>
 <span class="st">end</span>
 
-<span class="st">return ffi.C</span>
-<span class="st">]=]</span>
+<span class="st">return C</span>
+<span class="st">]=]</span><span class="ot">)</span>
   f:<span class="fu">close</span><span class="ot">()</span>
 <span class="kw">end</span><span class="ot">)</span></code></pre>
-<p>Note we reorder the captured C declarations using <code>table.sort</code> before writing them to the Lua file, which orders type declarations in the same order as in the header file. This way C capture macros may be specified in arbitrary order, which facilitates generation of capture source files, e.g., using <a href="http://ctags.sourceforge.net/">ctags</a>.</p>
 <p>The script is executed by loading the Lua plugin for GCC as follows:</p>
 <pre><code>gcc -S C.c -fplugin=gcclua -fplugin-arg-gcclua-script=C.lua.in -fplugin-arg-gcclua-output=C.lua</code></pre>
 <p>If the GCC plugin is not installed in the <a href="http://gcc.gnu.org/onlinedocs/gccint/Plugins-loading.html">GCC plugin directory</a>:</p>
@@ -124,7 +141,6 @@ gcc<span class="ot">.</span>register_callback<span class="ot">(</span>gcc<span c
 <span class="ot">#include &lt;unistd.h&gt;</span>
 
 <span class="ot">#include &quot;ffi-cdecl.h&quot;</span>
-<span class="ot">#include &quot;ffi-cdecl-luajit.h&quot;</span>
 
 <span class="co">/* capture a function */</span>
 cdecl_func(getopt)
@@ -142,89 +158,37 @@ cdecl_func(mygetopt)</code></pre>
 <h2 id="c-capture-macros">C capture macros</h2>
 <p>The C header <code>ffi-cdecl.h</code> defines the following capture macros:</p>
 <dl>
-<dt>cdecl_typename(id)</dt>
-<dd><p>Declares the type with the given identifier. The macro does not output a C declaration; it is intended to be used with types that have already been defined, for example in another module of a program.</p>
-<p>For the <a href="http://luajit.org/ext_ffi_semantics.html#clang">FFI library of LuaJIT</a>, built-in types may be declared as follows:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &quot;ffi-cdecl-luajit.h&quot;</span></code></pre>
-<p>For the <a href="http://cffi.readthedocs.org/en/latest/#declaring-types-and-functions">CFFI module for Python</a>, built-in types may be declared as follows:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &quot;ffi-cdecl-python.h&quot;</span></code></pre>
+<dt><code>cdecl_type(id)</code></dt>
+<dd><p>Captures the type declaration with the given identifier.</p>
 </dd>
-<dt>cdecl_type(id)</dt>
-<dd><p>Defines the type with the given identifier.</p>
-<p>The macro outputs a C declaration of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">typedef</span> &lt;type&gt; &lt;id&gt;;</code></pre>
-<p>If <code>id</code> is a struct, union or enum type, the members are only defined if the struct, union or enum is unnamed. For a named struct, union or enum, the members may be defined using the macro <code>cdecl_memb</code>. This allows for forward declarations, or declarations of incomplete types.</p>
+<dt><code>cdecl_memb(id)</code></dt>
+<dd><p>Captures the type definition of a struct, union or enum type with the given identifier.</p>
 </dd>
-<dt>cdecl_typealias(id, alias)</dt>
-<dd><p>Defines the type with the given identifier. If the type definition refers to a type with the given alias, the alias name is substituted for the canonical name of the referred type.</p>
-<p>This macro may be used to substitute <a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stdint.h.html#tag_13_47_03_01">standard integer types</a>:</p>
-<pre class="sourceCode c"><code class="sourceCode c">cdecl_typealias(ssize_t, intptr_t)</code></pre>
-<p>This outputs a C declaration that defines <code>ssize_t</code> using <code>intptr_t</code> rather than, e.g., <code>long int</code>.</p>
+<dt><code>cdecl_struct(tag)</code></dt>
+<dd><p>Captures the type definition of a struct type with the given tag.</p>
 </dd>
-<dt>cdecl_memb(id)</dt>
-<dd><p>Defines the members of a struct, union or enum type with the given identifier. The type of a member of a struct or union is recursively expanded; unless the type has already been defined, or the type is a named struct, union or enum.</p>
-<p>The macro outputs a C declaration of any of the following forms:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> &lt;id&gt; {
-  &lt;type&gt; &lt;member&gt;;
-  …
-};</code></pre>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">union</span> &lt;id&gt; {
-  &lt;type&gt; &lt;member&gt;;
-  …
-};</code></pre>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">enum</span> &lt;id&gt; {
-  &lt;member&gt; = &lt;value&gt;,
-  …
-};</code></pre>
+<dt><code>cdecl_union(tag)</code></dt>
+<dd><p>Captures the type definition of a union type with the given tag.</p>
 </dd>
-<dt>cdecl_struct(tag)</dt>
-<dd><p>Defines the members of a struct with the given tag.</p>
-<p>The macro outputs a C declaration of of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">struct</span> &lt;tag&gt; {
-  &lt;type&gt; &lt;member&gt;;
-  …
-};</code></pre>
+<dt><code>cdecl_enum(tag)</code></dt>
+<dd><p>Captures the type definition of an enumeration type with the given tag.</p>
 </dd>
-<dt>cdecl_union(tag)</dt>
-<dd><p>Defines the members of a union with the given tag.</p>
-<p>The macro outputs a C declaration of of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">union</span> &lt;tag&gt; {
-  &lt;type&gt; &lt;member&gt;;
-  …
-};</code></pre>
+<dt><code>cdecl_func(id)</code></dt>
+<dd><p>Captures the function declaration with the given identifier.</p>
+<p>Any subexpression containing an address-of, cast, or comma operator is replaced by its right-most operand.</p>
 </dd>
-<dt>cdecl_enum(tag)</dt>
-<dd><p>Defines the members of an enumeration with the given tag.</p>
-<p>The macro outputs a C declaration of of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">enum</span> &lt;tag&gt; {
-  &lt;member&gt; = &lt;value&gt;,
-  …
-};</code></pre>
+<dt><code>cdecl_var(id)</code></dt>
+<dd><p>Captures the variable declaration with the given identifier.</p>
+<p>Any subexpression containing an address-of, cast, or comma operator is replaced by its right-most operand.</p>
 </dd>
-<dt>cdecl_func(id)</dt>
-<dd><p>Declares the function with the given identifier.</p>
-<p>The macro outputs a C declaration of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c">&lt;rtype&gt; &lt;id&gt;(&lt;argtype&gt;, &lt;argtype&gt;, …);</code></pre>
-<p>The output contains an assembler label if the symbol name differs from <code>id</code>:</p>
-<pre class="sourceCode c"><code class="sourceCode c">&lt;rtype&gt; &lt;id&gt;(&lt;argtype&gt;, &lt;argtype&gt;, …) __asm__(<span class="st">&quot;&lt;label&gt;&quot;</span>);</code></pre>
-</dd>
-<dt>cdecl_var(id)</dt>
-<dd><p>Declares the global variable with the given identifier.</p>
-<p>The macro outputs a C declaration of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c">&lt;type&gt; &lt;id&gt;;</code></pre>
-<p>The output contains an assembler label if the symbol name differs from <code>id</code>:</p>
-<pre class="sourceCode c"><code class="sourceCode c">&lt;type&gt; &lt;id&gt; __asm__(<span class="st">&quot;&lt;label&gt;&quot;</span>);</code></pre>
-</dd>
-<dt>cdecl_const(id)</dt>
-<dd><p>Declares the function or global variable, or defines the integer constant, with the given identifier. Any expression containing an address-of, cast, or comma operator as part of the expression referred to by <code>id</code> is replaced by the right-most operand.</p>
-<p>If <code>id</code> refers to an integer constant, the macro outputs a C declaration of the following form:</p>
-<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">static</span> <span class="dt">const</span> <span class="dt">int</span> &lt;id&gt; = &lt;value&gt;;</code></pre>
-<p>Otherwise, the macro outputs a C declaration of one of the above forms.</p>
+<dt><code>cdecl_const(id)</code></dt>
+<dd><p>Captures the integer constant with the given identifier.</p>
+<p>Any subexpression containing an address-of, cast, or comma operator is replaced by its right-most operand.</p>
 </dd>
 </dl>
 </div>
 <div class="footer">
-&copy; Copyright 2013–2014, Peter Colberg.
+&copy; Copyright 2013–2015, Peter Colberg.
 Created using <a href="http://johnmacfarlane.net/pandoc/">Pandoc</a>.
 </div>
 </body>

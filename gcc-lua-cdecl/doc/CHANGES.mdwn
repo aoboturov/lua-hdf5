@@ -9,6 +9,19 @@ The version numbers follow [semantic versioning].
 [semantic versioning]: http://semver.org/spec/v2.0.0.html
 
 
+## gcc‑lua‑cdecl 3.0.0 (2015-04-23) {#v3.0.0}
+
+  * FFI C: Format C declarations in GCC plugin script.
+
+    The `ffi-cdecl` module no longer formats C declarations itself. The
+    function `parse()` now returns the captured C declaration and its
+    identifier. The conversion to a C code string with `cdecl.declare()`
+    is performed in the GCC plugin script instead. This allows overriding
+    the formatting for specific use cases.
+
+  * Run test suite with default make target.
+
+
 ## gcc‑lua‑cdecl 2.0.1 (2014-04-02) {#v2.0.1}
 
   * Default to GCC plugin directory for test suite.

@@ -11,12 +11,9 @@
 #include <unistd.h>
 
 #include "ffi-cdecl.h"
-#include "ffi-cdecl-luajit.h"
 
 cdecl_type(clockid_t)
 cdecl_type(time_t)
-
-cdecl_typealias(ssize_t, intptr_t)
 
 cdecl_struct(timespec)
 

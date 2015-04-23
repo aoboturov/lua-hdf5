@@ -8,10 +8,6 @@
 #include <stdio.h>
 #define FILE void
 
-/* LuaJIT defines ptrdiff_t but not ssize_t. */
-#include <sys/types.h>
-#define ssize_t ptrdiff_t
-
 #include <hdf5.h>
 
 #ifndef H5_VERSION_GE
@@ -19,7 +15,6 @@
 #endif
 
 #include "ffi-cdecl.h"
-#include "ffi-cdecl-luajit.h"
 
 /* General Library Functions */
 cdecl_type(herr_t)
@@ -27,7 +22,7 @@ cdecl_type(hbool_t)
 cdecl_type(htri_t)
 cdecl_type(hsize_t)
 cdecl_type(hssize_t)
-cdecl_typealias(haddr_t, uint64_t)
+cdecl_type(haddr_t)
 
 cdecl_const(H5_VERS_MAJOR)
 cdecl_const(H5_VERS_MINOR)
@@ -795,7 +790,7 @@ cdecl_memb(H5O_hdr_info_t)
 cdecl_type(H5O_info_t)
 cdecl_memb(H5O_info_t)
 
-cdecl_typealias(H5O_msg_crt_idx_t, uint32_t)
+cdecl_type(H5O_msg_crt_idx_t)
 
 cdecl_type(H5O_iterate_t)
 
@@ -938,7 +933,7 @@ cdecl_func(H5Ddebug)
 cdecl_type(H5R_type_t)
 cdecl_memb(H5R_type_t)
 
-cdecl_typealias(hobj_ref_t, haddr_t)
+cdecl_type(hobj_ref_t)
 cdecl_type(hdset_reg_ref_t)
 
 cdecl_func(H5Rcreate)

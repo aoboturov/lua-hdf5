@@ -15,13 +15,13 @@ git clone http://git.colberg.org/gcc-lua-cdecl
 In the repository, checkout the latest release version:
 
 ~~~
-git checkout 2.0.1
+git checkout 3.0.0
 ~~~
 
 If you have GnuPG, verify that the tag is signed by the following key:
 
 ~~~
-git tag -v 2.0.1
+git tag -v 3.0.0
 ~~~
 
 ~~~
