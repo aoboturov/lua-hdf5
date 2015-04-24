@@ -9,6 +9,49 @@ The version numbers follow [semantic versioning].
 [semantic versioning]: http://semver.org/spec/v2.0.0.html
 
 
+## lua‑hdf5 2.0.0 (2015-04-24) {#v2.0.0}
+
+  * Add methods to query number of dimensions and elements of dataspace.
+  * Add method to query names of attributes of an object.
+  * Add methods to set precision and offset of an atomic datatype.
+  * Compile FFI C bindings using included Lua plugin for GCC.
+
+    This ensures compatibility with HDF5 1.8.14 and later. The Lua plugin
+    requires GCC 4.5 or later. On Debian GNU/Linux or derived distributions,
+    you need to install the `gcc-*-plugin-dev` package that matches your
+    GCC version.
+
+  * Raise an error when closing a file with open objects.
+
+    The HDF5 library requires that all objects from a file have been closed
+    before the file itself is closed. In previous versions of HDF5 for Lua,
+    `file:close()` would silently fail to close a file if there existed open
+    objects that were no longer reachable from Lua but not yet garbage
+    collected. To prevent such a silent failure, all open objects must now
+    be closed manually before attempting to close a file; otherwise, an error
+    is raised.
+
+    To migrate a program from previous versions of HDF5 for Lua, *temporarily*
+    disable the garbage collector by adding
+
+    ~~~{.lua}
+    collectgarbage("stop") -- remove this line after migration
+    ~~~
+
+    to the beginning of the program. For each file, explicitly close the file
+    with `file:close()`, which will result in an error due to open file
+    objects. Then find all occurrences of created or opened groups, datasets
+    and attributes, and close these manually with `object:close()`, until the
+    file closes without error.
+
+    Note that files and file objects are still closed automatically when
+    garbage collected, to ensure that written data is flushed to disk when the
+    program raises an error elsewhere. LuaJIT finalizes objects in reverse
+    order of their creation when an error raised, which means that open objects
+    are closed before the corresponding file. When the program exits, however,
+    objects are finalized in undefined order; hence the requirement to manually
+    close objects during normal execution.
+
 ## lua‑hdf5 1.1.0 (2014-09-23) {#v1.1.0}
 
   * Add method to copy object from one group to another group.

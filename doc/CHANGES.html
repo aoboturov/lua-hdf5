@@ -7,6 +7,25 @@
   <meta name="author" content="Peter Colberg" />
   <title>Releases &mdash; HDF5 for Lua</title>
   <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
   <link rel="stylesheet" href="pandoc.css" type="text/css" />
 </head>
 <body>
@@ -24,6 +43,20 @@
 <h1>Releases</h1>
 <p>This document lists the changes between stable releases.</p>
 <p>The version numbers follow <a href="http://semver.org/spec/v2.0.0.html">semantic versioning</a>.</p>
+<h2 id="v2.0.0">lua‑hdf5 2.0.0 (2015-04-24)</h2>
+<ul>
+<li>Add methods to query number of dimensions and elements of dataspace.</li>
+<li>Add method to query names of attributes of an object.</li>
+<li>Add methods to set precision and offset of an atomic datatype.</li>
+<li><p>Compile FFI C bindings using included Lua plugin for GCC.</p>
+<p>This ensures compatibility with HDF5 1.8.14 and later. The Lua plugin requires GCC 4.5 or later. On Debian GNU/Linux or derived distributions, you need to install the <code>gcc-*-plugin-dev</code> package that matches your GCC version.</p></li>
+<li><p>Raise an error when closing a file with open objects.</p>
+<p>The HDF5 library requires that all objects from a file have been closed before the file itself is closed. In previous versions of HDF5 for Lua, <code>file:close()</code> would silently fail to close a file if there existed open objects that were no longer reachable from Lua but not yet garbage collected. To prevent such a silent failure, all open objects must now be closed manually before attempting to close a file; otherwise, an error is raised.</p>
+<p>To migrate a program from previous versions of HDF5 for Lua, <em>temporarily</em> disable the garbage collector by adding</p>
+<pre class="sourceCode lua"><code class="sourceCode lua"><span class="fu">collectgarbage</span><span class="ot">(</span><span class="st">&quot;stop&quot;</span><span class="ot">)</span> <span class="co">-- remove this line after migration</span></code></pre>
+<p>to the beginning of the program. For each file, explicitly close the file with <code>file:close()</code>, which will result in an error due to open file objects. Then find all occurrences of created or opened groups, datasets and attributes, and close these manually with <code>object:close()</code>, until the file closes without error.</p>
+<p>Note that files and file objects are still closed automatically when garbage collected, to ensure that written data is flushed to disk when the program raises an error elsewhere. LuaJIT finalizes objects in reverse order of their creation when an error raised, which means that open objects are closed before the corresponding file. When the program exits, however, objects are finalized in undefined order; hence the requirement to manually close objects during normal execution.</p></li>
+</ul>
 <h2 id="v1.1.0">lua‑hdf5 1.1.0 (2014-09-23)</h2>
 <ul>
 <li>Add method to copy object from one group to another group.</li>
