@@ -103,4 +103,6 @@ do
   file:close()
 end
 
+mpi.finalize()
+
 os.remove(path)
