@@ -550,6 +550,30 @@ Datatypes
 
   : Recursively removes padding from the compound datatype.
 
+`dtype:get_nmembers()`
+
+  : Returns the number of members of the compound datatype.
+
+`dtype:get_member_class(index)`
+
+  : Returns the datatype class of the given member of the compound datatype.
+
+`dtype:get_member_name(index)`
+
+  : Returns the name of the given member of the compound datatype.
+
+`dtype:get_member_index(name)`
+
+  : Returns the index of the given member of the compound datatype.
+
+`dtype:get_member_offset(index)`
+
+  : Returns the offset in bytes of the given member of the compound datatype.
+
+`dtype:get_member_type(index)`
+
+  : Returns the datatype of the given member of the compound datatype.
+
 
 ### Enumeration datatypes
 
@@ -572,6 +596,24 @@ Datatypes
 `dtype:enum_valueof(name, value)`
 
   : Retrieves the value corresponding to a name of an enumeration datatype.
+    `value` is a C array object of a C type that corresponds to the base
+    datatype of the enumeration datatype.
+
+`dtype:get_nmembers()`
+
+  : Returns the number of members of the enumeration datatype.
+
+`dtype:get_member_name(index)`
+
+  : Returns the name of the given member of the enumeration datatype.
+
+`dtype:get_member_index(name)`
+
+  : Returns the index of the given member of the enumeration datatype.
+
+`dtype:get_member_value(index, value)`
+
+  : Retrieves the value of the given member of the enumeration datatype.
     `value` is a C array object of a C type that corresponds to the base
     datatype of the enumeration datatype.
 

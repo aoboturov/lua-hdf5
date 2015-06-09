@@ -373,6 +373,24 @@
 <dt><code>dtype:pack()</code></dt>
 <dd><p>Recursively removes padding from the compound datatype.</p>
 </dd>
+<dt><code>dtype:get_nmembers()</code></dt>
+<dd><p>Returns the number of members of the compound datatype.</p>
+</dd>
+<dt><code>dtype:get_member_class(index)</code></dt>
+<dd><p>Returns the datatype class of the given member of the compound datatype.</p>
+</dd>
+<dt><code>dtype:get_member_name(index)</code></dt>
+<dd><p>Returns the name of the given member of the compound datatype.</p>
+</dd>
+<dt><code>dtype:get_member_index(name)</code></dt>
+<dd><p>Returns the index of the given member of the compound datatype.</p>
+</dd>
+<dt><code>dtype:get_member_offset(index)</code></dt>
+<dd><p>Returns the offset in bytes of the given member of the compound datatype.</p>
+</dd>
+<dt><code>dtype:get_member_type(index)</code></dt>
+<dd><p>Returns the datatype of the given member of the compound datatype.</p>
+</dd>
 </dl>
 <h3 id="enumeration-datatypes">Enumeration datatypes</h3>
 <dl>
@@ -387,6 +405,18 @@
 </dd>
 <dt><code>dtype:enum_valueof(name, value)</code></dt>
 <dd><p>Retrieves the value corresponding to a name of an enumeration datatype. <code>value</code> is a C array object of a C type that corresponds to the base datatype of the enumeration datatype.</p>
+</dd>
+<dt><code>dtype:get_nmembers()</code></dt>
+<dd><p>Returns the number of members of the enumeration datatype.</p>
+</dd>
+<dt><code>dtype:get_member_name(index)</code></dt>
+<dd><p>Returns the name of the given member of the enumeration datatype.</p>
+</dd>
+<dt><code>dtype:get_member_index(name)</code></dt>
+<dd><p>Returns the index of the given member of the enumeration datatype.</p>
+</dd>
+<dt><code>dtype:get_member_value(index, value)</code></dt>
+<dd><p>Retrieves the value of the given member of the enumeration datatype. <code>value</code> is a C array object of a C type that corresponds to the base datatype of the enumeration datatype.</p>
 </dd>
 </dl>
 <h3 id="predefined-datatypes">Predefined datatypes</h3>

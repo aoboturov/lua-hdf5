@@ -604,25 +604,23 @@ function datatype.equal(dtype, dtype2)
   return flag ~= 0
 end
 
-do
-  local classes = {
-    [C.H5T_INTEGER]   = "integer",
-    [C.H5T_FLOAT]     = "float",
-    [C.H5T_STRING]    = "string",
-    [C.H5T_BITFIELD]  = "bitfield",
-    [C.H5T_OPAQUE]    = "opaque",
-    [C.H5T_COMPOUND]  = "compound",
-    [C.H5T_REFERENCE] = "reference",
-    [C.H5T_ENUM]      = "enum",
-    [C.H5T_VLEN]      = "vlen",
-    [C.H5T_ARRAY]     = "array",
-  }
+local datatype_classes = {
+  [C.H5T_INTEGER]   = "integer",
+  [C.H5T_FLOAT]     = "float",
+  [C.H5T_STRING]    = "string",
+  [C.H5T_BITFIELD]  = "bitfield",
+  [C.H5T_OPAQUE]    = "opaque",
+  [C.H5T_COMPOUND]  = "compound",
+  [C.H5T_REFERENCE] = "reference",
+  [C.H5T_ENUM]      = "enum",
+  [C.H5T_VLEN]      = "vlen",
+  [C.H5T_ARRAY]     = "array",
+}
 
-  function datatype.get_class(dtype)
-    local class = C.H5Tget_class(dtype.id)
-    if class < 0 then return error(get_error()) end
-    return classes[tonumber(class)]
-  end
+function datatype.get_class(dtype)
+  local class = C.H5Tget_class(dtype.id)
+  if class < 0 then return error(get_error()) end
+  return datatype_classes[tonumber(class)]
 end
 
 function datatype.set_size(dtype, size)
@@ -723,6 +721,51 @@ end
 
 function datatype.pack(dtype)
   local err = C.H5Tpack(dtype.id)
+  if err < 0 then return error(get_error()) end
+end
+
+function datatype.get_nmembers(dtype)
+  local ret = C.H5Tget_nmembers(dtype.id)
+  if ret < 0 then return error(get_error()) end
+  return ret
+end
+
+function datatype.get_member_class(dtype, index)
+  local class = C.H5Tget_member_class(dtype.id, index)
+  if class < 0 then return error(get_error()) end
+  return datatype_classes[tonumber(class)]
+end
+
+function datatype.get_member_name(dtype, index)
+  local buf = C.H5Tget_member_name(dtype.id, index)
+  if buf == nil then return error(get_error()) end
+  local name = ffi.string(buf)
+  local err = C.H5free_memory(buf)
+  if err < 0 then return error(get_error()) end
+  return name
+end
+
+function datatype.get_member_index(dtype, name)
+  local ret = C.H5Tget_member_index(dtype.id, name)
+  if ret < 0 then return error(get_error()) end
+  return ret
+end
+
+function datatype.get_member_offset(dtype, index)
+  local ret = C.H5Tget_member_offset(dtype.id, index)
+  local err = C.H5Eget_num(C.H5E_DEFAULT)
+  if err ~= 0 then return error(get_error()) end
+  return tonumber(ret)
+end
+
+function datatype.get_member_type(dtype, index)
+  local id = C.H5Tget_member_type(dtype.id, index)
+  if id < 0 then return error(get_error()) end
+  return datatype_id(id)
+end
+
+function datatype.get_member_value(dtype, index, value)
+  local err = C.H5Tget_member_value(dtype.id, index, value)
   if err < 0 then return error(get_error()) end
 end
 
