@@ -19,16 +19,16 @@ do
   assert(dtype:get_size() == 1)
   dtype:set_size(101)
   assert(dtype:get_size() == 101)
+  dtype:close()
 end
-collectgarbage()
 
 do
   local dtype = hdf5.c_s1:copy()
   assert(dtype:is_variable_str() == false)
   dtype:set_size("variable")
   assert(dtype:is_variable_str() == true)
+  dtype:close()
 end
-collectgarbage()
 
 do
   local dtype = hdf5.c_s1:copy()
@@ -37,8 +37,8 @@ do
   assert(dtype:get_cset() == "utf8")
   dtype:set_cset("ascii")
   assert(dtype:get_cset() == "ascii")
+  dtype:close()
 end
-collectgarbage()
 
 do
   local dtype = hdf5.uint32:copy()
@@ -53,8 +53,8 @@ do
   dtype:set_precision(32)
   assert(dtype:get_precision() == 32)
   assert(dtype:get_offset() == 0)
+  dtype:close()
 end
-collectgarbage()
 
 do
   local file = hdf5.create_file(path)
@@ -65,7 +65,6 @@ do
   dtype:close()
   file:close()
 end
-collectgarbage()
 
 do
   local file = hdf5.create_file(path)
@@ -76,7 +75,6 @@ do
   dtype:close()
   file:close()
 end
-collectgarbage()
 
 do
   local species = {H = 1, Li = 3, Na = 11, K = 19}
@@ -117,8 +115,8 @@ do
   assert(value[0] == 11)
   dtype:enum_valueof("K", value)
   assert(value[0] == 19)
+  dtype:close()
 end
-collectgarbage()
 
 do
   local species = {H = 1, Li = 3, Na = 11, K = 19}
@@ -130,31 +128,37 @@ do
   dtype:enum_insert("K", ffi.new("int8_t[1]", species.K))
   local space = hdf5.create_simple_space({3, 2})
   local dset = file:create_dataset("species", dtype, space)
+  space:close()
   local buf = ffi.new("int8_t[3][2]", {{11, 1}, {19, 1}, {19, 3}})
   dset:write(buf, dtype)
+  dtype:close()
+  dset:close()
+  file:close()
 end
-collectgarbage()
 
 do
   local species = {H = 0, Li = 1, Na = 2, K = 3}
   local file = hdf5.open_file(path)
   local dset = file:open_dataset("species")
-  local memtype = hdf5.int:enum_create()
-  memtype:enum_insert("H", ffi.new("int[1]", species.H))
-  memtype:enum_insert("Li", ffi.new("int[1]", species.Li))
-  memtype:enum_insert("Na", ffi.new("int[1]", species.Na))
-  memtype:enum_insert("K", ffi.new("int[1]", species.K))
-  local dspace = hdf5.create_simple_space({3, 2})
+  local dtype = hdf5.int:enum_create()
+  dtype:enum_insert("H", ffi.new("int[1]", species.H))
+  dtype:enum_insert("Li", ffi.new("int[1]", species.Li))
+  dtype:enum_insert("Na", ffi.new("int[1]", species.Na))
+  dtype:enum_insert("K", ffi.new("int[1]", species.K))
+  local space = hdf5.create_simple_space({3, 2})
   local buf = ffi.new("int[3][2]")
-  dset:read(buf, memtype, dspace)
+  dset:read(buf, dtype, space)
   assert(buf[0][0] == species.Na)
   assert(buf[0][1] == species.H)
   assert(buf[1][0] == species.K)
   assert(buf[1][1] == species.H)
   assert(buf[2][0] == species.K)
   assert(buf[2][1] == species.Li)
+  dtype:close()
+  space:close()
+  dset:close()
+  file:close()
 end
-collectgarbage()
 
 do
   local ctype = ffi.typeof[[struct {
@@ -177,20 +181,24 @@ do
   assert(memtype:get_member_index("count") == 1)
   assert(memtype:get_member_offset(0) == ffi.offsetof(ctype, "mean"), hdf5.double)
   assert(memtype:get_member_offset(1) == ffi.offsetof(ctype, "count"), hdf5.int)
-  assert(memtype:get_member_type(0):equal(hdf5.double))
-  assert(memtype:get_member_type(1):equal(hdf5.int))
+  local dtype = memtype:get_member_type(0)
+  assert(dtype:equal(hdf5.double))
+  dtype:close()
+  local dtype = memtype:get_member_type(1)
+  assert(dtype:equal(hdf5.int))
+  dtype:close()
   local filetype = memtype:copy()
   filetype:pack()
   assert(filetype:get_size() == ffi.sizeof[[struct {
     int count;
     double mean;
   } __attribute__((packed))]])
-  local dspace = hdf5.create_space("scalar")
+  local space = hdf5.create_space("scalar")
   do
     local file = hdf5.create_file(path)
-    local dset = file:create_dataset("accum", filetype, dspace)
+    local dset = file:create_dataset("accum", filetype, space)
     local buf = ctype(123456789, math.pi)
-    dset:write(buf, memtype, dspace)
+    dset:write(buf, memtype, space)
     dset:close()
     file:close()
   end
@@ -204,8 +212,10 @@ do
     assert(buf.count == 123456789)
     assert(buf.mean == math.pi)
   end
+  space:close()
+  memtype:close()
+  filetype:close()
 end
-collectgarbage()
 
 do
   local N = 100
@@ -216,7 +226,7 @@ do
   assert(#dims == 2)
   assert(dims[1] == N)
   assert(dims[2] == 3)
-  local dspace = hdf5.create_space("scalar")
+  local space = hdf5.create_space("scalar")
   do
     local points = ffi.new("struct { double x, y, z; }[?]", N)
     math.randomseed(42)
@@ -226,8 +236,8 @@ do
       points[i].z = math.random()
     end
     local file = hdf5.create_file(path)
-    local dset = file:create_dataset("points", dtype, dspace)
-    dset:write(points, dtype, dspace)
+    local dset = file:create_dataset("points", dtype, space)
+    dset:write(points, dtype, space)
     dset:close()
     file:close()
   end
@@ -235,7 +245,7 @@ do
     local file = hdf5.open_file(path)
     local dset = file:open_dataset("points")
     local points = ffi.new("struct { double x, y, z; }[?]", N)
-    dset:read(points, dtype, dspace)
+    dset:read(points, dtype, space)
     dset:close()
     file:close()
     math.randomseed(42)
@@ -245,7 +255,8 @@ do
       assert(points[i].z == math.random())
     end
   end
+  space:close()
+  dtype:close()
 end
-collectgarbage()
 
 os.remove(path)

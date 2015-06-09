@@ -14,12 +14,14 @@ local ffi  = require("ffi")
 do
   local space = hdf5.create_space("scalar")
   assert(space:get_simple_extent_type() == "scalar")
+  space:close()
   local space = hdf5.create_space("simple")
   assert(space:get_simple_extent_type() == "simple")
+  space:close()
   local space = hdf5.create_space("null")
   assert(space:get_simple_extent_type() == "null")
+  space:close()
 end
-collectgarbage()
 
 do
   local space = hdf5.create_simple_space({})
@@ -29,8 +31,8 @@ do
   local dims, maxdims = space:get_simple_extent_dims()
   assert(#dims == 0)
   assert(#maxdims == 0)
+  space:close()
 end
-collectgarbage()
 
 do
   local space = hdf5.create_simple_space({2, 3, 4})
@@ -52,8 +54,8 @@ do
   assert(dims[2] == 6)
   assert(maxdims[1] == 5)
   assert(maxdims[2] == 6)
+  space:close()
 end
-collectgarbage()
 
 do
   local space = hdf5.create_simple_space({2, 3}, {nil, 5})
@@ -76,8 +78,8 @@ do
   assert(maxdims[1] == nil)
   assert(maxdims[2] == nil)
   assert(maxdims[3] == 2)
+  space:close()
 end
-collectgarbage()
 
 do
  local space = hdf5.create_simple_space({2, 3, 4})
@@ -85,8 +87,8 @@ do
  assert(space:select_valid() == true)
  space:select_hyperslab("set", {0, 0, 0}, nil, {2, 3, 5})
  assert(space:select_valid() == false)
+ space:close()
 end
-collectgarbage()
 
 do
   local space = hdf5.create_simple_space({10})
@@ -100,5 +102,5 @@ do
   assert(space:select_valid() == false)
   space:offset_simple({-9})
   assert(space:select_valid() == true)
+  space:close()
 end
-collectgarbage()

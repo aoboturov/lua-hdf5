@@ -16,4 +16,3 @@ do
   assert(type(min) == "number")
   assert(type(rel) == "number")
 end
-collectgarbage()
