@@ -526,6 +526,14 @@ Datatypes
   : Creates and returns an array datatype of the given element datatype.
     `dims` is a sequence with the array dimensions.
 
+`dtype:get_array_ndims()`
+
+  : Returns the number of dimensions of the array datatype.
+
+`dtype:get_array_dims()`
+
+  : Returns a sequence with the dimensions of the array datatype.
+
 
 ### Compound datatypes
 

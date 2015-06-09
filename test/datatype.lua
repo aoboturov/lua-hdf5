@@ -181,6 +181,11 @@ do
   local N = 100
   local dtype = hdf5.double:array_create({N, 3})
   assert(dtype:get_size() == N * 3 * ffi.sizeof("double"))
+  assert(dtype:get_array_ndims() == 2)
+  local dims = dtype:get_array_dims()
+  assert(#dims == 2)
+  assert(dims[1] == N)
+  assert(dims[2] == 3)
   local dspace = hdf5.create_space("scalar")
   do
     local points = ffi.new("struct { double x, y, z; }[?]", N)

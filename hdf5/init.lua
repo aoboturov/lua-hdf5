@@ -699,6 +699,23 @@ function datatype.array_create(dtype, dims)
   return datatype_id(id)
 end
 
+function datatype.get_array_ndims(dtype)
+  local rank = C.H5Tget_array_ndims(dtype.id)
+  if rank < 0 then return error(get_error()) end
+  return rank
+end
+
+function datatype.get_array_dims(dtype, dims)
+  local rank = C.H5Tget_array_ndims(dtype.id)
+  if rank < 0 then return error(get_error()) end
+  local dims_buf = hsize_t_n(rank)
+  rank = C.H5Tget_array_dims(dtype.id, dims_buf)
+  if rank < 0 then return error(get_error()) end
+  local dims = {}
+  for i = 0, rank - 1 do dims[i + 1] = tonumber(dims_buf[i]) end
+  return dims
+end
+
 function datatype.insert(dtype, name, offset, field)
   local err = C.H5Tinsert(dtype.id, name, offset, field.id)
   if err < 0 then return error(get_error()) end
