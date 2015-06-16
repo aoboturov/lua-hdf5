@@ -14,22 +14,23 @@ local assert, error, min, rawget, rawset, tonumber = assert, error, math.min, ra
 local _M = {}
 
 -- C types.
-local H5D_fill_value_t_1 = ffi.typeof("H5D_fill_value_t[1]")
-local H5E_walk_t         = ffi.typeof("H5E_walk_t")
-local H5F_libver_t_1     = ffi.typeof("H5F_libver_t[1]")
-local H5G_info_t         = ffi.typeof("H5G_info_t")
-local H5G_info_t_1       = ffi.typeof("H5G_info_t[1]")
-local H5O_info_t         = ffi.typeof("H5O_info_t")
-local H5O_info_t_1       = ffi.typeof("H5O_info_t[1]")
-local H5O_type_t_1       = ffi.typeof("H5O_type_t[1]")
-local char_n             = ffi.typeof("char[?]")
-local hbool_t_1          = ffi.typeof("hbool_t[1]")
-local hid_t_n            = ffi.typeof("hid_t[?]")
-local hsize_t_n          = ffi.typeof("hsize_t[?]")
-local hssize_t_n         = ffi.typeof("hssize_t[?]")
-local size_t_1           = ffi.typeof("size_t[1]")
-local unsigned_1         = ffi.typeof("unsigned[1]")
-local void_ptr_1         = ffi.typeof("void *[1]")
+local H5AC_cache_config_t = ffi.typeof("H5AC_cache_config_t")
+local H5D_fill_value_t_1  = ffi.typeof("H5D_fill_value_t[1]")
+local H5E_walk_t          = ffi.typeof("H5E_walk_t")
+local H5F_libver_t_1      = ffi.typeof("H5F_libver_t[1]")
+local H5G_info_t          = ffi.typeof("H5G_info_t")
+local H5G_info_t_1        = ffi.typeof("H5G_info_t[1]")
+local H5O_info_t          = ffi.typeof("H5O_info_t")
+local H5O_info_t_1        = ffi.typeof("H5O_info_t[1]")
+local H5O_type_t_1        = ffi.typeof("H5O_type_t[1]")
+local char_n              = ffi.typeof("char[?]")
+local hbool_t_1           = ffi.typeof("hbool_t[1]")
+local hid_t_n             = ffi.typeof("hid_t[?]")
+local hsize_t_n           = ffi.typeof("hsize_t[?]")
+local hssize_t_n          = ffi.typeof("hssize_t[?]")
+local size_t_1            = ffi.typeof("size_t[1]")
+local unsigned_1          = ffi.typeof("unsigned[1]")
+local void_ptr_1          = ffi.typeof("void *[1]")
 
 -- Object identifiers.
 local attribute_id = ffi.typeof("struct { hid_t id; }")
@@ -1112,6 +1113,19 @@ do
     if err < 0 then return error(get_error()) end
     return flags[tonumber(low[0])], flags[tonumber(high[0])]
   end
+end
+
+function plist.get_mdc_config(fapl)
+  local mdc_config = H5AC_cache_config_t()
+  mdc_config.version = C.H5AC__CURR_CACHE_CONFIG_VERSION
+  local err = C.H5Pget_mdc_config(fapl.id, mdc_config)
+  if err < 0 then return error(get_error()) end
+  return mdc_config
+end
+
+function plist.set_mdc_config(fapl, mdc_config)
+  local err = C.H5Pset_mdc_config(fapl.id, mdc_config)
+  if err < 0 then return error(get_error()) end
 end
 
 function plist.set_fapl_core(fapl, increment, backing_store)

@@ -981,6 +981,16 @@ Property lists
 
   : Returns the lower and the upper bound on the file format version.
 
+`fapl:set_mdc_config(config)`
+
+  : Sets the current initial [metadata cache] configuration.
+
+    [metadata cache]: https://www.hdfgroup.org/HDF5/doc/Advanced/MetadataCache/
+
+`fapl:get_mdc_config()`
+
+  : Returns the current initial [metadata cache] configuration.
+
 `fapl:set_fapl_core(increment, backing_store)`
 
   : Sets the core file driver for read and write access to a file. The contents

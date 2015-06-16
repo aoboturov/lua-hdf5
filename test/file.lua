@@ -156,6 +156,22 @@ end
 
 do
   local fapl = hdf5.create_plist("file_access")
+  do
+    local mdc_config = fapl:get_mdc_config()
+    mdc_config.evictions_enabled = false
+    mdc_config.incr_mode = "H5C_incr__off"
+    mdc_config.decr_mode = "H5C_decr__off"
+    mdc_config.flash_incr_mode = "H5C_flash_incr__off"
+    fapl:set_mdc_config(mdc_config)
+  end
+  local file = hdf5.create_file(path, "trunc", nil, fapl)
+  fapl:close()
+  file:flush()
+  file:close()
+end
+
+do
+  local fapl = hdf5.create_plist("file_access")
   fapl:set_fapl_core(2 ^ 20, true)
   local file = hdf5.create_file(path, "trunc", nil, fapl)
   fapl:close()

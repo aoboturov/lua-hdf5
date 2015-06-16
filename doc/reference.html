@@ -901,6 +901,12 @@
 <dt><code>fapl:get_libver_bounds()</code></dt>
 <dd><p>Returns the lower and the upper bound on the file format version.</p>
 </dd>
+<dt><code>fapl:set_mdc_config(config)</code></dt>
+<dd><p>Sets the current initial <a href="https://www.hdfgroup.org/HDF5/doc/Advanced/MetadataCache/">metadata cache</a> configuration.</p>
+</dd>
+<dt><code>fapl:get_mdc_config()</code></dt>
+<dd><p>Returns the current initial <a href="https://www.hdfgroup.org/HDF5/doc/Advanced/MetadataCache/">metadata cache</a> configuration.</p>
+</dd>
 <dt><code>fapl:set_fapl_core(increment, backing_store)</code></dt>
 <dd><p>Sets the core file driver for read and write access to a file. The contents of the file are stored in a buffer for which memory is allocated as needed in multiples of the given increment size in bytes. If <code>backing_store</code> is <strong>true</strong>, an empty file is created on disk, and the contents of the file are written to disk when the file is flushed or closed; otherwise, if <strong>false</strong>, the file is not created on disk, and the contents of the file are discarded when the file is closed.</p>
 </dd>
