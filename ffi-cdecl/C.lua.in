@@ -1,3 +1,5 @@
+package.path = "./?.lua;../?.lua;" .. package.path
+
 local gcc = require("gcc")
 local cdecl = require("gcc.cdecl")
 local fficdecl = require("ffi-cdecl")

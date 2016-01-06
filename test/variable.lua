@@ -4,6 +4,8 @@
 -- Distributed under the MIT license. (See accompanying file LICENSE.)
 --
 
+package.path = "../?.lua;" .. package.path
+
 local gcc   = require("gcc")
 local cdecl = require("gcc.cdecl")
 
