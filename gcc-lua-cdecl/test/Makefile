@@ -9,13 +9,6 @@ CFLAGS = -Wall
 CCOPT = -std=gnu99
 GCCLUA = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 
-ifdef LUA_PATH
-LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;$(LUA_PATH)
-else
-LUA_PATH := $(CURDIR)/../?.lua;$(CURDIR)/../?/init.lua;;
-endif
-export LUA_PATH
-
 all: array composite enum function pointer scalar variable vector
 
 %: %.c %.lua

@@ -3,13 +3,6 @@ CPPFLAGS =
 CFLAGS = -Wall -pedantic -O2
 GCCLUA = $(CURDIR)/../../gcc-lua/gcc/gcclua.so
 
-ifdef LUA_PATH
-LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;$(LUA_PATH)
-else
-LUA_PATH := $(CURDIR)/?.lua;$(CURDIR)/../?.lua;;
-endif
-export LUA_PATH
-
 all: C.lua
 
 %.lua: %.c %.lua.in

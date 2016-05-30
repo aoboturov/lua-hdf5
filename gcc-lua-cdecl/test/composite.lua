@@ -4,8 +4,14 @@
 -- Distributed under the MIT license. (See accompanying file LICENSE.)
 --
 
+package.path = "../?.lua;" .. package.path
+
 local gcc   = require("gcc")
 local cdecl = require("gcc.cdecl")
+local test  = require("test")
+
+-- Cache library functions.
+local assert_equal = test.assert_equal
 
 gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
 
@@ -22,78 +28,78 @@ end)
 
 -- composite type
 function test.tagged_struct_decl(decl)
-  assert(cdecl.declare(decl) == "struct tagged_struct tagged_struct_decl")
-  assert(cdecl.declare(decl, function(node)
+  assert_equal(cdecl.declare(decl), "struct tagged_struct tagged_struct_decl")
+  assert_equal(cdecl.declare(decl, function(node)
     return node:name():value()
-  end) == "tagged_struct tagged_struct_decl")
-  assert(cdecl.declare(decl, function(node)
+  end), "tagged_struct tagged_struct_decl")
+  assert_equal(cdecl.declare(decl, function(node)
     return node:name():value():upper()
-  end) == [[TAGGED_STRUCT TAGGED_STRUCT_DECL __asm__("tagged_struct_decl")]])
-  assert(cdecl.declare(decl:type()) == [[
+  end), [[TAGGED_STRUCT TAGGED_STRUCT_DECL __asm__("tagged_struct_decl")]])
+  assert_equal(cdecl.declare(decl:type()), [[
 struct tagged_struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type(), function(node)
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return node:name():value()
-  end) == "tagged_struct")
-  assert(cdecl.declare(decl:type(), function(node)
+  end), "tagged_struct")
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return node:name():value():upper()
-  end) == "TAGGED_STRUCT")
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  end), "TAGGED_STRUCT")
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct tagged_struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return node:name():value()
-  end) == [[
+  end), [[
 struct tagged_struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return node:name():value():upper()
-  end) == [[
+  end), [[
 struct TAGGED_STRUCT {
   SHORT INT S;
   INT I;
 }]])
-  assert(cdecl.declare(decl:type():name(), function(node)
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return node:name():value()
-  end) == "typedef struct tagged_struct tagged_struct")
-  assert(cdecl.declare(decl:type():name(), function(node)
+  end), "typedef struct tagged_struct tagged_struct")
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return node:name():value():upper()
-  end) == "typedef struct TAGGED_STRUCT TAGGED_STRUCT")
+  end), "typedef struct TAGGED_STRUCT TAGGED_STRUCT")
 end
 
 function test.untagged_struct_decl(decl)
-  assert(cdecl.declare(decl) == [[
+  assert_equal(cdecl.declare(decl), [[
 struct {
   short int s;
   int i;
 } untagged_struct_decl]])
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl:type()), [[
 struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct {
   short int s;
   int i;
 }]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef struct {
   short int s;
   int i;
 } untagged_struct]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef struct {
   short int s;
   int i;
@@ -101,41 +107,41 @@ typedef struct {
 end
 
 function test.empty_struct_decl(decl)
-  assert(cdecl.declare(decl) == [[
+  assert_equal(cdecl.declare(decl), [[
 struct {
 } empty_struct_decl]])
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl:type()), [[
 struct {
 }]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef struct {
 } empty_struct]])
 end
 
 -- opaque composite type
 function test.opaque_union_decl(decl)
-  assert(cdecl.declare(decl) == "union opaque_union *opaque_union_decl")
-  assert(cdecl.declare(decl:type()) == "union opaque_union *")
-  assert(cdecl.declare(decl:type():type()) == "union opaque_union")
+  assert_equal(cdecl.declare(decl), "union opaque_union *opaque_union_decl")
+  assert_equal(cdecl.declare(decl:type()), "union opaque_union *")
+  assert_equal(cdecl.declare(decl:type():type()), "union opaque_union")
 end
 
 -- composite type as function argument
 function test.ptr_to_func_const_struct_tagged_struct_void_ret_void(decl)
-  assert(cdecl.declare(decl) == "void (*ptr_to_func_const_struct_tagged_struct_void_ret_void)(const struct tagged_struct)")
-  assert(cdecl.declare(decl:type()) == "void (*)(const struct tagged_struct)")
-  assert(cdecl.declare(decl:type():type()) == "void (const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl), "void (*ptr_to_func_const_struct_tagged_struct_void_ret_void)(const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl:type()), "void (*)(const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl:type():type()), "void (const struct tagged_struct)")
 end
 
 function test.ptr_to_func_const_tagged_struct_void_ret_void(decl)
-  assert(cdecl.declare(decl) == "void (*ptr_to_func_const_tagged_struct_void_ret_void)(const struct tagged_struct)")
-  assert(cdecl.declare(decl:type()) == "void (*)(const struct tagged_struct)")
-  assert(cdecl.declare(decl:type():type()) == "void (const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl), "void (*ptr_to_func_const_tagged_struct_void_ret_void)(const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl:type()), "void (*)(const struct tagged_struct)")
+  assert_equal(cdecl.declare(decl:type():type()), "void (const struct tagged_struct)")
 end
 
 -- bitfield
 function test.bitfield_decl(decl)
-  assert(cdecl.declare(decl) == "struct bitfield bitfield_decl")
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl), "struct bitfield bitfield_decl")
+  assert_equal(cdecl.declare(decl:type()), [[
 struct bitfield {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -143,7 +149,7 @@ struct bitfield {
   int : 4;
   short unsigned int unsigned_short;
 }]])
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct bitfield {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -151,11 +157,11 @@ struct bitfield {
   int : 4;
   short unsigned int unsigned_short;
 }]])
-  assert(cdecl.declare(decl:type():name()) == "typedef struct bitfield bitfield_type")
+  assert_equal(cdecl.declare(decl:type():name()), "typedef struct bitfield bitfield_type")
 end
 
 function test.nested_bitfield_decl(decl)
-  assert(cdecl.declare(decl) == [[
+  assert_equal(cdecl.declare(decl), [[
 struct {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -163,7 +169,7 @@ struct {
   int : 4;
   struct bitfield struct_bitfield;
 } nested_bitfield_decl]])
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl:type()), [[
 struct {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -171,7 +177,7 @@ struct {
   int : 4;
   struct bitfield struct_bitfield;
 }]])
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -179,7 +185,7 @@ struct {
   int : 4;
   struct bitfield struct_bitfield;
 }]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef struct {
   unsigned int unsigned_int_bitfield : 1;
   int signed_int_bitfield : 2;
@@ -187,9 +193,9 @@ typedef struct {
   int : 4;
   struct bitfield struct_bitfield;
 } nested_bitfield_type]])
-  assert(cdecl.declare(decl:type():name(), function(node)
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return node:name() and node:name():value():upper()
-  end) == [[
+  end), [[
 typedef struct {
   UNSIGNED INT UNSIGNED_INT_BITFIELD : 1;
   INT SIGNED_INT_BITFIELD : 2;
@@ -201,23 +207,23 @@ end
 
 -- GCC C extension: composite type attributes
 function test.packed_struct_decl(decl)
-  assert(cdecl.declare(decl) == "struct packed_struct packed_struct_decl")
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl), "struct packed_struct packed_struct_decl")
+  assert_equal(cdecl.declare(decl:type()), [[
 struct packed_struct {
   short int s;
   int i;
 } __attribute__((packed))]])
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 struct packed_struct {
   short int s;
   int i;
 } __attribute__((packed))]])
-  assert(cdecl.declare(decl:type():name()) == "typedef struct packed_struct packed_struct")
+  assert_equal(cdecl.declare(decl:type():name()), "typedef struct packed_struct packed_struct")
 end
 
 -- GCC C extension: unnamed anonymous members
 function test.anon_struct_union(decl)
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl:type()), [[
 union {
   int s[4] __attribute__((aligned(16)));
   struct {
