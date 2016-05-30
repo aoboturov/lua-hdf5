@@ -8,6 +8,10 @@ package.path = "../?.lua;" .. package.path
 
 local gcc   = require("gcc")
 local cdecl = require("gcc.cdecl")
+local test  = require("test")
+
+-- Cache library functions.
+local assert_equal = test.assert_equal
 
 gcc.set_asm_file_name(gcc.HOST_BIT_BUCKET)
 
@@ -24,56 +28,56 @@ end)
 
 -- enumeral type
 function test.tagged_enum(decl)
-  assert(cdecl.declare(decl) == "enum interaction tagged_enum")
-  assert(cdecl.declare(decl, function(node)
+  assert_equal(cdecl.declare(decl), "enum interaction tagged_enum")
+  assert_equal(cdecl.declare(decl, function(node)
     return node:name():value()
-  end) == "interaction tagged_enum")
-  assert(cdecl.declare(decl, function(node)
+  end), "interaction tagged_enum")
+  assert_equal(cdecl.declare(decl, function(node)
     return node:name():value():upper()
-  end) == [[INTERACTION TAGGED_ENUM __asm__("tagged_enum")]])
-  assert(cdecl.declare(decl:type()) == [[
+  end), [[INTERACTION TAGGED_ENUM __asm__("tagged_enum")]])
+  assert_equal(cdecl.declare(decl:type()), [[
 enum interaction {
   strong = 0,
   weak = 1,
   electromagnetic = 2,
   gravitational = 3,
 }]])
-  assert(cdecl.declare(decl:type(), function(node)
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return node:name():value()
-  end) == "interaction")
-  assert(cdecl.declare(decl:type(), function(node)
+  end), "interaction")
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return node:name():value():upper()
-  end) == "INTERACTION")
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  end), "INTERACTION")
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 enum interaction {
   strong = 0,
   weak = 1,
   electromagnetic = 2,
   gravitational = 3,
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return node:name():value()
-  end) == [[
+  end), [[
 enum interaction {
   strong = 0,
   weak = 1,
   electromagnetic = 2,
   gravitational = 3,
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return node:name():value():upper()
-  end) == [[
+  end), [[
 enum INTERACTION {
   strong = 0,
   weak = 1,
   electromagnetic = 2,
   gravitational = 3,
 }]])
-  assert(cdecl.declare(decl:type():name()) == "typedef enum interaction interaction")
+  assert_equal(cdecl.declare(decl:type():name()), "typedef enum interaction interaction")
 end
 
 function test.untagged_enum(decl)
-  assert(cdecl.declare(decl) == [[
+  assert_equal(cdecl.declare(decl), [[
 enum {
   hydrogen = 1,
   helim = 2,
@@ -81,10 +85,10 @@ enum {
   carbon = 6,
   neon = 10,
 } untagged_enum]])
-  assert(cdecl.declare(decl, function(node)
+  assert_equal(cdecl.declare(decl, function(node)
     return node:name():value()
-  end) == "elements untagged_enum")
-  assert(cdecl.declare(decl:type()) == [[
+  end), "elements untagged_enum")
+  assert_equal(cdecl.declare(decl:type()), [[
 enum {
   hydrogen = 1,
   helim = 2,
@@ -92,13 +96,13 @@ enum {
   carbon = 6,
   neon = 10,
 }]])
-  assert(cdecl.declare(decl:type(), function(node)
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return node:name():value()
-  end) == "elements")
-  assert(cdecl.declare(decl:type(), function(node)
+  end), "elements")
+  assert_equal(cdecl.declare(decl:type(), function(node)
     return "ELEMENTS"
-  end) == "ELEMENTS")
-  assert(cdecl.declare(decl:type():main_variant()) == [[
+  end), "ELEMENTS")
+  assert_equal(cdecl.declare(decl:type():main_variant()), [[
 enum {
   hydrogen = 1,
   helim = 2,
@@ -106,9 +110,9 @@ enum {
   carbon = 6,
   neon = 10,
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return node:name() and node:name():value()
-  end) == [[
+  end), [[
 enum {
   hydrogen = 1,
   helim = 2,
@@ -116,9 +120,9 @@ enum {
   carbon = 6,
   neon = 10,
 }]])
-  assert(cdecl.declare(decl:type():main_variant(), function(node)
+  assert_equal(cdecl.declare(decl:type():main_variant(), function(node)
     return "ELEMENTS"
-  end) == [[
+  end), [[
 enum ELEMENTS {
   hydrogen = 1,
   helim = 2,
@@ -126,7 +130,7 @@ enum ELEMENTS {
   carbon = 6,
   neon = 10,
 }]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef enum {
   hydrogen = 1,
   helim = 2,
@@ -134,9 +138,9 @@ typedef enum {
   carbon = 6,
   neon = 10,
 } elements]])
-  assert(cdecl.declare(decl:type():name(), function(node)
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return node:name() and node:name():value()
-  end) == [[
+  end), [[
 typedef enum {
   hydrogen = 1,
   helim = 2,
@@ -144,42 +148,42 @@ typedef enum {
   carbon = 6,
   neon = 10,
 } elements]])
-  assert(cdecl.declare(decl:type():name(), function(node)
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return "ELEMENTS"
-  end) == "typedef enum ELEMENTS ELEMENTS")
+  end), "typedef enum ELEMENTS ELEMENTS")
 end
 
 -- enumeral type as function argument
 function test.ptr_to_func_const_enum_interaction_void_ret_void(decl)
-  assert(cdecl.declare(decl) == "void (*ptr_to_func_const_enum_interaction_void_ret_void)(const enum interaction)")
-  assert(cdecl.declare(decl:type()) == "void (*)(const enum interaction)")
-  assert(cdecl.declare(decl:type():type()) == "void (const enum interaction)")
+  assert_equal(cdecl.declare(decl), "void (*ptr_to_func_const_enum_interaction_void_ret_void)(const enum interaction)")
+  assert_equal(cdecl.declare(decl:type()), "void (*)(const enum interaction)")
+  assert_equal(cdecl.declare(decl:type():type()), "void (const enum interaction)")
 end
 
 function test.ptr_to_func_const_interaction_void_ret_void(decl)
-  assert(cdecl.declare(decl) == "void (*ptr_to_func_const_interaction_void_ret_void)(const enum interaction)")
-  assert(cdecl.declare(decl:type()) == "void (*)(const enum interaction)")
-  assert(cdecl.declare(decl:type():type()) == "void (const enum interaction)")
+  assert_equal(cdecl.declare(decl), "void (*ptr_to_func_const_interaction_void_ret_void)(const enum interaction)")
+  assert_equal(cdecl.declare(decl:type()), "void (*)(const enum interaction)")
+  assert_equal(cdecl.declare(decl:type():type()), "void (const enum interaction)")
 end
 
 -- GCC C extension: enumeral type attributes
 function test.packed_enum(decl)
-  assert(cdecl.declare(decl) == [[
+  assert_equal(cdecl.declare(decl), [[
 enum {
   FALSE = 0,
   TRUE = 1,
 } __attribute__((packed)) packed_enum]])
-  assert(cdecl.declare(decl:type()) == [[
+  assert_equal(cdecl.declare(decl:type()), [[
 enum {
   FALSE = 0,
   TRUE = 1,
 } __attribute__((packed))]])
-  assert(cdecl.declare(decl:type():name()) == [[
+  assert_equal(cdecl.declare(decl:type():name()), [[
 typedef enum {
   FALSE = 0,
   TRUE = 1,
 } __attribute__((packed)) BOOL]])
-  assert(cdecl.declare(decl:type():name(), function(node)
+  assert_equal(cdecl.declare(decl:type():name(), function(node)
     return "BOOL"
-  end) == "typedef enum BOOL BOOL")
+  end), "typedef enum BOOL BOOL")
 end
