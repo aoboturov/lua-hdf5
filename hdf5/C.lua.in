@@ -44,7 +44,9 @@ local handles = {
 -- Formats the given declaration as a string of C code.
 local function format(decl, id)
   if decl:class() == "constant" then
-    return "static const int " .. id .. " = " .. decl:value()
+    local value = math.floor(decl:value())
+    assert(value == decl:value())
+    return "static const int " .. id .. " = " .. value
   end
   return cdecl.declare(decl, function(node)
     if node == decl then return id end
