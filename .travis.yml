@@ -26,6 +26,7 @@ script:
   - env
   - ${CC} -print-file-name=plugin
   - ${CC} -print-file-name=plugin/include/gcc-plugin.h
+  - ${CC} -print-file-name=gcc-plugin.h
   - make
 
 notifications:
