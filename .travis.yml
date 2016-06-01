@@ -1,5 +1,3 @@
-language: c
-
 sudo: false
 
 matrix:
@@ -15,10 +13,6 @@ matrix:
         - CC='gcc-4.6'
     - os: osx
       compiler: gcc
-      addons: &gcc46
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-4.6', 'gcc-4.6']
       env:
         - CXX='g++-4.6'
         - CC='gcc-4.6'
@@ -30,6 +24,7 @@ before_install:
 script:
   - ${CC} --version
   - env
+  - locate gcc-plugin.h
   - make
 
 notifications:
