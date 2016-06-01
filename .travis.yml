@@ -24,7 +24,8 @@ before_install:
 script:
   - ${CC} --version
   - env
-  - locate gcc-plugin.h
+  - ${CC} -print-file-name=plugin
+  - ${CC} -print-file-name=plugin/include/gcc-plugin.h
   - make
 
 notifications:
