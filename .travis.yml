@@ -1,0 +1,18 @@
+language: c
+compiler:
+  - gcc
+os:
+  - osx
+  - linux
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install gcc46; fi
+script:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$CC" = "gcc" ]; then export CC=gcc-4.6; fi
+  - make
+
+notifications:
+    email: true
+
